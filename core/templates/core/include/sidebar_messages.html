@@ -1,0 +1,35 @@
+{% load static %}
+
+<div class="lg:w-5/12">
+
+    <div class="bg-white  shadow-md rounded-md overflow-hidden">
+
+        <div class="bg-gray-50  border-b border-gray-100 flex items-baseline justify-between py-4 px-6 ">
+            <h2 class="font-semibold text-lg">Chats</h2>
+            <a href="javascript:location.reload(true)"> Refresh</a>
+        </div>
+
+        <div class="divide-gray-300 divide-gray-50 divide-opacity-50 divide-y px-4 ">
+
+            {% for user_in_chat in users_in_chat %}
+
+            <div class="flex items-center justify-between py-3">
+                <div class="flex flex-1 items-center space-x-4">
+                        <a href="{{user_in_chat.profiles.all.first.get_absolute_url}}">
+                            <img src="{{user_in_chat.profiles.all.first.profileimg.url}}" class="bg-gray-200 rounded-full w-10 h-10">
+                        </a>
+                    <div class="flex flex-col">
+                        <a href="{{user_in_chat.profiles.all.first.get_absolute_url}}"><span class="block capitalize font-semibold"> {{user_in_chat.username}} </span></a>
+                    </div>
+                </div>
+
+                <a href="/dialogs/create/{{user_in_chat.id}}" class="border border-gray-200 font-semibold px-4 py-1 rounded-full hover:bg-pink-600 hover:text-white hover:border-pink-600 "> Chat </a>
+            </div>
+            {% endfor %}
+
+
+        </div>
+
+    </div>
+
+</div>

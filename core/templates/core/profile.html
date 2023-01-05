@@ -1,0 +1,88 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %} {{page_user_object.username}} profile {% endblock title %}
+{% block content %}
+
+<div class="profile">
+	<div class="profile-info">
+		<div class="user-profile-photo">
+			<img src="{{page_user_profile.profileimg.url}}" style="height: 150px; width: 150px; border-radius: 100px; " alt="">
+		</div>
+
+		<div class="user-profile-data">
+			<div class="user-profile-username">
+				<div>
+					<p style="margin-left: 70px;font-size: 30px; font-family:cursive;">{{page_user_object.username}}</p>
+				</div>
+
+						{% if user_object.username == page_user_object.username %}
+							<div></div>
+							<div><a href="/settings"><button type="button" class="button-message">Settings</button></a></div>
+						{% else %}
+							<form action="/follow" method="POST">
+								<input type="hidden" value="{{user_object.username}}" name="follower">
+								<input type="hidden" value="{{page_user_object.username}}" name="user">
+								{% csrf_token %}
+								<div><button  type="submit"  class="button-subscribe">{{button_text}}</button></div>
+							</form>
+							<div><a href="/dialogs/create/{{page_user_object.id}}"><button type="button" class="button-message" >Send message</button></a></div>
+						{% endif %}
+
+
+			</div>
+
+			<div class="subscribe-data">
+				{% if user_post_length == 1 %}
+				<div><span class="number-style">{{user_post_length}}</span> post</div>
+				{% else %}
+				<div><span class="number-style">{{user_post_length}}</span> posts</div>
+				{% endif %}
+
+				{% if user_followers == 0 or user_followers == 1 %}
+				<div><span class="number-style">{{user_followers}}</span> follower</div>
+				{% else %}
+				<div><span class="number-style">{{user_followers}}</span> followers</div>
+				{% endif %}
+
+				<div><span class="number-style">{{user_following}}</span> following</div>
+			</div>
+
+			<div class="subscribe-data">
+				<div>{{user_object.profiles.all.first.bio}}</div>
+
+			</div>
+
+		</div>
+
+	</div>
+
+	<div class="photo-grid">
+		{% for post in user_posts %}
+			<div class="photo-one">
+				<a class="strip" href="{{post.image.url}}" title="" data-strip-group="mygroup" data-strip-group-options="loop: false">
+					<img src="{{post.image.url}}" style="height: 300px; width: 350px; " alt="">
+				</a>
+			</div>
+		{% endfor %}
+	</div>
+</div>
+
+
+
+<!--<div class="col-lg-6">-->
+<!--	<div class="central-meta">-->
+<!--		<ul class="photos">-->
+
+<!--			{% for post in user_posts %}-->
+<!--			<li>-->
+<!--				<a class="strip" href="{{post.image.url}}" title="" data-strip-group="mygroup" data-strip-group-options="loop: false">-->
+<!--					<img src="{{post.image.url}}" style="height: 250px; width: 300px;" alt=""></a>-->
+<!--			</li>-->
+<!--			{% endfor %}-->
+
+
+<!--		</ul>-->
+<!--		&lt;!&ndash;<div class="lodmore"><button class="btn-view btn-load-more"></button></div>&ndash;&gt;-->
+<!--	</div>&lt;!&ndash; photos &ndash;&gt;-->
+<!--</div>-->
+{% endblock content %}

@@ -1,0 +1,46 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% load i18n %}
+{% load tags %}
+
+
+{% block title %} {{abc}} {% endblock title %}
+
+{% block sidebar %}
+    {% include 'core/include/sidebar_messages.html' %}
+{% endblock sidebar %}
+
+{% block content %}
+    <div class="space-y-5 flex-shrink-0 lg:w-7/12">
+        <div class="messages">
+                <!-- message -->
+                {% if not chat %}
+                    <div class="no-chat">
+                        <p>Невозможно начать беседу. Не найден пользователь или вы не имеете доступа к данной беседе.</p>
+                    </div>
+                {% else %}
+                    {% load tz %}
+                    {% if chat %}
+                        <div class="block-messages" id="messages">
+                            {% for message in messages %}
+                                {% include 'core/message.html' with message_item=message %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div class="message_form" id="message_form">
+                        <form id="message-form" class="panel panel-body" method="post" >
+                            {% load bootstrap3 %}
+                            {% csrf_token %}
+                            {% bootstrap_form form %}
+                            <button type="submit" class="btn btn-default btn-sm" onclick="return ETextEditor.validateForm('message-form')"><span class="ico ico-comment"></span>{% trans "Отправить" %}</button>
+                        </form>
+                    </div>
+
+                {% endif %}
+
+                <!-- end message -->
+        </div>
+    </div>
+
+{% endblock content %}
