@@ -1,6 +1,6 @@
 from .models import *
 
-class UserProfile:
+class UserProfileMixin:
     def get_user_context(self, **kwargs):
         context = kwargs
         user_object = User.objects.get(username=self.request.user.username)

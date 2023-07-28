@@ -280,7 +280,7 @@ class Likecomment(LoginRequiredMixin, View):
             comment.save()
             return redirect('/')
 
-class DialogsView(UserProfile, LoginRequiredMixin, ListView):
+class DialogsView(UserProfileMixin, LoginRequiredMixin, ListView):
     login_url = 'signin'
 
     context_object_name = 'chats'
@@ -295,6 +295,53 @@ class DialogsView(UserProfile, LoginRequiredMixin, ListView):
         add = self.get_user_context()
         return dict(list(context.items()) + list(add.items()))
 
+# class MessagesView(UserProfileMixin, LoginRequiredMixin, ListView):
+#     login_url = 'signin'
+#     slug_field = 'chat_id'
+#     context_object_name = 'messages'
+#     template_name = 'core/messages.html'
+#
+#     def get_queryset(self):
+#         chat_id = self.kwargs.get('slug')
+#         # Protect for writing myself
+#         if chat_id == 0:
+#             chat = None
+#             messages = None
+#             users_in_chat = None
+#         else:
+#             # Make a list with user's chat
+#             chats = Chat.objects.filter(members=self.request.user)
+#             users_in_chat = set()
+#             id = self.request.user.id
+#             for chat in chats:
+#                 try:
+#                     users_in_chat.add(chat.members.exclude(id=id)[0])
+#                 except:
+#                     pass
+#
+#             # Find messages for a chat
+#             try:
+#                 chat = Chat.objects.get(id=chat_id)
+#                 len_messages = len(chat.message_set.all())
+#                 if len_messages > 8:
+#                     delta = len_messages - 8
+#                     messages = chat.message_set.all().order_by('pub_date')[len_messages - delta:]
+#                 else:
+#                     messages = chat.message_set.all().order_by('pub_date')
+#                 if self.request.user in chat.members.all():
+#                     chat.message_set.filter(is_readed=False).exclude(author=request.user).update(is_readed=True)
+#                 else:
+#                     chat = None
+#             except Chat.DoesNotExist:
+#                 chat = None
+#         return messages
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context['users_in_chat'] =
+#         context['chat'] =
+#         add = self.get_user_context()
+#         return dict(list(context.items()) + list(add.items()))
 
 class MessagesView(LoginRequiredMixin, View):
     login_url = 'signin'
