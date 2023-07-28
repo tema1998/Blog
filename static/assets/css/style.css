@@ -5,15 +5,7 @@
 /* Import font
 ----------------------------------------------------------------- */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap");
-
-.messages {
-  color: #DC143C;
-}
-
-.message_form {
-  color: #DC143C;
-  vertical_align: top;
-}
+ 
 
 body{
   background-color: #B0B3B8!important;
@@ -2544,3 +2536,156 @@ header .uk-dropdown {
   }
 }
 
+.no-chat {
+  display: block;
+  width: 100;
+  margin-top: 20px;
+  font-weight: 600;
+}
+.message-in-block {
+  overflow:hidden;
+  width:500px;
+  margin-bottom: 20px;
+}
+
+.messages_and_blank {
+  width: 500;
+  margin-top: 20px;
+}
+
+.message-grid {
+  display: grid;
+  grid-template-columns: 1fr 5fr;
+}
+
+.profile-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 30px;
+  margin: 0 auto;
+}
+
+.user-data {
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+}
+
+.p-user {
+  text-align: left;
+  font-weight: 800;
+}
+
+.p-data {
+  text-align: right;
+  font-weight:400;
+  color: #969696;
+}
+
+.p-message {
+  max-width: 420px;
+}
+
+
+.unreaded {
+  background-color: #E8E8E8;
+}
+
+.left-buttons {
+
+  width:240px;
+  display: grid;
+  grid-template-columns: 0.7fr 1fr 1fr;
+  margin-right: 30px;
+}
+
+.button-news {
+  font-weight:600;
+  text-align: center;
+}
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  }
+
+
+.photo-one {
+  margin: 15px;
+}
+
+.profile {
+  width: 1000px;
+  background-color: white;
+}
+
+.profile-info {
+  /background-color: #AFEEEE;
+  height: 200px;
+  display: grid;
+  grid-template-columns: 200px 1fr;
+}
+
+.user-profile-photo {
+  /background-color: red;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.user-profile-data {
+  /background-color: #98FB98;
+
+}
+
+.user-profile-username {
+  /background-color: #FFB6C1;
+  display: grid;
+  grid-template-columns: 3fr 1fr 1fr;
+  margin-top: 20px;
+}
+
+.button-subscribe {
+  background-color: #0095f6;
+  color: white;
+  border: none;
+  width: 130px;
+  height: 36px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.button-message {
+  background-color: #CCCCCC;
+  color: black;
+  border: none;
+  width: 130px;
+  height: 36px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.subscribe-data {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  /background-color: white;
+  margin-left: 70px;
+  margin-top: 30px;
+  margin-right: 300px;
+  font-size: 20px;
+}
+
+.number-style {
+  font-weight: 600;
+}
+
+.messages {
+  width: 580px;
+  display: inline-block;
+  background-color: white;
+}
+
+.block-messages {
+  margin-top: 30px;
+}
