@@ -111,7 +111,6 @@ class Signup(View):
             else:
                 user = User.objects.create_user(username = username, email = email, password = password1)
                 user.save()
-
                 user_login = auth.authenticate(username=username, password=password1)
                 auth.login(request, user_login)
 
