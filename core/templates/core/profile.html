@@ -12,21 +12,36 @@
 		<div class="user-profile-data">
 			<div class="user-profile-username">
 				<div>
-					<p style="margin-left: 70px;font-size: 30px; font-family:cursive;">{{page_user_object.username}}</p>
+					<p style="margin-left: 70px;font-size: 30px; font-family:cursive;">{{page_user.username}}</p>
 				</div>
+<!--current_user = User.objects.get(username=request.user.username)-->
+<!--        current_user_profile = Profile.objects.get(user=current_user)-->
+<!--        page_user = User.objects.get(username=pk)-->
+<!--        page_user_profile = Profile.objects.get(user=page_user)-->
 
-						{% if user_object.username == page_user_object.username %}
-							<div></div>
-							<div><a href="/settings"><button type="button" class="button-message">Settings</button></a></div>
-						{% else %}
-							<form action="/follow" method="POST">
-								<input type="hidden" value="{{user_object.username}}" name="follower">
-								<input type="hidden" value="{{page_user_object.username}}" name="user">
-								{% csrf_token %}
-								<div><button  type="submit"  class="button-subscribe">{{button_text}}</button></div>
-							</form>
-							<div><a href="/dialogs/create/{{page_user_object.id}}"><button type="button" class="button-message" >Send message</button></a></div>
-						{% endif %}
+							{% if request.user.is_authenticated and current_user != page_user %} {% if current_user_profile in page_user_profile.followers.all %}
+							<button class="btn btn-sm btn-danger btn-follow" data-userid="{{ page_user_profile.user_id }}">
+								Отписаться от {{ page_user_profile.user.username }}
+							</button>
+							{% else %}
+							<button class="btn btn-sm btn-primary btn-follow" data-userid="{{ page_user_profile.user_id }}">
+								Подписаться на {{ page_user_profile.user.username }}
+							</button>
+							{% endif %} {% elif current_user == page_user %}
+							<a href="{% url 'settings' %}" class="btn btn-sm btn-primary">Редактировать профиль</a>
+							{% endif %}
+<!--						{% if user_object.username == page_user_object.username %}-->
+<!--							<div></div>-->
+<!--							<div><a href="/settings"><button type="button" class="button-message">Settings</button></a></div>-->
+<!--						{% else %}-->
+<!--							<form action="/follow" method="POST">-->
+<!--								<input type="hidden" value="{{user_object.username}}" name="follower">-->
+<!--								<input type="hidden" value="{{page_user_object.username}}" name="user">-->
+<!--								{% csrf_token %}-->
+<!--								<div><button  type="submit"  class="button-subscribe">{{button_text}}</button></div>-->
+<!--							</form>-->
+<!--							<div><a href="/dialogs/create/{{page_user_object.id}}"><button type="button" class="button-message" >Send message</button></a></div>-->
+<!--						{% endif %}-->
 
 
 			</div>
@@ -38,11 +53,13 @@
 				<div><span class="number-style">{{user_post_length}}</span> posts</div>
 				{% endif %}
 
-				{% if user_followers == 0 or user_followers == 1 %}
-				<div><span class="number-style">{{user_followers}}</span> follower</div>
-				{% else %}
-				<div><span class="number-style">{{user_followers}}</span> followers</div>
-				{% endif %}
+				<span class="update-follower-data">
+					{% if user_followers == 0 or user_followers == 1 %}
+					<div><span class="number-style">{{user_followers}}</span> follower</div>
+					{% else %}
+					<div><span class="number-style">{{user_followers}}</span> followers</div>
+					{% endif %}
+				</span>
 
 				<div><span class="number-style">{{user_following}}</span> following</div>
 			</div>
@@ -86,3 +103,9 @@
 <!--	</div>&lt;!&ndash; photos &ndash;&gt;-->
 <!--</div>-->
 {% endblock content %}
+
+{% block script %}
+<script src="{% static 'js/profile.js' %}"></script>
+<script src="{% static 'js/backend.js' %}"></script>
+
+{% endblock %}

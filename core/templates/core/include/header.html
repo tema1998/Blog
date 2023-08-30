@@ -4,7 +4,7 @@
 
             <div class="left-buttons">
                 <div class="button-news"><a href="/">News </a> </div>
-                <div class="button-news"><a href="{{user_profile.get_absolute_url}}">My page</a> </div>
+                <div class="button-news"><a href="{{current_user_profile.get_absolute_url}}">My page</a> </div>
                 <div class="button-news"><a href="/dialogs/">Messages </a> </div>
             </div>
 
@@ -18,6 +18,9 @@
 
                 </div>
             </form>
+
+            {{ current_user.username }}
+            {{ current_user_profile1}}
 
             <div class="right-side lg:pr-4">
                  <!-- upload -->
@@ -150,7 +153,7 @@
                 <!-- profile -->
 
                 <a href="#">
-                    <img src="{{user_profile.profileimg.url}}" class="header-avatar" alt="">
+                    <img src="{{current_user_profile.profileimg.url}}" class="header-avatar" alt="">
                 </a>
                 <div uk-drop="mode: click;offset:9" class="header_dropdown profile_dropdown border-t">
                     <ul>
