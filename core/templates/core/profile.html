@@ -1,7 +1,8 @@
 {% extends 'core/base.html' %}
 {% load static %}
-{% block title %} {{page_user_object.username}} profile {% endblock title %}
+{% block title %} {{page_user.username}} profile {% endblock title %}
 {% block content %}
+
 
 <div class="profile">
 	<div class="profile-info">
@@ -73,14 +74,27 @@
 
 	</div>
 
+
 	<div class="photo-grid">
+
 		{% for post in user_posts %}
+
 			<div class="photo-one">
-				<a class="strip" href="{{post.image.url}}" title="" data-strip-group="mygroup" data-strip-group-options="loop: false">
+				<a href="#" class="open-popup" id="{{post.id}}">
 					<img src="{{post.image.url}}" style="height: 300px; width: 350px; " alt="">
 				</a>
 			</div>
+
+			<!-- start POP UP -->
+			<div class="popup__bg a{{post.id}}">
+				<div class="popup a{{post.id}}">
+					{% include 'core/include/author_post_like_comments.html' %}
+				</div>
+			</div>
+			<!-- end POP UP -->
+
 		{% endfor %}
+
 	</div>
 </div>
 
@@ -106,6 +120,7 @@
 
 {% block script %}
 <script src="{% static 'js/profile.js' %}"></script>
+<script src="{% static 'js/post_view_for_profile.js' %}"></script>
 <script src="{% static 'js/backend.js' %}"></script>
 
 {% endblock %}

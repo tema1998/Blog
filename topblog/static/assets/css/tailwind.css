@@ -10,6 +10,16 @@ Document
 /**
 Use a better box model (opinionated).
 */
+.button-correct {
+  padding: 0;
+  border: none;
+  font: inherit;
+  color: inherit;
+  background-color: transparent;
+  /* отображаем курсор в виде руки при наведении; некоторые
+  считают, что необходимо оставлять стрелочный вид для кнопок */
+  cursor: pointer;
+  }
 
 *,
 *::before,
@@ -585,9 +595,8 @@ video {
   margin-bottom: calc(0.75rem * var(--tw-space-y-reverse));
 }
 
-.myfirst1 {
-    max-width: 550px; /* Ширина */
-
+.post_size {
+    max-width: 900px; /* Ширина */
     background: #f0f0f0; /* Цвет фона */
     border-radius: 5px; /* Радиус скругления */
     padding: 2%; /* Поля */
@@ -2482,3 +2491,15 @@ body{  font-family: inter, sans-serif !important
 
 @media (min-width: 1536px){
 }
+
+.button-correct {
+  padding: 0;
+  border: none;
+  font: inherit;
+  color: inherit;
+  background-color: transparent;
+  /* отображаем курсор в виде руки при наведении; некоторые
+  считают, что необходимо оставлять стрелочный вид для кнопок */
+  cursor: pointer;
+  }
+

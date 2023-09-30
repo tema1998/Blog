@@ -1,7 +1,15 @@
 from itertools import chain
 
 from django.contrib.auth.models import User, auth
-from .models import Profile, Post, LikePost, Commentss, LikeComments, Chat, Message
+from .models import Profile, Post, PostLikes, PostComments, CommentLikes, Chat, Message
+
+
+def check_if_comment_disable(post):
+    return post.disable_comments
+
+
+def get_post_by_id(post_id):
+    return Post.objects.get(id=post_id)
 
 
 def get_current_user(request):
@@ -57,7 +65,7 @@ def get_user_friends_suggestions(request):
 
     # 1)Получим список тех кто подписан на юзера, но юзер на них не подписан
     people_who_are_followed_user_but_user_havent_followed_theirs = [person for person in people_who_are_followed_user if
-                                                                 person not in people_who_user_followed]
+                                                                    person not in people_who_user_followed]
     print(people_who_are_followed_user_but_user_havent_followed_theirs)
     # their_profiles = [Profile.objects.get(user_id=person.id) for person in
     #                   people_who_are_followed_user_but_user_didnt_follow_theirs]
@@ -82,3 +90,23 @@ def get_user_friends_suggestions(request):
     #         username_profile_list.append(profile_list)
     #
     #     suggestions_username_profile_list = list(chain(*username_profile_list))
+
+
+def disable_comments(post_id):
+    post = get_post_by_id(post_id)
+    post.disable_comments = True
+    post.save()
+
+
+def enable_comments(post_id):
+    post = get_post_by_id(post_id)
+    post.disable_comments = False
+    post.save()
+
+
+def if_user_is_post_owner(request, post_id):
+    user_id = int(request.POST['user_id'])
+    post = get_post_by_id(post_id)
+    post_author_id = post.user.id
+    return user_id == post_author_id
+

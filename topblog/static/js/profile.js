@@ -17,7 +17,8 @@ async function elementUpdate(selector) {
   }
 }
 
-followBtn.addEventListener('click', event => {
+if (followBtn){
+    followBtn.addEventListener('click', event => {
     const userId = event.target.dataset.userid
     fetch(`/user/follow/${userId}/`, {
         method: 'POST',
@@ -50,5 +51,6 @@ followBtn.addEventListener('click', event => {
 //        }
         followBtn.innerHTML = message;
         elementUpdate('.update-follower-data');
+        });
     });
-})
+};
