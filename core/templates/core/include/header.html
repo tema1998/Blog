@@ -8,14 +8,12 @@
                 <div class="button-news"><a href="/dialogs/">Messages </a> </div>
             </div>
 
-            <form action="/search" method = "POST">
-                {% csrf_token %}
+            <form action="/search" method = "GET">
                 <div class="left-side">
 <!--                        <div class="header_search">-->
-                        <input type="text" name="username" placeholder="Search for username.."> &nbsp; &nbsp;
+                        <input type="text" name="search_user" placeholder="Search for username.."> &nbsp; &nbsp;
                         <button type = "submit"><i class="fa fa-search fa-1x"></i></button>
 <!--                        </div>-->
-
                 </div>
             </form>
 
@@ -56,6 +54,18 @@
                                 <input type="file" name="image_upload">
 <!--                                        <a href="#" class="button soft-warning small"> Choose file</a>-->
                                 <textarea class="button soft-warning small" name="caption" placeholder="caption..."> </textarea>
+
+                                <div>
+                                    <style>
+                                        h5{
+                                            color:red
+                                        }
+                                    </style>
+                                    {% for message in messages %}
+                                    <h5>{{message}}</h5>
+                                    {% endfor %}
+                                </div>
+
                                 <br>
                                 <button class="button bg-blue-700" type="submit">Upload</button>
                             </div>
@@ -136,11 +146,22 @@
                 </a>
                 <div uk-drop="mode: click;offset:9" class="header_dropdown profile_dropdown border-t">
                     <ul>
-                        <li><a href="{% url 'settings' %}"> Account settings </a> </li>
-                        <li><a href="{% url 'logout' %}"> Log Out</a></li>
+
+                        <form action="{% url 'settings' %}" method="GET">
+                            <button class="px-3 py-2 hover:bg-gray-200 hover:text-gray-800 rounded-md " type="submit">
+                                Account settings
+                            </button>
+                        </form>
+
+                        <form action="{% url 'logout' %}" method="POST">
+                        {% csrf_token %}
+                            <button class="px-3 py-2 hover:bg-gray-200 hover:text-gray-800 rounded-md " type="submit">
+                                Log Out
+                            </button>
+                        </form>
+
                     </ul>
                 </div>
-                {{ current_user.username }}
 
             </div>
         </div>

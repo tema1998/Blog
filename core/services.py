@@ -1,6 +1,8 @@
 from itertools import chain
 
 from django.contrib.auth.models import User, auth
+from django.http import Http404
+
 from .models import Profile, Post, PostLikes, PostComments, CommentLikes, Chat, Message
 
 
@@ -66,7 +68,6 @@ def get_user_friends_suggestions(request):
     # 1)Получим список тех кто подписан на юзера, но юзер на них не подписан
     people_who_are_followed_user_but_user_havent_followed_theirs = [person for person in people_who_are_followed_user if
                                                                     person not in people_who_user_followed]
-    print(people_who_are_followed_user_but_user_havent_followed_theirs)
     # their_profiles = [Profile.objects.get(user_id=person.id) for person in
     #                   people_who_are_followed_user_but_user_didnt_follow_theirs]
 
@@ -92,21 +93,32 @@ def get_user_friends_suggestions(request):
     #     suggestions_username_profile_list = list(chain(*username_profile_list))
 
 
-def disable_comments(post_id):
-    post = get_post_by_id(post_id)
+def disable_comments(post):
     post.disable_comments = True
     post.save()
 
 
-def enable_comments(post_id):
-    post = get_post_by_id(post_id)
+def enable_comments(post):
     post.disable_comments = False
     post.save()
 
 
-def if_user_is_post_owner(request, post_id):
-    user_id = int(request.POST['user_id'])
-    post = get_post_by_id(post_id)
+def get_user_id_for_get_and_post_methods(request):
+    try:
+        if request.method == 'GET':
+            user_id = request.user.id
+        else:
+            user_id = int(request.POST['user_id'])
+        return user_id
+    except Exception:
+        raise Http404
+
+
+def if_user_is_post_owner(post, user):
+    user_id = user.id
     post_author_id = post.user.id
     return user_id == post_author_id
 
+
+def if_user_is_authenticated(request):
+    return request.user.is_authenticated

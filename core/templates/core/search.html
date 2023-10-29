@@ -22,26 +22,26 @@
 
             <header>
                 <div class="header_inner">
-                    <form action="/search" method = "POST">
+                    <form action="/search" method = "GET">
                         {% csrf_token %}
-                    <div class="left-side">
-                        <!-- Logo -->
-                        <div id="logo" class=" uk-hidden@s">
-                            <a href="home.html">
-                                <b><h1 style="text-transform: uppercase;">Social Book</h1></b>
-                            </a>
+                        <div class="left-side">
+                            <!-- Logo -->
+                            <div id="logo" class=" uk-hidden@s">
+                                <a href="home.html">
+                                    <b><h1 style="text-transform: uppercase;">Social Book</h1></b>
+                                </a>
+                            </div>
+
+                            <!--<div class="triger" uk-toggle="target: #wrapper ; cls: sidebar-active">
+                                <i class="uil-bars"></i>
+                            </div>-->
+
+    <!--                        <div class="header_search">-->
+                                <input type="text" name="search_user" placeholder="Search for username.."> &nbsp; &nbsp;
+                                <button type = "submit"><i class="fa fa-search fa-1x"></i></button>
+    <!--                        </div>-->
+
                         </div>
-
-                        <!--<div class="triger" uk-toggle="target: #wrapper ; cls: sidebar-active">
-                            <i class="uil-bars"></i>
-                        </div>-->
-
-<!--                        <div class="header_search">-->
-                            <input type="text" name="username" placeholder="Search for username.."> &nbsp; &nbsp;
-                            <button type = "submit"><i class="fa fa-search fa-1x"></i></button>
-<!--                        </div>-->
-
-                    </div>
                     </form>
 
                     <div class="right-side lg:pr-4">
@@ -317,16 +317,16 @@
                     <div class="col-md-9 col-md-pull-3">
                         <!-- <p class="search-results-count">About 94 700 000 (0.39 sec.) results</p> -->
 
-                        {% for users in username_profile_list %}
+                        {% for user_profile in search_user_profile_list %}
                         <section class="search-result-item">
-                            <a class="image-link" href="/profile/{{users.user}}"><img class="image" src="{{users.profileimg.url}}">
+                            <a class="image-link" href="/profile/{{user_profile.user}}"><img class="image" src="{{user_profile.profileimg.url}}">
                             </a>
                             <div class="search-result-item-body">
                                 <div class="row">
                                     <div class="col-sm-9">
-                                        <h4 class="search-result-item-heading"><a href="/profile/{{users.user}}"><b>@{{users.user}}</b></a></h4>
-                                        <p class="info">{{users.location}}</p>
-                                        <p class="description">{{users.bio}}</p>
+                                        <h4 class="search-result-item-heading"><a href="/profile/{{user_profile.user}}"><b>@{{user_profile.user}}</b></a></h4>
+                                        <p class="info">{{user_profile.location}}</p>
+                                        <p class="description">{{user_profile.bio}}</p>
                                     </div>
                                     <!-- <div class="col-sm-3 text-align-center">
                                         <p class="value3 mt-sm">$9, 700</p>

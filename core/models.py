@@ -27,22 +27,21 @@ class Post(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
     image = models.ImageField(upload_to='post_images')
-    caption = models.TextField(max_length=1000)
+    caption = models.TextField(max_length=1000, blank=True)
     created_at = models.DateTimeField(default=datetime.now)
     no_of_likes = models.IntegerField(default=0)
     disable_comments = models.BooleanField(default=False)
 
-    def __str__(self):
-        return self.user
+
     def get_comments(self):
-        return self.postcomments_set.all()
+        return self.postcomments_set.all().select_related('user')
 
 
 class PostLikes(models.Model):
-    post_id = models.CharField(max_length=500)
-    username = models.CharField(max_length=100)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     def __str__(self):
-        return self.username
+        return f'{self.user} likes {self.post}'
 
 
 class PostComments(models.Model):
@@ -51,6 +50,7 @@ class PostComments(models.Model):
     text = models.TextField(verbose_name="Комментарий", max_length=5000)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     no_of_likes = models.IntegerField(verbose_name='Кол-во лайков')
+
     def __str__(self):
         return f"{self.user} - {self.post}"
 
@@ -58,18 +58,22 @@ class PostComments(models.Model):
         verbose_name = "Комментарий"
         verbose_name_plural = "Комментарии"
 
+    # def user_photo(self):
+    #     return(Profile.objects.get(user_id=self.user.id).profileimg.url)
+
     def user_photo(self):
-        return(Profile.objects.get(user_id=self.user.id).profileimg.url)
+        return(self.user.profiles.first().profileimg.url)
 
     def get_users_like_comment(self):
         users = User.objects.filter(comment_id=self.comment_id)
         return(users)
 
 class CommentLikes(models.Model):
-    comment_id = models.CharField(max_length=500)
-    username = models.CharField(max_length=100)
+    comment = models.ForeignKey(PostComments, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
     def __str__(self):
-        return self.username
+        return self.user
 
 
 class Chat(models.Model):

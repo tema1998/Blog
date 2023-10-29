@@ -17,7 +17,7 @@ from .forms import CommentForm, MessageForm
 
 from .services import get_current_user, get_user_profile_by_username, get_user_friends_feeds_list_by_userprofile, \
     get_user_friends_suggestions, get_post_by_id, disable_comments, enable_comments, check_if_comment_disable, \
-    if_user_is_post_owner
+    if_user_is_post_owner, if_user_is_authenticated
 from .utils import UserProfileMixin
 from django.http import JsonResponse
 
@@ -26,27 +26,30 @@ class Index(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def get(self, request):
-        list_of_subscriptions = request.user.profiles.first().following.values_list('id', flat=True)
+        current_user = get_current_user(request)
 
-        list_of_posts = Post.objects.all().filter(user__id__in=list_of_subscriptions)
+        list_of_subscriptions = current_user.profiles.first().following.values_list('id', flat=True)
+
+        list_of_posts = Post.objects.select_related('user').filter(user__id__in=list_of_subscriptions)
 
         user_friends_suggestions = get_user_friends_suggestions(request)
 
-        return render(request, 'core/index.html', {'posts': list_of_posts,
-                                                   'suggestions_username_profile_list': user_friends_suggestions[:5]})
+        return render(request, 'core/index.html', {
+            'user_friends_posts': list_of_posts,
+            'suggestions_username_profile_list': user_friends_suggestions[:5]})
 
 
 class EditPost(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def get(self, request, post_id):
+        try:
+            user = get_current_user(request)
+            post = get_post_by_id(post_id)
+        except Exception:
+            raise Http404
 
-        if post_id:
-            try:
-                post = Post.objects.get(id=post_id)
-            except:
-                raise Http404
-        else:
+        if not if_user_is_post_owner(post, user):
             raise Http404
 
         user_friends_suggestions = get_user_friends_suggestions(request)
@@ -54,25 +57,37 @@ class EditPost(LoginRequiredMixin, View):
         return render(request, 'core/edit_post.html', {'post': post,
                                                        'suggestions_username_profile_list': user_friends_suggestions[
                                                                                             :5]})
+
     def post(self, request, post_id):
-        post = get_post_by_id(post_id)
+        try:
+            user = get_current_user(request)
+            post = get_post_by_id(post_id)
+        except Exception:
+            raise Http404
         new_image = request.FILES.get('image_upload')
         new_caption = request.POST['caption']
-        if if_user_is_post_owner(request, post_id):
+        if if_user_is_post_owner(post, user):
             if new_image:
                 post.image = new_image
-            post.caption = new_caption
+            if new_caption != post.caption:
+                post.caption = new_caption
             post.save()
             return redirect('profile', username=post.user.username)
         else:
             raise Http404
 
+
 class AddComment(LoginRequiredMixin, View):
+    login_url = 'signin'
     def post(self, request):
-        user = get_current_user(request)
-        post = get_post_by_id(request.POST['post_id'])
+        try:
+            user = get_current_user(request)
+            post = get_post_by_id(request.POST['post_id'])
+        except Exception:
+            raise Http404
+
         if check_if_comment_disable(post):
-            return redirect(request.META.get('HTTP_REFERER'))
+            raise Http404
         else:
             form = CommentForm(request.POST)
             if form.is_valid():
@@ -81,39 +96,52 @@ class AddComment(LoginRequiredMixin, View):
                 form.user = user
                 form.no_of_likes = 0
                 form.save()
+            else:
+                messages.info(request, 'Please, enter text')
+                return redirect(request.META.get('HTTP_REFERER'))
             return redirect(request.META.get('HTTP_REFERER'))
 
 
 class LikePost(LoginRequiredMixin, View):
     login_url = 'signin'
 
-    def get(self, request):
-        username = request.user.username
-        post_id = request.GET.get('post_id')
+    def post(self, request):
+        try:
+            user = get_current_user(request)
+            post = get_post_by_id(request.POST['post_id'])
+        except Exception:
+            raise Http404
 
-        post = Post.objects.get(id=post_id)
-        like_filter = PostLikes.objects.filter(post_id=post_id, username=username).first()
-        if like_filter == None:
-            new_like = PostLikes.objects.create(post_id=post_id, username=username)
+        liked_post = PostLikes.objects.filter(post=post, user=user).first()
+        if liked_post is None:
+            new_like = PostLikes.objects.create(post=post, user=user)
             new_like.save()
             post.no_of_likes += 1
             post.save()
-            return redirect('/')
+            return redirect(request.META.get('HTTP_REFERER'))
+
         else:
-            like_filter.delete()
+            liked_post.delete()
             post.no_of_likes -= 1
             post.save()
-            return redirect('/')
+            return redirect(request.META.get('HTTP_REFERER'))
 
 
 class DeletePost(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def post(self, request):
-        post_id = request.POST['post_id']
-        post = Post.objects.get(id=post_id)
-        if if_user_is_post_owner(request, post_id):
+        try:
+            user = get_current_user(request)
+            post = get_post_by_id(request.POST['post_id'])
+        except Exception:
+            raise Http404
+
+        if post.user == user:
             post.delete()
+        else:
+            raise Http404
+
         return redirect('profile', username=post.user.username)
 
 
@@ -121,9 +149,15 @@ class DisablePostComments(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def post(self, request):
-        post_id = request.POST['post_id']
-        if if_user_is_post_owner(request, post_id):
-            disable_comments(post_id)
+        try:
+            user = get_current_user(request)
+            post = get_post_by_id(request.POST['post_id'])
+        except Exception:
+            raise Http404
+        if if_user_is_post_owner(post, user):
+            disable_comments(post)
+        else:
+            raise Http404
         return redirect(request.META.get('HTTP_REFERER'))
 
 
@@ -131,66 +165,89 @@ class EnablePostComments(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def post(self, request):
-        post_id = request.POST['post_id']
-        if if_user_is_post_owner(request, post_id):
-            enable_comments(post_id)
+        try:
+            user = get_current_user(request)
+            post = get_post_by_id(request.POST['post_id'])
+        except Exception:
+            raise Http404
+        if if_user_is_post_owner(post, user):
+            enable_comments(post)
+        else:
+            raise Http404
         return redirect(request.META.get('HTTP_REFERER'))
 
 
 class Signup(View):
+
     def post(self, request):
-        username = request.POST['username']
-        email = request.POST['email']
-        password1 = request.POST['password1']
-        password2 = request.POST['password2']
-
-        if password1 == password2:
-            if User.objects.filter(email=email).exists():
-                messages.info(request, 'Email taken')
-                return redirect('signup')
-            elif User.objects.filter(username=username).exists():
-                messages.info(request, 'Username taken')
-                return redirect('signup')
-            else:
-                user = User.objects.create_user(username=username, email=email, password=password1)
-                user.save()
-                user_login = auth.authenticate(username=username, password=password1)
-                auth.login(request, user_login)
-
-                # Create profile object
-                user_model = User.objects.get(username=username)
-                new_profile = Profile.objects.create(user=user_model)
-                new_profile.save()
-                return redirect('settings')
-
+        if if_user_is_authenticated(request):
+            return redirect('index')
         else:
-            messages.info(request, 'Password not matching')
-            return redirect('signup')
+            username = request.POST['username']
+            email = request.POST['email']
+            password1 = request.POST['password1']
+            password2 = request.POST['password2']
+
+            if not username or not email or not password1 or not password2:
+                messages.info(request, 'Please fill in the blank fields')
+                return redirect('signup')
+
+            elif password1 == password2:
+                if User.objects.filter(email=email).exists():
+                    messages.info(request, 'Em1ail taken')
+                    return redirect('signup')
+                elif User.objects.filter(username=username).exists():
+                    messages.info(request, 'Username taken')
+                    return redirect('signup')
+                else:
+                    user = User.objects.create_user(username=username, email=email, password=password1)
+                    user.save()
+                    user_login = auth.authenticate(username=username, password=password1)
+                    auth.login(request, user_login)
+
+                    # Create profile object
+                    user_model = User.objects.get(username=username)
+                    new_profile = Profile.objects.create(user=user_model)
+                    new_profile.save()
+                    return redirect('settings')
+
+            else:
+                messages.info(request, 'Password not matching')
+                return redirect('signup')
 
     def get(self, request):
-        return render(request, 'core/signup.html')
+        if if_user_is_authenticated(request):
+            return redirect('index')
+        else:
+            return render(request, 'core/signup.html')
 
 
 class Signin(View):
     def post(self, request):
-        username = request.POST['username']
-        password = request.POST['password']
-
-        user = auth.authenticate(username=username, password=password)
-
-        if user is not None:
-            auth.login(request, user)
-            return redirect('/')
+        if if_user_is_authenticated(request):
+            return redirect('index')
         else:
-            messages.info(request, 'Login or password is not correct')
-            return redirect('signin')
+            username = request.POST['username']
+            password = request.POST['password']
+
+            user = auth.authenticate(username=username, password=password)
+
+            if user is not None:
+                auth.login(request, user)
+                return redirect('/')
+            else:
+                messages.info(request, 'Login or password is not correct')
+                return redirect('signin')
 
     def get(self, request):
-        return render(request, 'core/signin.html')
+        if if_user_is_authenticated(request):
+            return redirect('index')
+        else:
+            return render(request, 'core/signin.html')
 
 
 class Logout(View):
-    def get(self, request):
+    def post(self, request):
         auth.logout(request)
         return redirect('signin')
 
@@ -199,58 +256,79 @@ class Settings(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def post(self, request):
-        user_profile = Profile.objects.get(user=request.user)
-        user = request.user
-        if request.FILES.get('image') == None:
-            image = user_profile.profileimg
-        else:
+        try:
+            user_id = int(request.user.id)
+            user = User.objects.get(id=user_id)
+            user_profile = Profile.objects.get(user=user)
+        except Exception:
+            raise Http404
+
+        if request.FILES.get('image') is not None:
             image = request.FILES.get('image')
+            user_profile.profileimg = image
+
         if request.POST['email'] != user.email:
             email = request.POST['email']
             user.email = email
             user.save()
 
-        bio = request.POST['bio']
-        location = request.POST['location']
+        if request.POST['bio'] != user_profile.bio:
+            bio = request.POST['bio']
+            user_profile.bio = bio
 
-        user_profile.profileimg = image
-        user_profile.bio = bio
-        user_profile.location = location
+        if request.POST['location'] != user_profile.location:
+            location = request.POST['location']
+            user_profile.location = location
+
         user_profile.save()
-
         return redirect('settings')
 
     def get(self, request):
-        return render(request, 'core/settings.html', {})
+        try:
+            user = get_current_user(request)
+            user_profile = Profile.objects.get(user=user)
+        except Exception:
+            raise Http404
+        return render(request, 'core/settings.html', {user: user})
 
 
 class Upload(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def post(self, request):
-        user = request.user
+        try:
+            user_id = int(request.user.id)
+            user = User.objects.get(id=user_id)
+        except Exception:
+            raise Http404
+
         image = request.FILES.get('image_upload')
         caption = request.POST['caption']
 
-        new_post = Post.objects.create(user=user, image=image, caption=caption)
-        new_post.save
-        return redirect(request.META.get('HTTP_REFERER'))
+        if image is not None:
+            new_post = Post.objects.create(user=user, image=image, caption=caption)
+            new_post.save
+        else:
+            messages.info(request, 'Please, choose image!')
 
-    def get(self, request):
-        return redirect('/')
+        return redirect(request.META.get('HTTP_REFERER'))
 
 
 class ProfileView(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def get(self, request, username):
-        page_user = User.objects.get(username=username)
-        page_user_profile = Profile.objects.get(user=page_user)
-        user_posts = Post.objects.filter(user=page_user)
-        user_post_length = len(user_posts)
+        try:
+            page_user = User.objects.get(username=username)
+            page_user_profile = Profile.objects.get(user=page_user)
+        except Exception:
+            raise Http404
 
-        user_followers = len(page_user_profile.followers.all())
-        user_following = len(page_user_profile.following.all())
+        user_posts = Post.objects.filter(user=page_user)
+        user_post_length = user_posts.count()
+
+        user_followers = page_user_profile.followers.all().count()
+        user_following = page_user_profile.following.all().count()
 
         context = {
             'page_user_profile': page_user_profile,
@@ -263,61 +341,36 @@ class ProfileView(LoginRequiredMixin, View):
         return render(request, 'core/profile.html', context)
 
 
-class ProfilePostView(LoginRequiredMixin, View):
+class ProfileFollowingCreateView(LoginRequiredMixin, View):
     login_url = 'signin'
-
-    def get(self, request, pk, post_id):
-        filter_post_id = [i for i in post_id if i != '-']
-        # print(filter_post_id)
-        # current_post = Post.objects.get(id=post_id)
-        # print(current_post.caption)
-        page_user = User.objects.get(username=pk)
-        page_user_profile = Profile.objects.get(user=page_user)
-        user_posts = Post.objects.filter(user=page_user)
-        user_post_length = len(user_posts)
-
-        user_followers = len(page_user_profile.followers.all())
-        user_following = len(page_user_profile.following.all())
-
-        context = {
-            'page_user_profile': page_user_profile,
-            'page_user': page_user,
-            'user_posts': user_posts,
-            'user_post_length': user_post_length,
-            'user_followers': user_followers,
-            'user_following': user_following,
-        }
-        return render(request, 'core/profile.html', context)
-
-
-class ProfileFollowingCreateView(View):
-    """
-    Создание подписки для пользователей
-    """
-    model = Profile
 
     def is_ajax(self):
         return self.request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
     def post(self, request, user_id):
-        # user's Profile whom page
-        user = self.model.objects.get(user_id=user_id)
+        try:
+            user_id_who_want_follow = int(request.user.id)
+            user_who_want_follow = User.objects.get(id=user_id_who_want_follow)
+            profile_who_want_follow = Profile.objects.get(user=user_who_want_follow)
 
-        # user's Profile who want to follow
-        profile = Profile.objects.get(user=request.user)
-        # print(profile)
+            user_page_owner = User.objects.get(id=int(user_id))
+            profile_page_owner = Profile.objects.get(user=user_page_owner)
 
-        if profile in user.followers.all():
-            user.followers.remove(profile)
-            message = f'Подписаться на {user}'
+        except Exception:
+            raise Http404
+
+
+        if profile_who_want_follow in profile_page_owner.followers.all():
+            profile_page_owner.followers.remove(profile_who_want_follow)
+            message = f'Подписаться на {profile_page_owner}'
             status = False
         else:
-            user.followers.add(profile)
-            message = f'Отписаться от {user}'
+            profile_page_owner.followers.add(profile_who_want_follow)
+            message = f'Отписаться от {profile_page_owner}'
             status = True
         data = {
-            'username': profile.user.username,
-            'user_id': profile.user_id,
+            'username': user_who_want_follow.username,
+            'user_id': user_who_want_follow.id,
             'message': message,
             'status': status,
         }
@@ -327,36 +380,37 @@ class ProfileFollowingCreateView(View):
 class Search(LoginRequiredMixin, View):
     login_url = 'signin'
 
-    def post(self, request):
-        user_object = User.objects.get(username=request.user.username)
+    def get(self, request):
+
+        user_object = request.user
         user_profile = Profile.objects.get(user=user_object)
-        username = request.POST['username']
-        username_object = User.objects.filter(username__icontains=username)
-        username_profile = []
-        username_profile_list = []
-
-        for users in username_object:
-            username_profile.append(users.id)
-
-        for ids in username_profile:
-            profile_lists = Profile.objects.filter(user_id=ids)
-            username_profile_list.append(profile_lists)
-        username_profile_list = list(chain(*username_profile_list))
+        try:
+            search_user = request.GET['search_user']
+        except:
+            search_user = ''
+        if search_user:
+            search_user_profile_list = Profile.objects.filter(user__username__contains = search_user)
+        else:
+            search_user_profile_list = Profile.objects.all()
         return render(request, 'core/search.html',
-                      {'user_object': user_profile, 'username_profile_list': username_profile_list})
+                      {'search_user_profile_list': search_user_profile_list})
 
 
 class Likecomment(LoginRequiredMixin, View):
     login_url = 'signin'
 
-    def get(self, request):
-        username = request.user.username
-        comment_id = request.GET.get('comment_id')
+    def post(self, request):
+        try:
+            user_id = int(request.user.id)
+            user = User.objects.get(id=user_id)
+            comment_id = request.POST.get('comment_id')
+            comment = PostComments.objects.get(id=comment_id)
+        except Exception:
+            raise Http404
 
-        comment = PostComments.objects.get(id=comment_id)
-        like_filter = CommentLikes.objects.filter(comment_id=comment_id, username=username).first()
+        like_filter = CommentLikes.objects.filter(comment=comment, user=user).first()
         if like_filter == None:
-            new_like = CommentLikes.objects.create(comment_id=comment_id, username=username)
+            new_like = CommentLikes.objects.create(comment=comment, user=user)
             new_like.save()
             comment.no_of_likes += 1
             comment.save()
@@ -383,54 +437,6 @@ class DialogsView(UserProfileMixin, LoginRequiredMixin, ListView):
         add = self.get_user_context()
         return dict(list(context.items()) + list(add.items()))
 
-
-# class MessagesView(UserProfileMixin, LoginRequiredMixin, ListView):
-#     login_url = 'signin'
-#     slug_field = 'chat_id'
-#     context_object_name = 'messages'
-#     template_name = 'core/messages.html'
-#
-#     def get_queryset(self):
-#         chat_id = self.kwargs.get('slug')
-#         # Protect for writing myself
-#         if chat_id == 0:
-#             chat = None
-#             messages = None
-#             users_in_chat = None
-#         else:
-#             # Make a list with user's chat
-#             chats = Chat.objects.filter(members=self.request.user)
-#             users_in_chat = set()
-#             id = self.request.user.id
-#             for chat in chats:
-#                 try:
-#                     users_in_chat.add(chat.members.exclude(id=id)[0])
-#                 except:
-#                     pass
-#
-#             # Find messages for a chat
-#             try:
-#                 chat = Chat.objects.get(id=chat_id)
-#                 len_messages = len(chat.message_set.all())
-#                 if len_messages > 8:
-#                     delta = len_messages - 8
-#                     messages = chat.message_set.all().order_by('pub_date')[len_messages - delta:]
-#                 else:
-#                     messages = chat.message_set.all().order_by('pub_date')
-#                 if self.request.user in chat.members.all():
-#                     chat.message_set.filter(is_readed=False).exclude(author=request.user).update(is_readed=True)
-#                 else:
-#                     chat = None
-#             except Chat.DoesNotExist:
-#                 chat = None
-#         return messages
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['users_in_chat'] =
-#         context['chat'] =
-#         add = self.get_user_context()
-#         return dict(list(context.items()) + list(add.items()))
 
 class MessagesView(LoginRequiredMixin, View):
     login_url = 'signin'
