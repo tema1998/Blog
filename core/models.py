@@ -34,7 +34,7 @@ class Post(models.Model):
 
 
     def get_comments(self):
-        return self.postcomments_set.all().select_related('user')
+        return self.postcomments_set.all()
 
 
 class PostLikes(models.Model):
@@ -47,6 +47,7 @@ class PostLikes(models.Model):
 class PostComments(models.Model):
     """Комменты"""
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user_profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='PostComments')
     text = models.TextField(verbose_name="Комментарий", max_length=5000)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     no_of_likes = models.IntegerField(verbose_name='Кол-во лайков')
@@ -58,11 +59,8 @@ class PostComments(models.Model):
         verbose_name = "Комментарий"
         verbose_name_plural = "Комментарии"
 
-    # def user_photo(self):
-    #     return(Profile.objects.get(user_id=self.user.id).profileimg.url)
-
     def user_photo(self):
-        return(self.user.profiles.first().profileimg.url)
+        return(self.user_profile.profileimg.url)
 
     def get_users_like_comment(self):
         users = User.objects.filter(comment_id=self.comment_id)

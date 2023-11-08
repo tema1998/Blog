@@ -2503,3 +2503,11 @@ body{  font-family: inter, sans-serif !important
   cursor: pointer;
   }
 
+.list-pages-center {
+  text-align: center;
+  font-size: 20px;
+}
+
+.list-pages {
+  display: inline-block;
+}

@@ -15,12 +15,8 @@
 				<div>
 					<p style="margin-left: 70px;font-size: 30px; font-family:cursive;">{{page_user.username}}</p>
 				</div>
-<!--current_user = User.objects.get(username=request.user.username)-->
-<!--        current_user_profile = Profile.objects.get(user=current_user)-->
-<!--        page_user = User.objects.get(username=pk)-->
-<!--        page_user_profile = Profile.objects.get(user=page_user)-->
 
-							{% if request.user.is_authenticated and current_user != page_user %} {% if current_user_profile in page_user_profile.followers.all %}
+							{% if not is_owner %} {% if is_subscribed %}
 							<button class="btn btn-sm btn-danger btn-follow" data-userid="{{ page_user_profile.user_id }}">
 								Отписаться от {{ page_user_profile.user.username }}
 							</button>
@@ -28,7 +24,7 @@
 							<button class="btn btn-sm btn-primary btn-follow" data-userid="{{ page_user_profile.user_id }}">
 								Подписаться на {{ page_user_profile.user.username }}
 							</button>
-							{% endif %} {% elif current_user == page_user %}
+							{% endif %} {% elif is_owner %}
 							<a href="{% url 'settings' %}" class="btn btn-sm btn-primary">Редактировать профиль</a>
 							{% endif %}
 <!--						{% if user_object.username == page_user_object.username %}-->

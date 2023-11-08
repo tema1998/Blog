@@ -15,6 +15,28 @@
 
     {% endfor %}
 
+    <div class="list-pages-center">
+        <div class="list-pages">
+
+            {% if user_friends_posts.has_previous %}
+                    <a href="?page={{ user_friends_posts.previous_page_number }}">&lt;</a>
+            {% endif %}
+
+            {% for p in user_friends_posts.paginator.page_range %}
+                {% if user_friends_posts.number == p %}
+                    <span style="font-size: 23px;"> {{ p }} </span>
+                {% elif p >= user_friends_posts.number|add:-2 and p <= user_friends_posts.number|add:2  %}
+                        <a href="?page={{ p }}">{{ p }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if user_friends_posts.has_next %}
+                    <a href="?page={{ user_friends_posts.next_page_number }}">&gt;</a>
+            {% endif %}
+        </div>
+    </div>
 
 </div>
+
+
 {% endblock content %}

@@ -1,41 +1,55 @@
 from django.db.models import Count
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
 from django.contrib.auth.models import User, auth
 from django.contrib import messages
 from django.urls import reverse
 from .models import Profile, Post, PostLikes, PostComments, CommentLikes, Chat, Message
-from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView, DetailView, CreateView
 from django.views import View
-from itertools import chain
-import random
-from django.http import Http404
-from django.utils.decorators import method_decorator
+from django.http import Http404, HttpResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+
+from .services import get_current_user, get_user_profile_by_username, \
+    get_user_friends_suggestions, get_post_by_id, disable_comments, enable_comments, check_if_comment_disable, \
+    if_user_is_post_owner, if_user_is_authenticated, get_user_profile_by_user_object
+from .utils import UserProfileMixin
 from .forms import CommentForm, MessageForm
 
-from .services import get_current_user, get_user_profile_by_username, get_user_friends_feeds_list_by_userprofile, \
-    get_user_friends_suggestions, get_post_by_id, disable_comments, enable_comments, check_if_comment_disable, \
-    if_user_is_post_owner, if_user_is_authenticated
-from .utils import UserProfileMixin
-from django.http import JsonResponse
 
 
 class Index(LoginRequiredMixin, View):
-    login_url = 'signin'
+    # login_url = 'signin'
 
     def get(self, request):
         current_user = get_current_user(request)
+        current_user_profile = Profile.objects.select_related('user').prefetch_related('following').get(user=current_user)
+        user_friends_suggestions = get_user_friends_suggestions(current_user_profile)
+        list_of_subscriptions = current_user_profile.following.values_list('id', flat=True)
+        list_of_posts = Post.objects.select_related('user').prefetch_related('postcomments_set',
+                                                                             'postcomments_set__user',
+                                                                             'postcomments_set__user_profile')\
+            .only('user__username', 'user__id', 'id', 'image', 'caption',  'created_at', 'no_of_likes',
+                  'disable_comments').filter(user__id__in=list_of_subscriptions)
 
-        list_of_subscriptions = current_user.profiles.first().following.values_list('id', flat=True)
-
-        list_of_posts = Post.objects.select_related('user').filter(user__id__in=list_of_subscriptions)
-
-        user_friends_suggestions = get_user_friends_suggestions(request)
+        posts_per_page = 2
+        paginator = Paginator(list_of_posts, posts_per_page)
+        page = request.GET.get('page')
+        try:
+            user_friends_posts = paginator.page(page)
+        except PageNotAnInteger:
+            user_friends_posts = paginator.page(1)
+        except EmptyPage:
+            if request.is_ajax():
+                return HttpResponse('')
+            user_friends_posts = paginator.page(paginator.num_pages)
+        if request.is_ajax():
+            return render(request, 'core/index_ajax.html', {'user_friends_posts': user_friends_posts,})
 
         return render(request, 'core/index.html', {
-            'user_friends_posts': list_of_posts,
+            'current_user_profile': current_user_profile,
+            'user_friends_posts': user_friends_posts,
             'suggestions_username_profile_list': user_friends_suggestions[:5]})
 
 
@@ -44,17 +58,20 @@ class EditPost(LoginRequiredMixin, View):
 
     def get(self, request, post_id):
         try:
-            user = get_current_user(request)
             post = get_post_by_id(post_id)
+            current_user = get_current_user(request)
+            current_user_profile = Profile.objects.select_related('user').prefetch_related('following').get(
+                user=current_user)
         except Exception:
             raise Http404
 
-        if not if_user_is_post_owner(post, user):
+        if not post.user==current_user:
             raise Http404
 
-        user_friends_suggestions = get_user_friends_suggestions(request)
+        user_friends_suggestions = get_user_friends_suggestions(current_user_profile)
 
-        return render(request, 'core/edit_post.html', {'post': post,
+        return render(request, 'core/edit_post.html', {'current_user_profile': current_user_profile,
+                                                        'post': post,
                                                        'suggestions_username_profile_list': user_friends_suggestions[
                                                                                             :5]})
 
@@ -94,6 +111,7 @@ class AddComment(LoginRequiredMixin, View):
                 form = form.save(commit=False)
                 form.post = Post.objects.get(id=request.POST['post_id'])
                 form.user = user
+                form.user_profile = Profile.objects.get(id=user.id)
                 form.no_of_likes = 0
                 form.save()
             else:
@@ -108,8 +126,11 @@ class LikePost(LoginRequiredMixin, View):
     def post(self, request):
         try:
             user = get_current_user(request)
+            print(user)
             post = get_post_by_id(request.POST['post_id'])
+
         except Exception:
+            print('ne rabotaet')
             raise Http404
 
         liked_post = PostLikes.objects.filter(post=post, user=user).first()
@@ -257,39 +278,41 @@ class Settings(LoginRequiredMixin, View):
 
     def post(self, request):
         try:
-            user_id = int(request.user.id)
-            user = User.objects.get(id=user_id)
-            user_profile = Profile.objects.get(user=user)
+            current_user = get_current_user(request)
+            current_user_profile = Profile.objects.get(user=current_user)
         except Exception:
             raise Http404
 
         if request.FILES.get('image') is not None:
             image = request.FILES.get('image')
-            user_profile.profileimg = image
+            current_user_profile.profileimg = image
 
-        if request.POST['email'] != user.email:
+        if request.POST['email'] != current_user.email:
             email = request.POST['email']
-            user.email = email
-            user.save()
+            current_user.email = email
+            current_user.save()
 
-        if request.POST['bio'] != user_profile.bio:
+        if request.POST['bio'] != current_user_profile.bio:
             bio = request.POST['bio']
-            user_profile.bio = bio
+            current_user_profile.bio = bio
 
-        if request.POST['location'] != user_profile.location:
+        if request.POST['location'] != current_user_profile.location:
             location = request.POST['location']
-            user_profile.location = location
+            current_user_profile.location = location
 
-        user_profile.save()
+        current_user_profile.save()
         return redirect('settings')
 
     def get(self, request):
         try:
-            user = get_current_user(request)
-            user_profile = Profile.objects.get(user=user)
+            current_user = get_current_user(request)
+            current_user_profile = Profile.objects.select_related('user').only('bio', 'profileimg', 'location',
+                                                                               'user__email', 'user__username')\
+                .get(user=current_user)
         except Exception:
             raise Http404
-        return render(request, 'core/settings.html', {user: user})
+        return render(request, 'core/settings.html', {'current_user': current_user,
+                                                      'current_user_profile': current_user_profile})
 
 
 class Upload(LoginRequiredMixin, View):
@@ -319,18 +342,37 @@ class ProfileView(LoginRequiredMixin, View):
 
     def get(self, request, username):
         try:
-            page_user = User.objects.get(username=username)
-            page_user_profile = Profile.objects.get(user=page_user)
+            current_user = get_current_user(request)
+            current_user_profile = Profile.objects.select_related('user').get(user=current_user)
+            if current_user.username == username:
+                page_user = current_user
+                page_user_profile = current_user_profile
+            else:
+                page_user = User.objects.get(username=username)
+                page_user_profile = Profile.objects.get(user=page_user)
+
         except Exception:
             raise Http404
 
-        user_posts = Post.objects.filter(user=page_user)
+        is_owner = current_user == page_user
+        if not is_owner:
+            is_subscribed = current_user_profile in page_user_profile.followers.all()
+        else:
+            is_subscribed = False
+        user_posts = Post.objects.select_related('user').prefetch_related('postcomments_set',
+                                                                             'postcomments_set__user',
+                                                                             'postcomments_set__user_profile')\
+            .only('user__username', 'user__id', 'id', 'image', 'caption',  'created_at', 'no_of_likes',
+                  'disable_comments').filter(user=page_user)
         user_post_length = user_posts.count()
 
         user_followers = page_user_profile.followers.all().count()
         user_following = page_user_profile.following.all().count()
 
         context = {
+            'is_owner': is_owner,
+            'is_subscribed': is_subscribed,
+            'current_user_profile': current_user_profile,
             'page_user_profile': page_user_profile,
             'page_user': page_user,
             'user_posts': user_posts,
@@ -381,19 +423,22 @@ class Search(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def get(self, request):
-
-        user_object = request.user
-        user_profile = Profile.objects.get(user=user_object)
+        current_user = get_current_user(request)
+        current_user_profile = Profile.objects.select_related('user').get(user=current_user)
         try:
             search_user = request.GET['search_user']
         except:
             search_user = ''
         if search_user:
-            search_user_profile_list = Profile.objects.filter(user__username__contains = search_user)
+            search_user_profile_list = Profile.objects.select_related('user')\
+                .filter(user__username__contains = search_user).only('user__username', 'user__id', 'bio', 'profileimg',
+                                                                     'location')
         else:
-            search_user_profile_list = Profile.objects.all()
+            search_user_profile_list = Profile.objects.select_related('user').all()
         return render(request, 'core/search.html',
-                      {'search_user_profile_list': search_user_profile_list})
+                      {'search_user_profile_list': search_user_profile_list,
+                       'current_user': current_user,
+                       'current_user_profile': current_user_profile})
 
 
 class Likecomment(LoginRequiredMixin, View):

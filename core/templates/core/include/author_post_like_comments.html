@@ -149,7 +149,7 @@
                         <p class="leading-6">
                             {{comment.text}}
 
-                            <form action="/like-post" method="POST">
+                            <form action="/like-comment" method="POST">
                                 {% csrf_token %}
                                 <input type="hidden" value="{{comment.id}}" name="comment_id">
 
@@ -193,3 +193,5 @@
     </div>
 
 </div>
+
+
