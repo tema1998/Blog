@@ -26,6 +26,7 @@ class Profile(models.Model):
 class Post(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
+    user_profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='posts')
     image = models.ImageField(upload_to='post_images')
     caption = models.TextField(max_length=1000, blank=True)
     created_at = models.DateTimeField(default=datetime.now)
@@ -36,6 +37,8 @@ class Post(models.Model):
     def get_comments(self):
         return self.postcomments_set.all()
 
+    def get_author_photo(self):
+        return self.user_profile.profileimg.url
 
 class PostLikes(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)

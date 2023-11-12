@@ -1,0 +1,6 @@
+{% load static %}
+{% for post in user_friends_posts reversed %}
+    <div class="posts-margin">
+        {% include 'core/include/author_post_like_comments.html' %}
+    </div>
+{% endfor %}

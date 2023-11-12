@@ -2511,3 +2511,12 @@ body{  font-family: inter, sans-serif !important
 .list-pages {
   display: inline-block;
 }
+
+.posts-margin {
+  margin-bottom: 20px;
+}
+
+.center-align {
+  text-align: center;
+  margin-bottom: 20px;
+}

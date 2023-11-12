@@ -8,35 +8,28 @@
 {% endblock sidebar %}
 
 {% block content %}
-<div class="space-y-5 flex-shrink-0 lg:w-7/12">
-    {% for post in user_friends_posts reversed %}
+    <div class="space-y-5 flex-shrink-0 lg:w-7/12">
 
-        {% include 'core/include/author_post_like_comments.html' %}
-
-    {% endfor %}
-
-    <div class="list-pages-center">
-        <div class="list-pages">
-
-            {% if user_friends_posts.has_previous %}
-                    <a href="?page={{ user_friends_posts.previous_page_number }}">&lt;</a>
-            {% endif %}
-
-            {% for p in user_friends_posts.paginator.page_range %}
-                {% if user_friends_posts.number == p %}
-                    <span style="font-size: 23px;"> {{ p }} </span>
-                {% elif p >= user_friends_posts.number|add:-2 and p <= user_friends_posts.number|add:2  %}
-                        <a href="?page={{ p }}">{{ p }}</a>
-                {% endif %}
-            {% endfor %}
-
-            {% if user_friends_posts.has_next %}
-                    <a href="?page={{ user_friends_posts.next_page_number }}">&gt;</a>
-            {% endif %}
+        <div class="row" id="post_list">
+            {% include 'core/index_ajax.html' %}
         </div>
+
+        <div class="center-align" id="end_posts">
+            This is all posts for now. Follow new people to see more posts.
+        </div>
+
+        <div class="row">
+            <div class="col m12 s12 center-align">
+                <button class="btn waves-effect waves-light" id="lazy_more">
+                    More posts
+                </button>
+            </div>
+        </div>
+
     </div>
 
-</div>
-
-
 {% endblock content %}
+
+{% block script %}
+<script src="{% static 'js/posts_load.js' %}"></script>
+{% endblock %}

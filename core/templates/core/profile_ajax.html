@@ -1,0 +1,19 @@
+{% load static %}
+
+{% for post in user_posts %}
+
+    <div class="photo-one">
+        <a href="#" class="open-popup" id="{{post.id}}">
+            <img src="{{post.image.url}}" style="height: 300px; width: 350px; " alt="">
+        </a>
+    </div>
+
+    <!-- start POP UP -->
+    <div class="popup__bg a{{post.id}}">
+        <div class="popup a{{post.id}}">
+            {% include 'core/include/author_post_like_comments.html' %}
+        </div>
+    </div>
+    <!-- end POP UP -->
+
+{% endfor %}

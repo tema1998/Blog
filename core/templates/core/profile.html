@@ -25,7 +25,7 @@
 								Подписаться на {{ page_user_profile.user.username }}
 							</button>
 							{% endif %} {% elif is_owner %}
-							<a href="{% url 'settings' %}" class="btn btn-sm btn-primary">Редактировать профиль</a>
+							<a href="{% url 'settings' %}" class="btn btn-sm btn-primary">Edit profile</a>
 							{% endif %}
 <!--						{% if user_object.username == page_user_object.username %}-->
 <!--							<div></div>-->
@@ -70,30 +70,23 @@
 
 	</div>
 
-
-	<div class="photo-grid">
-
-		{% for post in user_posts %}
-
-			<div class="photo-one">
-				<a href="#" class="open-popup" id="{{post.id}}">
-					<img src="{{post.image.url}}" style="height: 300px; width: 350px; " alt="">
-				</a>
-			</div>
-
-			<!-- start POP UP -->
-			<div class="popup__bg a{{post.id}}">
-				<div class="popup a{{post.id}}">
-					{% include 'core/include/author_post_like_comments.html' %}
-				</div>
-			</div>
-			<!-- end POP UP -->
-
-		{% endfor %}
-
+	<div class="photo-grid" id="post_list">
+			{% include 'core/profile_ajax.html' %}
 	</div>
-</div>
 
+	<div class="center-align" id="end_posts">
+            This is all posts.
+        </div>
+
+        <div class="row">
+            <div class="col m12 s12 center-align">
+                <button class="btn waves-effect waves-light" id="lazy_more">
+                    More posts
+                </button>
+            </div>
+        </div>
+
+</div>
 
 
 <!--<div class="col-lg-6">-->
@@ -118,5 +111,5 @@
 <script src="{% static 'js/profile.js' %}"></script>
 <script src="{% static 'js/post_view_for_profile.js' %}"></script>
 <script src="{% static 'js/backend.js' %}"></script>
-
+<script src="{% static 'js/posts_load.js' %}"></script>
 {% endblock %}
