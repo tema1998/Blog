@@ -553,6 +553,7 @@ video {
   }
 }
 
+
 @media (min-width: 1536px){
   .container{
     max-width: 1536px;
@@ -2519,4 +2520,8 @@ body{  font-family: inter, sans-serif !important
 .center-align {
   text-align: center;
   margin-bottom: 20px;
+}
+
+.settings_form {
+  padding: 20px;
 }

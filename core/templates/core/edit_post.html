@@ -1,7 +1,7 @@
 {% extends 'core/base.html' %}
 {% load static %}
 
-{% block title %} News {% endblock title %}
+{% block title %} Edit post {% endblock title %}
 
 {% block sidebar %}
     {% include 'core/include/sidebar_users.html' %}
@@ -9,7 +9,6 @@
 
 {% block content %}
 <div class="space-y-5 flex-shrink-0 lg:w-7/12">
-{% load static %}
 <div class="bg-white shadow rounded-md  -mx-2 lg:mx-0">
     <!-- post header-->
     <div class="flex justify-between items-center px-4 py-3">
@@ -19,7 +18,7 @@
 <!--                                            <img src="{{user_profile.profileimg.url}}" class="bg-gray-200 border border-white rounded-full w-8 h-8">-->
 <!--                                        </div>-->
 <!--                                    </a>-->
-            <span class="block font-semibold "> <a href="/profile/{{post.user}}">@{{post.user}}</a> </span>
+            <span class="block font-semibold "> <a href="/profile/{{post.user}}">@{{user.username}}</a> </span>
         </div>
         <div class="edit-buttons">
             <div>
@@ -35,7 +34,7 @@
             </div>
 
             <div>
-                <form action="{% url 'profile' username=post.user.username %}">
+                <form action="{% url 'profile' username=user.username %}">
                     <button class="px-3 py-2 hover:bg-gray-200 hover:text-gray-800 rounded-md " type="submit">
                     <i class="uil-exit mr-1"></i>
                         Exit
@@ -49,20 +48,33 @@
 
 
 
-<form action="{% url 'edit-post' post_id=post.id %}" method="POST" enctype="multipart/form-data">
+<form action="" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     <input type="hidden" value="{{user.id}}" name="user_id">
     <input type="hidden" value="{{post.id}}" name="post_id">
 
     <div class="py-3 px-4 space-y-3">
-        <div class="post_size">
-            <img src="{{post.image.url}}" alt="" align="center" class="post_image">
-        </div>
-        <input type="file" name="image_upload">
+<!--        <div class="post_size">-->
+<!--            <img src="{{post.image.url}}" alt="" align="center" class="post_image">-->
+<!--        </div>-->
 
-        <p>
-            <textarea class="button soft-warning small" name="caption" placeholder="caption">{{post.caption}}</textarea>
-        </p>
+        {% for field in edit_post_form %}
+            <div class="fieldWrapper">
+
+
+                {{ field.errors }}
+                {{ field.label_tag }}
+
+                {% if field.label == "Image" %}
+                    <img src="{{ post.image.url }}" alt="" align="center" class="post_image">
+                {% endif %}
+
+                {{ field }}
+                {% if field.help_text %}
+                <p class="help">{{ field.help_text|safe }}</p>
+                {% endif %}
+            </div>
+        {% endfor %}
         <button class="button bg-blue-700" type="submit">Edit</button>
     </div>
 

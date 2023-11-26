@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.db.models import Count
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User, auth
@@ -11,12 +12,13 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q
+from django.contrib.auth.forms import AuthenticationForm
 
 from .services import get_current_user, get_user_profile_by_username, \
     get_user_friends_suggestions, get_post_by_id, disable_comments, enable_comments, check_if_comment_disable, \
     if_user_is_post_owner, if_user_is_authenticated, get_user_profile_by_user_object
 from .utils import UserProfileMixin
-from .forms import CommentForm, MessageForm
+from .forms import CommentForm, MessageForm, SignupForm, SigninForm, SettingsForm, AddPostForm, EditPostForm
 
 
 def is_ajax(request):
@@ -24,7 +26,7 @@ def is_ajax(request):
 
 
 class Index(LoginRequiredMixin, View):
-    # login_url = 'signin'
+    login_url = 'signin'
 
     def get(self, request):
         current_user = get_current_user(request)
@@ -77,30 +79,39 @@ class EditPost(LoginRequiredMixin, View):
         if not post.user == current_user:
             raise Http404
 
+        edit_post_form = EditPostForm(instance=post)
+
         user_friends_suggestions = get_user_friends_suggestions(current_user_profile)
 
         return render(request, 'core/edit_post.html', {'current_user_profile': current_user_profile,
+                                                       'edit_post_form': edit_post_form,
                                                        'post': post,
                                                        'suggestions_username_profile_list': user_friends_suggestions[
                                                                                             :5]})
 
     def post(self, request, post_id):
         try:
-            user = get_current_user(request)
+            current_user = get_current_user(request)
             post = get_post_by_id(post_id)
+            current_user_profile = Profile.objects.select_related('user').prefetch_related('following').get(
+                user=current_user)
         except Exception:
             raise Http404
-        new_image = request.FILES.get('image_upload')
-        new_caption = request.POST['caption']
-        if if_user_is_post_owner(post, user):
-            if new_image:
-                post.image = new_image
-            if new_caption != post.caption:
-                post.caption = new_caption
-            post.save()
-            return redirect('profile', username=post.user.username)
-        else:
+
+        if not if_user_is_post_owner(post, current_user):
             raise Http404
+
+        user_friends_suggestions = get_user_friends_suggestions(current_user_profile)
+
+        edit_post_form = EditPostForm(request.POST, request.FILES, instance=post)
+        if edit_post_form.is_valid():
+            edit_post_form.save()
+            return redirect('edit-post', post_id=post.id)
+        return render(request, 'core/edit_post.html', {'current_user_profile': current_user_profile,
+                                                       'edit_post_form': edit_post_form,
+                                                       'post': post,
+                                                       'suggestions_username_profile_list': user_friends_suggestions[
+                                                                                            :5]})
 
 
 class AddComment(LoginRequiredMixin, View):
@@ -125,8 +136,7 @@ class AddComment(LoginRequiredMixin, View):
                 form.no_of_likes = 0
                 form.save()
             else:
-                messages.info(request, 'Please, enter text')
-                return redirect(request.META.get('HTTP_REFERER'))
+                return redirect(request.META.get('HTTP_REFERER'), {'form': form})
             return redirect(request.META.get('HTTP_REFERER'))
 
 
@@ -136,11 +146,9 @@ class LikePost(LoginRequiredMixin, View):
     def post(self, request):
         try:
             user = get_current_user(request)
-            print(user)
             post = get_post_by_id(request.POST['post_id'])
 
         except Exception:
-            print('ne rabotaet')
             raise Http404
 
         liked_post = PostLikes.objects.filter(post=post, user=user).first()
@@ -214,43 +222,28 @@ class Signup(View):
         if if_user_is_authenticated(request):
             return redirect('index')
         else:
-            username = request.POST['username']
-            email = request.POST['email']
-            password1 = request.POST['password1']
-            password2 = request.POST['password2']
+            signup_form = SignupForm(request.POST)
+            if signup_form.is_valid():
+                with transaction.atomic():
+                    new_user = signup_form.save(commit=False)
+                    new_user.set_password(signup_form.cleaned_data['password'])
+                    new_user.save()
 
-            if not username or not email or not password1 or not password2:
-                messages.info(request, 'Please fill in the blank fields')
-                return redirect('signup')
-
-            elif password1 == password2:
-                if User.objects.filter(email=email).exists():
-                    messages.info(request, 'Em1ail taken')
-                    return redirect('signup')
-                elif User.objects.filter(username=username).exists():
-                    messages.info(request, 'Username taken')
-                    return redirect('signup')
-                else:
-                    user = User.objects.create_user(username=username, email=email, password=password1)
-                    user.save()
-                    user_login = auth.authenticate(username=username, password=password1)
-                    auth.login(request, user_login)
+                    auth.login(request, new_user)
 
                     # Create profile object
-                    user_model = User.objects.get(username=username)
+                    user_model = User.objects.get(username=new_user.username)
                     new_profile = Profile.objects.create(user=user_model)
                     new_profile.save()
                     return redirect('settings')
-
-            else:
-                messages.info(request, 'Password not matching')
-                return redirect('signup')
+            return render(request, 'core/signup.html', {'signup_form': signup_form})
 
     def get(self, request):
         if if_user_is_authenticated(request):
             return redirect('index')
         else:
-            return render(request, 'core/signup.html')
+            signup_form = SignupForm()
+            return render(request, 'core/signup.html', {'signup_form': signup_form})
 
 
 class Signin(View):
@@ -258,23 +251,22 @@ class Signin(View):
         if if_user_is_authenticated(request):
             return redirect('index')
         else:
-            username = request.POST['username']
-            password = request.POST['password']
-
-            user = auth.authenticate(username=username, password=password)
-
-            if user is not None:
-                auth.login(request, user)
-                return redirect('/')
-            else:
-                messages.info(request, 'Login or password is not correct')
-                return redirect('signin')
+            signin_form = SigninForm(request.POST)
+            if signin_form.is_valid():
+                cd = signin_form.cleaned_data
+                user = auth.authenticate(username=cd['username'], password=cd['password'])
+                if user:
+                    auth.login(request, user)
+                    return redirect('index')
+            messages.error(request, f'Invalid username or password')
+            return render(request, 'core/signin.html', {'signin_form': signin_form})
 
     def get(self, request):
         if if_user_is_authenticated(request):
             return redirect('index')
         else:
-            return render(request, 'core/signin.html')
+            signin_form = SigninForm()
+            return render(request, 'core/signin.html', {'signin_form': signin_form})
 
 
 class Logout(View):
@@ -292,41 +284,47 @@ class Settings(LoginRequiredMixin, View):
             current_user_profile = Profile.objects.get(user=current_user)
         except Exception:
             raise Http404
-
-        if request.FILES.get('image') is not None:
-            image = request.FILES.get('image')
-            current_user_profile.profileimg = image
-
-        if request.POST['email'] != current_user.email:
-            email = request.POST['email']
-            current_user.email = email
-            current_user.save()
-
-        if request.POST['bio'] != current_user_profile.bio:
-            bio = request.POST['bio']
-            current_user_profile.bio = bio
-
-        if request.POST['location'] != current_user_profile.location:
-            location = request.POST['location']
-            current_user_profile.location = location
-
-        current_user_profile.save()
-        return redirect('settings')
+        settings_form = SettingsForm(request.POST, request.FILES, instance=current_user_profile)
+        if settings_form.is_valid():
+            settings_form.save()
+            return redirect('settings')
+        return render(request, 'core/settings.html', {'settings_form': settings_form})
 
     def get(self, request):
         try:
             current_user = get_current_user(request)
-            current_user_profile = Profile.objects.select_related('user').only('bio', 'profileimg', 'location',
-                                                                               'user__email', 'user__username') \
+            current_user_profile = Profile.objects.select_related('user').only('bio', 'profileimg', 'location'
+                                                                               , 'user__username') \
                 .get(user=current_user)
+
         except Exception:
             raise Http404
+
+        settings_form = SettingsForm(instance=current_user_profile)
         return render(request, 'core/settings.html', {'current_user': current_user,
-                                                      'current_user_profile': current_user_profile})
+                                                      'current_user_profile': current_user_profile,
+                                                      'settings_form': settings_form})
 
 
-class Upload(LoginRequiredMixin, View):
+class AddPost(LoginRequiredMixin, View):
     login_url = 'signin'
+
+    def get(self, request):
+        try:
+            current_user = get_current_user(request)
+            current_user_profile = Profile.objects.select_related('user').prefetch_related('following').get(
+                user=current_user)
+        except Exception:
+            raise Http404
+
+        user_friends_suggestions = get_user_friends_suggestions(current_user_profile)
+
+        add_post_form = AddPostForm()
+
+        return render(request, 'core/add_post.html', {'current_user_profile': current_user_profile,
+                                                      'add_post_form': add_post_form,
+                                                      'suggestions_username_profile_list': user_friends_suggestions[
+                                                                                           :5]})
 
     def post(self, request):
         try:
@@ -336,16 +334,15 @@ class Upload(LoginRequiredMixin, View):
         except Exception:
             raise Http404
 
-        image = request.FILES.get('image_upload')
-        caption = request.POST['caption']
-
-        if image is not None:
-            new_post = Post.objects.create(user=user, user_profile=user_profile, image=image, caption=caption)
-            new_post.save
-        else:
-            messages.info(request, 'Please, choose image!')
-
-        return redirect(request.META.get('HTTP_REFERER'))
+        add_post_form = AddPostForm(request.POST, request.FILES)
+        if add_post_form.is_valid():
+            image = add_post_form.cleaned_data['image']
+            caption = add_post_form.cleaned_data['caption']
+            disable_comments = add_post_form.cleaned_data['disable_comments']
+            new_post = Post.objects.create(user=user, user_profile=user_profile, image=image, caption=caption,
+                                           disable_comments=disable_comments)
+            return redirect('profile', username=user.username)
+        return render(request, 'core/add_post.html', {'add_post_form': add_post_form})
 
 
 class ProfileView(LoginRequiredMixin, View):

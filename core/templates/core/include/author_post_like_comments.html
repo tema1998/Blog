@@ -175,11 +175,7 @@
             <input type="hidden" value="{{post.id}}" name="post_id">
             <div class="comment-form ">
                 <div class="bg-gray-100 bg-gray-100 rounded-full rounded-md relative input-flex">
-                    {% if messages %}
-                        <input style="color: red" type="text" placeholder="Please, enter text!" class="bg-transparent max-h-10 shadow-none" name="text">
-                    {%else%}
-                        <input type="text" placeholder="post a comment" class="bg-transparent max-h-10 shadow-none" name="text">
-                    {% endif %}
+                    {{ comment_form }}
                 </div>
                 <div class="button-send-flex bg-gray-100 rounded-full rounded-md relative">
                     <div class="button-send">

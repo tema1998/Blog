@@ -29,8 +29,8 @@ class TestUrls(SimpleTestCase):
         self.assertEquals(resolve(url).func.view_class, Settings)
 
     def test_upload_url_resolves(self):
-        url = reverse('upload')
-        self.assertEquals(resolve(url).func.view_class, Upload)
+        url = reverse('add-post')
+        self.assertEquals(resolve(url).func.view_class, AddPost)
 
     def test_follow_url_resolves(self):
         url = reverse('follow', args=[1])

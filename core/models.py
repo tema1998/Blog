@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth import get_user_model
 import uuid
@@ -7,6 +8,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 User = get_user_model()
+
 
 class Profile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='profiles')
@@ -51,9 +53,9 @@ class PostComments(models.Model):
     """Комменты"""
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     user_profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='PostComments')
-    text = models.TextField(verbose_name="Комментарий", max_length=5000)
+    text = models.TextField(verbose_name="Comment", max_length=5000)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    no_of_likes = models.IntegerField(verbose_name='Кол-во лайков')
+    no_of_likes = models.IntegerField(verbose_name='Likes')
 
     def __str__(self):
         return f"{self.user} - {self.post}"

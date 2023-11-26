@@ -1,0 +1,29 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %} Add new post {% endblock title %}
+
+{% block sidebar %}
+    {% include 'core/include/sidebar_users.html' %}
+{% endblock sidebar %}
+
+{% block content %}
+
+
+
+    <div class="bg-white rounded-md lg:shadow-lg shadow col-span-2">
+        <form action="" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+           <div class="settings_form">
+                {{ add_post_form.as_p }}
+           </div>
+
+           <div class="bg-gray-10 p-6 pt-0 flex justify-end space-x-3">
+               <button type="submit" class="button bg-blue-700"> Add </button>
+           </div>
+        </form>
+    </div>
+
+
+
+{% endblock content %}

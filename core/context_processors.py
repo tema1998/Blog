@@ -1,4 +1,5 @@
 from .services import get_user_profile_by_username
+from .forms import CommentForm
 
 
 # def get_current_user_profile(request):
@@ -12,3 +13,9 @@ from .services import get_user_profile_by_username
 #         return {
 #             'current_user': None,
 #             'current_user_profile': None, }
+
+def get_current_user(request):
+    form = CommentForm()
+    return {
+        'comment_form': form
+    }
