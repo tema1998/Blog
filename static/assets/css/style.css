@@ -2680,12 +2680,10 @@ header .uk-dropdown {
   font-weight: 600;
 }
 
-.messages {
-  width: 580px;
-  display: inline-block;
-  background-color: white;
+.svg-delete-message {
+  display: none;
 }
 
-.block-messages {
-  margin-top: 30px;
+.message:hover .delete-message{
+    display: block
 }

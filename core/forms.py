@@ -2,7 +2,7 @@ from django import forms
 from django.contrib import auth
 from django.http import request
 
-from .models import User, PostComments, Message, Post, Profile
+from .models import User, PostComments, Post, Profile
 
 
 class CommentForm(forms.ModelForm):
@@ -16,13 +16,6 @@ class CommentForm(forms.ModelForm):
         widgets = {
             'text': forms.TextInput(attrs={'class': 'bg-transparent max-h-10 shadow-none', 'placeholder': 'post a comment'})
         }
-
-
-class MessageForm(forms.ModelForm):
-    class Meta:
-        model = Message
-        fields = ['message']
-        labels = {'message': ""}
 
 
 class SignupForm(forms.ModelForm):

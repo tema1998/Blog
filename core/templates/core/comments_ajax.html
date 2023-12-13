@@ -1,0 +1,39 @@
+{% load static %}
+
+
+    <div class="flex">
+
+        <div class="">
+            <a href ='/profile/{{ comment.user }}'><img src="{{ comment.user_photo }}" alt="" class="rounded-full w-8 h-8"></a>
+        </div>
+
+        <div class="text-gray-700 rounded-md bg-gray-100 ml-2 basis-full">
+            <div class="flex justify-between font-semibold mx-1 mt-1">
+                <div>
+                    <a href ='/profile/{{ comment.user }}'>{{ comment.user }}:</a>
+                </div>
+                <div>
+                    {{ comment.date|date:'d-m-Y H:i' }}
+                </div>
+            </div>
+
+            <div>
+                <div class="mx-2">
+                    {{comment.text}}
+                </div>
+
+                <div>
+                    <form action="/like-comment" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" value="{{comment.id}}" name="comment_id">
+
+                        <button class="flex items-center px-3 py-2 hover:bg-gray-200 hover:text-gray-800 rounded-md " type="submit">
+                            <img src="{% static 'images/no_like.jpg' %}" height="5%" width="5%">
+                            {{comment.no_of_likes}}
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>

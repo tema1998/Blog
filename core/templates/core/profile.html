@@ -16,30 +16,28 @@
 					<p style="margin-left: 70px;font-size: 30px; font-family:cursive;">{{page_user.username}}</p>
 				</div>
 
-							{% if not is_owner %} {% if is_subscribed %}
-							<button class="btn btn-sm btn-danger btn-follow" data-userid="{{ page_user_profile.user_id }}">
-								Отписаться от {{ page_user_profile.user.username }}
+					{% if not is_owner %}
+						{% if is_subscribed %}
+							<button class="btn-follow bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 py-2 mr-2 rounded flex items-center justify-center" data-userid="{{ page_user_profile.user_id }}">
+								Unfollow
 							</button>
 							{% else %}
-							<button class="btn btn-sm btn-primary btn-follow" data-userid="{{ page_user_profile.user_id }}">
-								Подписаться на {{ page_user_profile.user.username }}
+							<button class="btn-follow bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 py-2 mr-2 rounded flex items-center justify-center" data-userid="{{ page_user_profile.user_id }}">
+								Follow
 							</button>
-							{% endif %} {% elif is_owner %}
-							<a href="{% url 'settings' %}" class="btn btn-sm btn-primary">Edit profile</a>
-							{% endif %}
-<!--						{% if user_object.username == page_user_object.username %}-->
-<!--							<div></div>-->
-<!--							<div><a href="/settings"><button type="button" class="button-message">Settings</button></a></div>-->
-<!--						{% else %}-->
-<!--							<form action="/follow" method="POST">-->
-<!--								<input type="hidden" value="{{user_object.username}}" name="follower">-->
-<!--								<input type="hidden" value="{{page_user_object.username}}" name="user">-->
-<!--								{% csrf_token %}-->
-<!--								<div><button  type="submit"  class="button-subscribe">{{button_text}}</button></div>-->
-<!--							</form>-->
-<!--							<div><a href="/dialogs/create/{{page_user_object.id}}"><button type="button" class="button-message" >Send message</button></a></div>-->
-<!--						{% endif %}-->
+						{% endif %}
 
+						<form action="{% url 'start-dialog' %}" method="POST">
+							{% csrf_token %}
+							<input type="hidden" value="{{page_user.id}}" name="page_owner_id">
+							<button class="btn-follow bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 py-2 mr-2 rounded flex items-center justify-center" data-userid="{{ page_user_profile.user_id }}">
+								Message
+							</button>
+						</form>
+
+					{% elif is_owner %}
+						<a href="{% url 'settings' %}" class="btn btn-sm btn-primary">Edit profile</a>
+					{% endif %}
 
 			</div>
 
@@ -50,19 +48,27 @@
 				<div><span class="number-style">{{user_post_length}}</span> posts</div>
 				{% endif %}
 
-				<span class="update-follower-data">
+				<div class="update-follower-data">
 					{% if user_followers == 0 or user_followers == 1 %}
-					<div><span class="number-style">{{user_followers}}</span> follower</div>
+					<a href="{% url 'followers' %}">
+						<div><span class="number-style">{{user_followers}}</span> follower</div>
+					</a>
 					{% else %}
-					<div><span class="number-style">{{user_followers}}</span> followers</div>
+					<a href="{% url 'followers' %}">
+						<div><span class="number-style">{{user_followers}}</span> followers</div>
+					</a>
 					{% endif %}
-				</span>
+				</div>
 
-				<div><span class="number-style">{{user_following}}</span> following</div>
+				<div>
+					<a href="{% url 'following' %}">
+						<div><span class="number-style">{{user_following}}</span> following</div>
+					</a>
+				</div>
 			</div>
 
 			<div class="subscribe-data">
-				<div>{{user_object.profiles.all.first.bio}}</div>
+				<div>{{page_user.profiles.all.first.bio}}</div>
 
 			</div>
 
@@ -111,5 +117,5 @@
 <script src="{% static 'js/profile.js' %}"></script>
 <script src="{% static 'js/post_view_for_profile.js' %}"></script>
 <script src="{% static 'js/backend.js' %}"></script>
-<script src="{% static 'js/posts_load.js' %}"></script>
+<script src="{% static 'js/posts_load_profile_by_button.js' %}"></script>
 {% endblock %}

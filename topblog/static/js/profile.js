@@ -37,18 +37,6 @@ if (followBtn){
             followBtn.classList.remove('btn-danger');
             followBtn.classList.add('btn-primary');
         }
-//        if (data.status) {
-//            followerBox.innerHTML += `
-//                <div class="col-md-2" id="user-slug-${data.slug}">
-//                    <a href="${data.get_absolute_url}">
-//                        <img src="${data.avatar}" class="img-fluid rounded-1" alt="${data.slug}"/>
-//                    </a>
-//                </div>
-//            `;
-//        } else {
-//            const currentUserSlug = document.querySelector(`#user-slug-${data.slug}`)
-//            currentUserSlug && currentUserSlug.remove();
-//        }
         followBtn.innerHTML = message;
         elementUpdate('.update-follower-data');
         });

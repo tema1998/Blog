@@ -5,7 +5,7 @@
             <div class="left-buttons">
                 <div class="button-news"><a href="/">News </a> </div>
                 <div class="button-news"><a href="{{current_user_profile.get_absolute_url}}">My page</a> </div>
-                <div class="button-news"><a href="/dialogs/">Messages </a> </div>
+                <div class="button-news"><a href="{% url 'chats' %}">Messages </a> </div>
             </div>
 
             <form action="/search" method = "GET">

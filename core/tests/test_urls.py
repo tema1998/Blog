@@ -71,15 +71,3 @@ class TestUrls(SimpleTestCase):
     def test_search_url_resolves(self):
         url = reverse('search')
         self.assertEquals(resolve(url).func.view_class, Search)
-
-    def test_dialogs_url_resolves(self):
-        url = reverse('dialogs')
-        self.assertEquals(resolve(url).func.view_class, DialogsView)
-
-    def test_create_dialog_url_resolves(self):
-        url = reverse('create_dialog', args=['1'])
-        self.assertEquals(resolve(url).func.view_class, CreateDialogView)
-
-    def test_messages_url_resolves(self):
-        url = reverse('messages', args=['1'])
-        self.assertEquals(resolve(url).func.view_class, MessagesView)

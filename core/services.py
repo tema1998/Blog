@@ -3,7 +3,7 @@ from itertools import chain
 from django.contrib.auth.models import User, auth
 from django.http import Http404
 
-from .models import Profile, Post, PostLikes, PostComments, CommentLikes, Chat, Message
+from .models import Profile, Post, PostLikes, PostComments, CommentLikes
 
 
 def check_if_comment_disable(post):

@@ -10,6 +10,8 @@ urlpatterns = [
     path('user/follow/<int:user_id>/', views.ProfileFollowingCreateView.as_view(), name='follow'),
     # path('profile/<str:pk>', views.profile, name='profile'),
     path('profile/<str:username>/', views.ProfileView.as_view(), name='profile'),
+    path('followers', views.FollowersList.as_view(), name='followers'),
+    path('following', views.FollowingList.as_view(), name='following'),
     # path('profile/<str:pk>/<str:post_id>', views.ProfilePostView.as_view(), name='profile_post'),
     path('add-post', views.AddPost.as_view(), name='add-post'),
     path('edit-post/<str:post_id>/', views.EditPost.as_view(), name='edit-post'),
@@ -22,7 +24,4 @@ urlpatterns = [
     path('like-comment', views.Likecomment.as_view(), name='like-comment'),
     # path('follow', views.Follow.as_view(), name='follow'),
     path('search', views.Search.as_view(), name='search'),
-    path('dialogs/', views.DialogsView.as_view(), name='dialogs'),
-    path('dialogs/create/<int:user_id>/', views.CreateDialogView.as_view(), name='create_dialog'),
-    path('dialogs/<int:chat_id>', views.MessagesView.as_view(), name='messages'),
 ]

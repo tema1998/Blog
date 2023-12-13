@@ -14,22 +14,14 @@
             {% include 'core/index_ajax.html' %}
         </div>
 
-        <div class="center-align" id="end_posts">
-            This is all posts for now. Follow new people to see more posts.
+        <div class="center-align border rounded-xl bg-slate-200 " id="end_posts">
+            <span class="text-gray-600">This is all posts for now. Follow new people to see more posts.</span>
         </div>
-
-        <div class="row">
-            <div class="col m12 s12 center-align">
-                <button class="btn waves-effect waves-light" id="lazy_more">
-                    More posts
-                </button>
-            </div>
-        </div>
-
     </div>
 
 {% endblock content %}
 
 {% block script %}
-<script src="{% static 'js/posts_load.js' %}"></script>
+<script src="{% static 'js/posts_load_index_by_scroll.js' %}"></script>
+<script src="{% static 'js/scroll_comments.js' %}"></script>
 {% endblock %}

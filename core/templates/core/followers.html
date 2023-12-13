@@ -1,0 +1,58 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %} {{current_user.username}} followers {% endblock title %}
+
+{% block sidebar %}
+    {% include 'core/include/sidebar_users.html' %}
+{% endblock sidebar %}
+
+{% block content %}
+
+<div class="space-y-5 flex-shrink-0 lg:w-7/12 bg-white shadow" style="">
+    <div class=" m-3">
+        {% for follower_user_profile in user_followers %}
+        
+         <div class="pb-3 mb-3 border-b-4">
+            <div class="flex ">
+                
+                <div class="basis-3/12">
+                    <a href="{% url 'profile' follower_user_profile %}"> <img src="{{follower_user_profile.profileimg.url}}" class="object-cover bg-gray-200 border border-white rounded-full w-32 h-32"> </a>    
+                </div>
+
+                <div class="ml-3 basis-9/12">
+                    <div class="font-semibold">
+                        {{follower_user_profile}}
+                    </div>
+                    
+                    <div class="flex justify-around">
+                        <div class="">
+                            <a class=" block px-2 py-2 rounded-xl text-white bg-teal-600 hover:text-white hover:bg-teal-700" href="{% url 'profile' follower_user_profile %}">View profile</a>
+                        </div>
+                        <div class="">
+                            <form action="{% url 'start-dialog' %}" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" value="{{ follower_user_profile.id }}" name="page_owner_id">
+                                <button class="block px-2 py-2 rounded-xl text-white bg-teal-600 hover:text-white hover:bg-teal-700">
+                                    Message
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            
+            </div>
+
+            
+        </div>
+
+
+        {% endfor %}
+    </div>
+    
+</div>
+
+
+{% endblock content %}
+
+{% block script %}
+{% endblock %}

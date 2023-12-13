@@ -2835,3 +2835,10 @@ header .uk-dropdown {
     display: flex;
 }
 
+.svg-messages-hide {
+  display: none;
+}
+
+.svg-messages-show:hover .svg-messages-hide{
+    display: block;
+}

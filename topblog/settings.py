@@ -37,10 +37,13 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'daphne',
     'django.contrib.staticfiles',
     'debug_toolbar',
-    'core',
     'bootstrap3',
+    'channels',
+    'core',
+    'chat'
 ]
 
 MIDDLEWARE = [
@@ -76,8 +79,13 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'topblog.wsgi.application'
+ASGI_APPLICATION = 'topblog.asgi.application'
 
-
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer'
+    }
+}
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 

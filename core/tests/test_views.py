@@ -12,144 +12,14 @@ from io import BytesIO
 from PIL import Image
 from django.core.files.base import File
 
+
+#image file mock
 def get_image_file(name='test.png', ext='png', size=(50, 50), color=(256, 0, 0)):
     file_obj = BytesIO()
     image = Image.new("RGB", size=size, color=color)
     image.save(file_obj, ext)
     file_obj.seek(0)
     return File(file_obj, name=name)
-
-# class TestViews(TestCase):
-#
-#     def setUp(self):
-#         #create user
-#         self.user = User.objects.create_user(username='stasbasov')
-#         #create profile
-#         Profile.objects.create(user=self.user, profileimg='blank_profile.png', )
-#         #auth
-#         self.authorized_client = Client()
-#         self.authorized_client.force_login(self.user)
-#
-#         self.index_url = reverse('index')
-#         self.profile_view_url = reverse('profile', args=['stasbasov'])
-#
-#
-#     def test_index_GET(self):
-#         response = self.authorized_client.get(self.index_url)
-#         self.assertEquals(response.status_code, 200)
-#         self.assertTemplateUsed(response, 'core/index.html')
-#
-#     def test_profile_GET(self):
-#         response = self.authorized_client.get(self.profile_view_url)
-#         self.assertEquals(response.status_code, 200)
-#         self.assertTemplateUsed(response, 'core/profile.html')
-#
-#
-# class TaskPagesTests(TestCase):
-#     @classmethod
-#     def setUpClass(cls):
-#         super().setUpClass()
-#         datetime.datetime.now(tz=timezone.utc)
-#
-#     def setUp(self):
-#         #time
-#
-#         # Создаем авторизованный клиент
-#         self.user = User.objects.create_user(username='ivan')
-#         self.client = Client()
-#         self.authorized_client = Client()
-#         self.authorized_client.force_login(self.user)
-#
-#         Profile.objects.create(user=self.user)
-#
-#         self.profile_view_url = reverse('profile', args=['ivan'])
-#
-#         self.post = Post.objects.create(user=self.user, image='blank_profile.png')
-#
-#         self.chat = Chat.objects.create()
-#
-#     # Проверяем используемые шаблоны
-#     def test_auth_pages_uses_correct_template(self):
-#
-#         # Собираем в словарь пары "имя_html_шаблона: reverse(name)"
-#         templates_pages_names = {
-#             'core/index.html': reverse('index'),
-#             'core/edit_post.html': reverse('edit-post', kwargs={'post_id': self.post.id}),
-#             'core/settings.html': reverse('settings'),
-#             'core/profile.html': reverse('profile', kwargs={'username': 'ivan'}),
-#             'core/dialogs.html': reverse('dialogs'),
-#             'core/messages.html': reverse('messages', kwargs={'chat_id': self.chat.id}),
-#         }
-#         print(self.authorized_client.get(reverse('edit-post', kwargs={'post_id': self.post.id})))
-#
-#         # Проверяем, что при обращении к name вызывается соответствующий HTML-шаблон
-#         for template, reverse_name in templates_pages_names.items():
-#             with self.subTest(reverse_name=reverse_name):
-#                 response = self.authorized_client.get(reverse_name)
-#                 self.assertTemplateUsed(response, template)
-#
-#     def test_pages_uses_correct_template(self):
-#         """URL-адрес использует соответствующий шаблон."""
-#         templates_pages_names = {
-#             'core/signup.html': reverse('signup'),
-#             'core/signin.html': reverse('signin'),
-#         }
-#         for template, reverse_name in templates_pages_names.items():
-#             with self.subTest(reverse_name=reverse_name):
-#                 response = self.client.get(reverse_name)
-#                 self.assertTemplateUsed(response, template)
-#
-#         # Проверка словаря контекста главной страницы (в нём передаётся форма)
-#
-#
-#     def test_home_page_show_correct_context(self):
-#         """Шаблон home сформирован с правильным контекстом."""
-#         response = self.authorized_client.get(reverse('index'))
-#         # Словарь ожидаемых типов полей формы:
-#         # указываем, объектами какого класса должны быть поля формы
-#         form_fields = {
-#             'title': forms.fields.CharField,
-#             # При создании формы поля модели типа TextField
-#             # преобразуются в CharField с виджетом forms.Textarea
-#             'text': forms.fields.CharField,
-#             'slug': forms.fields.SlugField,
-#             'image': forms.fields.ImageField,
-#         }
-#
-#         # Проверяем, что типы полей формы в словаре context соответствуют ожиданиям
-#         for value, expected in form_fields.items():
-#             with self.subTest(value=value):
-#                 form_field = response.context.get('form').fields.get(value)
-#                 # Проверяет, что поле формы является экземпляром
-#                 # указанного класса
-#                 self.assertIsInstance(form_field, expected)
-#
-#         # Проверяем, что словарь context страницы /task
-#         # в первом элементе списка object_list содержит ожидаемые значения
-#
-#     def test_task_list_page_show_correct_context(self):
-#         """Шаблон task_list сформирован с правильным контекстом."""
-#         response = self.authorized_client.get(reverse('deals:task_list'))
-#         # Взяли первый элемент из списка и проверили, что его содержание
-#         # совпадает с ожидаемым
-#         first_object = response.context['object_list'][0]
-#         task_title_0 = first_object.title
-#         task_text_0 = first_object.text
-#         task_slug_0 = first_object.slug
-#         self.assertEqual(task_title_0, 'Заголовок')
-#         self.assertEqual(task_text_0, 'Текст')
-#         self.assertEqual(task_slug_0, 'test-slug')
-#
-#         # Проверяем, что словарь context страницы task/test-slug
-#         # содержит ожидаемые значения
-#
-#     def test_task_detail_pages_show_correct_context(self):
-#         """Шаблон task_detail сформирован с правильным контекстом."""
-#         response = (self.authorized_client.
-#                     get(reverse('deals:task_detail', kwargs={'slug': 'test-slug'})))
-#         self.assertEqual(response.context.get('task').title, 'Заголовок')
-#         self.assertEqual(response.context.get('task').text, 'Текст')
-#         self.assertEqual(response.context.get('task').slug, 'test-slug')
 
 
 class IndexTest(TestCase):
@@ -176,6 +46,11 @@ class IndexTest(TestCase):
 
         # Проверка того, что мы используем правильный шаблон
         self.assertTemplateUsed(response, 'core/index.html')
+
+    def test_is_ajax_GET(self):
+        response = self.authorized_client.get(reverse('index'), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertTemplateUsed(response, 'core/index_ajax.html')
+
 
     # def test_list_of_subscriptions(self):
     #     resp = self.authorized_client.get(reverse('index'))
@@ -233,6 +108,10 @@ class EditPostTest(TestCase):
         response = self.authorized_client.get(self.url_edit_post2_url)
         self.assertEqual(response.status_code, 404)
 
+    def test_post_is_not_exists_GET(self):
+        response = self.authorized_client.get(reverse('edit-post', kwargs={'post_id': '123'}))
+        self.assertEqual(response.status_code, 404)
+
     def test_author_is_able_edit_post_POST(self):
         response = self.authorized_client.post(self.url_edit_post1_url, {
             'caption': 'new_text'
@@ -255,6 +134,21 @@ class EditPostTest(TestCase):
         self.assertEquals(Post.objects.get(id=self.post_by_user1.id).caption, 'new_text')
         self.assertTrue(Post.objects.get(id=self.post_by_user1.id).image.url.startswith('/media/post_images/test'))
 
+    def test_post_is_not_exists_POST(self):
+        new_image = get_image_file()
+        response = self.authorized_client.post(reverse('edit-post', kwargs={'post_id': '123'}), {
+            'caption': 'new_text',
+            'image': new_image
+        })
+        self.assertEquals(response.status_code, 404)
+
+    def test_edit_post_with_not_image_file_POST(self):
+        not_image_file = SimpleUploadedFile("file.mp4", b"file_content", content_type="video/mp4")
+        response = self.authorized_client.post(self.url_edit_post1_url, {
+            'image': not_image_file
+        })
+        self.assertEquals(response.status_code, 200)
+
     def test_edit_post_no_data_POST(self):
         response = self.authorized_client.post(self.url_edit_post1_url, {
             'caption': '',
@@ -271,16 +165,6 @@ class EditPostTest(TestCase):
         })
         self.assertEquals(Post.objects.get(id=self.post_by_user1.id).caption, 'new_caption')
         self.assertEquals(Post.objects.get(id=self.post_by_user1.id).image, 'blank_profile.png')
-
-    # def test_edit_only_post_image_data_POST(self):
-    #     new_image = SimpleUploadedFile(name='new_image.jpg', content=b'', content_type='image/jpeg')
-    #
-    #     response = self.authorized_client.post(self.url_edit_post1_url, {
-    #         'image': new_image
-    #     })
-    #     self.assertEquals(Post.objects.get(id=self.post_by_user1.id).caption, '123')
-    #     # self.assertTrue(Post.objects.get(id=self.post_by_user1.id).image.url.startswith('/media/post_images/new_image'))
-    #     print(Post.objects.get(id=self.post_by_user1.id).image.url)
 
 
 class AddCommentTest(TestCase):
@@ -742,27 +626,34 @@ class SigninTest(TestCase):
         self.assertEquals(response.status_code, 302)
         self.assertRedirects(response, '/')
 
-        def test_if_data_incorrect_password_POST(self):
-            response = self.client.post(path=reverse('signin'), data={
-                'username': 'username',
-                'password': 'incorrect_password',
-            })
-            messages = [m.message for m in get_messages(response.wsgi_request)]
+    def test_if_data_incorrect_password_POST(self):
+        response = self.client.post(path=reverse('signin'), data={
+            'username': 'username',
+            'password': 'incorrect_password',
+        })
+        messages = [m.message for m in get_messages(response.wsgi_request)]
 
-            self.assertIn('Login or password is not correct', messages)
-            self.assertEquals(response.status_code, 302)
-            self.assertRedirects(response, reverse('signin'))
+        self.assertIn('Invalid username or password', messages)
+        self.assertEquals(response.status_code, 200)
 
-        def test_if_not_data_POST(self):
-            response = self.client.post(path=reverse('signin'), data={
-                'username': '',
-                'password': '',
-            })
-            messages = [m.message for m in get_messages(response.wsgi_request)]
+    def test_if_not_data_POST(self):
+        response = self.client.post(path=reverse('signin'), data={
+            'username': '',
+            'password': '',
+        })
+        messages = [m.message for m in get_messages(response.wsgi_request)]
 
-            self.assertIn('Login or password is not correct', messages)
-            self.assertEquals(response.status_code, 302)
-            self.assertRedirects(response, reverse('signin'))
+        self.assertIn('Invalid username or password', messages)
+        self.assertEquals(response.status_code, 200)
+
+    def test_if_correct_data_POST(self):
+        response = self.client.post(path=reverse('signin'), data={
+            'username': 'user1',
+            'password': 'user1',
+        })
+
+        self.assertEquals(response.status_code, 302)
+        self.assertRedirects(response, reverse('index'))
 
 
 class LogoutTest(TestCase):
@@ -835,6 +726,14 @@ class SettingsTest(TestCase):
         self.assertEquals(Profile.objects.get(user=self.user1).bio, 'new_bio')
         self.assertEquals(Profile.objects.get(user=self.user1).location, 'new_location')
 
+    def test_settings_with_not_image_file_POST(self):
+        not_image_file = SimpleUploadedFile("file.mp4", b"file_content", content_type="video/mp4")
+        response = self.authorized_client.post(path=reverse('settings'), data={
+            'profileimg': not_image_file,
+        })
+        self.assertEquals(response.status_code, 200)
+        self.assertTrue(Profile.objects.get(user=self.user1).profileimg.url.startswith('/media/blank_profile.png'))
+
 
 class AddPostTest(TestCase):
 
@@ -886,6 +785,17 @@ class AddPostTest(TestCase):
         self.assertEquals(Post.objects.count(), 0)
 
 
+        def test_add_post_with_not_image_file_POST(self):
+            not_image_file = SimpleUploadedFile("file.mp4", b"file_content", content_type="video/mp4")
+            response = self.authorized_client.post(path=reverse('add-post'), data={
+                'image': not_image_file,
+                'caption': 'new_caption',
+                'disable_comments': True})
+
+            self.assertEquals(response.status_code, 200)
+            self.assertEquals(Post.objects.count(), 0)
+
+
 class ProfileViewTest(TestCase):
 
     def setUp(self):
@@ -924,15 +834,33 @@ class ProfileViewTest(TestCase):
 
         self.assertTemplateUsed(response, 'core/profile.html')
 
-    def test_data_page_profile_GET(self):
+    def test_data_profile_on_myself_page_GET(self):
         response = self.authorized_client.get(reverse('profile', kwargs={'username': self.user1.username}))
 
         self.assertEquals(response.context.get('page_user_profile'), self.profile1)
         self.assertEquals(response.context.get('page_user'), self.user1)
-        # self.assertEquals(response.context.get('user_posts').count(), 2)
         self.assertEquals(response.context.get('user_post_length'), 2)
         self.assertEquals(response.context.get('user_followers'), 2)
         self.assertEquals(response.context.get('user_following'), 1)
+
+    def test_data_profile_on_other_user_page_GET(self):
+        response = self.authorized_client.get(reverse('profile', kwargs={'username': self.user2.username}))
+
+        self.assertEquals(response.context.get('page_user_profile'), self.profile2)
+        self.assertEquals(response.context.get('page_user'), self.user2)
+        self.assertEquals(response.context.get('user_post_length'), 1)
+        self.assertEquals(response.context.get('user_followers'), 1)
+        self.assertEquals(response.context.get('user_following'), 1)
+
+    def test_data_profile_on_not_exists_page_GET(self):
+        response = self.authorized_client.get(reverse('profile', kwargs={'username': 'abcd'}))
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_is_ajax_GET(self):
+        response = self.authorized_client.get(reverse('profile', kwargs={'username': self.user2.username}), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertTemplateUsed(response, 'core/profile_ajax.html')
+
 
 
 class ProfileFollowingCreateViewTest(TestCase):

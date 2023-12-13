@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User, auth
 from django.contrib import messages
 from django.urls import reverse
-from .models import Profile, Post, PostLikes, PostComments, CommentLikes, Chat, Message
+from .models import Profile, Post, PostLikes, PostComments, CommentLikes
 from django.views.generic import ListView, DetailView, CreateView
 from django.views import View
 from django.http import Http404, HttpResponse
@@ -17,8 +17,8 @@ from django.contrib.auth.forms import AuthenticationForm
 from .services import get_current_user, get_user_profile_by_username, \
     get_user_friends_suggestions, get_post_by_id, disable_comments, enable_comments, check_if_comment_disable, \
     if_user_is_post_owner, if_user_is_authenticated, get_user_profile_by_user_object
-from .utils import UserProfileMixin
-from .forms import CommentForm, MessageForm, SignupForm, SigninForm, SettingsForm, AddPostForm, EditPostForm
+from .utils import GetUserProfileInContext
+from .forms import CommentForm, SignupForm, SigninForm, SettingsForm, AddPostForm, EditPostForm
 
 
 def is_ajax(request):
@@ -62,6 +62,12 @@ class Index(LoginRequiredMixin, View):
             'current_user_profile': current_user_profile,
             'user_friends_posts': user_friends_posts,
             'suggestions_username_profile_list': user_friends_suggestions[:5]})
+
+
+# def load_comments(request):
+#     if is_ajax(request):
+#         comment = PostComments.objects.all().first()
+#         return render(request, 'core/comments_ajax.html', {'comment': comment, })
 
 
 class EditPost(LoginRequiredMixin, View):
@@ -279,11 +285,8 @@ class Settings(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def post(self, request):
-        try:
-            current_user = get_current_user(request)
-            current_user_profile = Profile.objects.get(user=current_user)
-        except Exception:
-            raise Http404
+        current_user = get_current_user(request)
+        current_user_profile = Profile.objects.get(user=current_user)
         settings_form = SettingsForm(request.POST, request.FILES, instance=current_user_profile)
         if settings_form.is_valid():
             settings_form.save()
@@ -291,14 +294,10 @@ class Settings(LoginRequiredMixin, View):
         return render(request, 'core/settings.html', {'settings_form': settings_form})
 
     def get(self, request):
-        try:
-            current_user = get_current_user(request)
-            current_user_profile = Profile.objects.select_related('user').only('bio', 'profileimg', 'location'
-                                                                               , 'user__username') \
-                .get(user=current_user)
-
-        except Exception:
-            raise Http404
+        current_user = get_current_user(request)
+        current_user_profile = Profile.objects.select_related('user').only('bio', 'profileimg', 'location'
+                                                                           , 'user__username') \
+            .get(user=current_user)
 
         settings_form = SettingsForm(instance=current_user_profile)
         return render(request, 'core/settings.html', {'current_user': current_user,
@@ -310,12 +309,9 @@ class AddPost(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def get(self, request):
-        try:
-            current_user = get_current_user(request)
-            current_user_profile = Profile.objects.select_related('user').prefetch_related('following').get(
-                user=current_user)
-        except Exception:
-            raise Http404
+        current_user = get_current_user(request)
+        current_user_profile = Profile.objects.select_related('user').prefetch_related('following').get(
+            user=current_user)
 
         user_friends_suggestions = get_user_friends_suggestions(current_user_profile)
 
@@ -327,12 +323,9 @@ class AddPost(LoginRequiredMixin, View):
                                                                                            :5]})
 
     def post(self, request):
-        try:
-            user_id = int(request.user.id)
-            user = User.objects.get(id=user_id)
-            user_profile = Profile.objects.get(id=user_id)
-        except Exception:
-            raise Http404
+        user_id = int(request.user.id)
+        user = User.objects.get(id=user_id)
+        user_profile = Profile.objects.get(id=user_id)
 
         add_post_form = AddPostForm(request.POST, request.FILES)
         if add_post_form.is_valid():
@@ -391,7 +384,7 @@ class ProfileView(LoginRequiredMixin, View):
                 return HttpResponse('')
             user_posts_paginator = paginator.page(paginator.num_pages)
         if is_ajax(request):
-            return render(request, 'core/profile_ajax.html', {'user_posts': user_posts_paginator, })
+            return render(request, 'core/profile_ajax.html', {'page_user': page_user, 'user_posts': user_posts_paginator, })
 
         context = {
             'is_owner': is_owner,
@@ -405,6 +398,34 @@ class ProfileView(LoginRequiredMixin, View):
             'user_following': user_following,
         }
         return render(request, 'core/profile.html', context)
+
+
+class FollowersList(LoginRequiredMixin, View):
+    login_url = 'signin'
+
+    def get(self, request):
+        current_user = get_current_user(request)
+        current_user_profile = Profile.objects.select_related('user').prefetch_related('following').get(
+            user=current_user)
+        user_followers = current_user_profile.followers.all()
+        return render(request, 'core/followers.html', {
+            'current_user': current_user,
+            'current_user_profile': current_user_profile,
+            'user_followers': user_followers})
+
+
+class FollowingList(LoginRequiredMixin, View):
+    login_url = 'signin'
+
+    def get(self, request):
+        current_user = get_current_user(request)
+        current_user_profile = Profile.objects.select_related('user').prefetch_related('following').get(
+            user=current_user)
+        user_following = current_user_profile.following.all()
+        return render(request, 'core/following.html', {
+            'current_user': current_user,
+            'current_user_profile': current_user_profile,
+            'user_following': user_following})
 
 
 class ProfileFollowingCreateView(LoginRequiredMixin, View):
@@ -427,11 +448,11 @@ class ProfileFollowingCreateView(LoginRequiredMixin, View):
 
         if profile_who_want_follow in profile_page_owner.followers.all():
             profile_page_owner.followers.remove(profile_who_want_follow)
-            message = f'Подписаться на {profile_page_owner}'
+            message = f'Follow'
             status = False
         else:
             profile_page_owner.followers.add(profile_who_want_follow)
-            message = f'Отписаться от {profile_page_owner}'
+            message = f'Unfollow'
             status = True
         data = {
             'username': user_who_want_follow.username,
@@ -448,10 +469,7 @@ class Search(LoginRequiredMixin, View):
     def get(self, request):
         current_user = get_current_user(request)
         current_user_profile = Profile.objects.select_related('user').get(user=current_user)
-        try:
-            search_user = request.GET['search_user']
-        except:
-            search_user = ''
+        search_user = request.GET['search_user']
         if search_user:
             search_user_profile_list = Profile.objects.select_related('user') \
                 .filter(user__username__contains=search_user).only('user__username', 'user__id', 'bio', 'profileimg',
@@ -490,90 +508,3 @@ class Likecomment(LoginRequiredMixin, View):
             return redirect(request.META.get('HTTP_REFERER'))
 
 
-class DialogsView(UserProfileMixin, LoginRequiredMixin, ListView):
-    login_url = 'signin'
-
-    context_object_name = 'chats'
-    model = Chat
-    template_name = 'core/dialogs.html'
-
-    def get_queryset(self):
-        return Chat.objects.filter(members__in=[self.request.user.id])
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        add = self.get_user_context()
-        return dict(list(context.items()) + list(add.items()))
-
-
-class MessagesView(LoginRequiredMixin, View):
-    login_url = 'signin'
-
-    def get(self, request, chat_id):
-
-        # Protect for writing myself
-        if chat_id == 0:
-            chat = None
-            messages = None
-            users_in_chat = None
-        else:
-            # Make a list with user's chat
-            chats = Chat.objects.filter(members=request.user)
-            users_in_chat = set()
-            id = request.user.id
-            for chat in chats:
-                try:
-                    users_in_chat.add(chat.members.exclude(id=id)[0])
-                except:
-                    pass
-
-            # Find messages for a chat
-            try:
-                chat = Chat.objects.get(id=chat_id)
-                len_messages = len(chat.message_set.all())
-                if len_messages > 8:
-                    delta = len_messages - 8
-                    messages = chat.message_set.all().order_by('pub_date')[len_messages - delta:]
-                else:
-                    messages = chat.message_set.all().order_by('pub_date')
-                if request.user in chat.members.all():
-                    chat.message_set.filter(is_readed=False).exclude(author=request.user).update(is_readed=True)
-                else:
-                    chat = None
-            except Chat.DoesNotExist:
-                chat = None
-
-        return render(
-            request,
-            'core/messages.html',
-            {
-                'chat': chat,
-                'messages': messages,
-                'form': MessageForm(),
-                'users_in_chat': users_in_chat,
-            }
-        )
-
-    def post(self, request, chat_id):
-        form = MessageForm(data=request.POST)
-        if form.is_valid():
-            message = form.save(commit=False)
-            message.chat_id = chat_id
-            message.author = request.user
-            message.save()
-        return redirect(reverse('messages', kwargs={'chat_id': chat_id}))
-
-
-class CreateDialogView(View):  # Добавить защиту от создания диалогов с самим собой!
-    def get(self, request, user_id):
-        if request.user.id == user_id:
-            return redirect(reverse('messages', kwargs={'chat_id': 0}))
-        chats = Chat.objects.filter(members__in=[request.user.id, user_id], type=Chat.DIALOG).annotate(
-            c=Count('members')).filter(c=2)
-        if chats.count() == 0:
-            chat = Chat.objects.create()
-            chat.members.add(request.user)
-            chat.members.add(user_id)
-        else:
-            chat = chats.first()
-        return redirect(reverse('messages', kwargs={'chat_id': chat.id}))
