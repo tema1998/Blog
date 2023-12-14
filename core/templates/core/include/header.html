@@ -1,90 +1,39 @@
 {% load static %}
 <header>
-        <div class="header_inner">
+        <div class="flex justify-between basis-full font-semibold">
 
-            <div class="left-buttons">
-                <div class="button-news"><a href="/">News </a> </div>
-                <div class="button-news"><a href="{{current_user_profile.get_absolute_url}}">My page</a> </div>
-                <div class="button-news"><a href="{% url 'chats' %}">Messages </a> </div>
+            <div class="flex items-center">
+                <div class="ml-5 mr-2"><a href="/">News </a> </div>
+                <div class="mr-2"><a href="{{current_user_profile.get_absolute_url}}">My page</a> </div>
+                <div class="mr-2"><a href="{% url 'chats' %}">Messages </a> </div>
+                <div class="mr-5"><a href="{% url 'favorites-posts' %}">Favorites posts </a> </div>
+                <div class="">
+                    <form action="/search" method = "GET">
+                        <div class="flex">
+                            <div class="flex items-center">
+                                <input type="text" name="search_user" placeholder="Search for username.."> &nbsp; &nbsp;
+                            </div>
+                            <div class="flex items-center">
+                                <button type = "submit"><i class="fa fa-search fa-1x"></i></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
 
-            <form action="/search" method = "GET">
-                <div class="left-side">
-<!--                        <div class="header_search">-->
-                        <input type="text" name="search_user" placeholder="Search for username.."> &nbsp; &nbsp;
-                        <button type = "submit"><i class="fa fa-search fa-1x"></i></button>
-<!--                        </div>-->
-                </div>
-            </form>
+            <div class="flex items-center mr-5">
+                 <div class="mr-2">
+                    <a href= "{% url 'add-post' %}" class="">
+                        <ion-icon name="add-circle" class="-mb-1 mr-1 opacity-90 text-xl uilus-circle"></ion-icon> Add post
+                    </a>
+                 </div>
 
-            <div class="right-side lg:pr-4">
-                 <!-- upload -->
-                <a href= "{% url 'add-post' %}"
-                    class="bg-pink-500 flex font-bold hidden hover:bg-pink-600 hover:text-white inline-block items-center lg:block max-h-10 mr-4 px-4 py-2 rounded shado text-white">
-                    <ion-icon name="add-circle" class="-mb-1
-                     mr-1 opacity-90 text-xl uilus-circle"></ion-icon> Add post
-                </a>
+                 <div class="items-center mr-2">
+                    <a href="#">
+                        <img src="{{current_user_profile.profileimg.url}}" class="w-8 h-8" alt="">
+                    </a>
+                 </div>
 
-                 <!-- Notification -->
-
-<!--                        <a href="#" class="header-links-item">-->
-<!--                            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none"><path d="M12 22a2.02 2.02 0 0 1-2.01-2h4a2.02 2.02 0 0 1-.15.78a2.042 2.042 0 0 1-1.44 1.18h-.047A1.922 1.922 0 0 1 12 22zm8-3H4v-2l2-1v-5.5a8.065 8.065 0 0 1 .924-4.06A4.654 4.654 0 0 1 10 4.18V2h4v2.18c2.579.614 4 2.858 4 6.32V16l2 1v2z" fill="currentColor"/></g></svg>-->
-<!--                        </a>-->
-<!--                        <div uk-drop="mode: click;offset: 4" class="header_dropdown">-->
-<!--                            <h4-->
-<!--                                class="-mt-5 -mx-5 bg-gradient-to-t from-gray-100 to-gray-50 border-b font-bold px-6 py-3">-->
-<!--                                Notification </h4>-->
-<!--                            <ul class="dropdown_scrollbar" data-simplebar>-->
-<!--                                <li>-->
-<!--                                    <a href="#">-->
-<!--                                        <div class="drop_avatar"> <img src="{% static 'assets/images/avatars/avatar-1.jpg' %}" alt="">-->
-<!--                                        </div>-->
-<!--                                        <div class="drop_content">-->
-<!--                                            <p> <strong class="text-link" >Taiye</strong>  -->
-<!--                                                <span class="text-link"> is following you  </span>-->
-<!--                                            </p>-->
-<!--                                            <span class="time-ago"> 2 hours ago </span>-->
-<!--                                        </div>-->
-<!--                                    </a>-->
-<!--                                </li>-->
-<!--                                -->
-
-<!--                            </ul>-->
-<!--                            <a href="#" class="see-all">See all</a>-->
-<!--                        </div>-->
-
-                <!-- Messages -->
-
-<!--                        <a href="#" class="header-links-item">-->
-<!--                            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" width="0.5em" height="0.5em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 16 16"><g fill="currentColor"><path d="M2 0a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2.5a1 1 0 0 1 .8.4l1.9 2.533a1 1 0 0 0 1.6 0l1.9-2.533a1 1 0 0 1 .8-.4H14a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/></g></svg>-->
-<!--                        </a>-->
-<!--                        <div uk-drop="mode: click;offset: 4" class="header_dropdown">-->
-<!--                            <h4-->
-<!--                                class="-mt-5 -mx-5 bg-gradient-to-t from-gray-100 to-gray-50 border-b font-bold px-6 py-3">-->
-<!--                                Messages </h4>-->
-<!--                            <ul class="dropdown_scrollbar" data-simplebar>-->
-<!--                                <li>-->
-<!--                                    <a href="#">-->
-<!--                                        <div class="drop_avatar"> <img src="{% static 'assets/images/avatars/avatar-1.jpg' %}" alt="">-->
-<!--                                        </div>-->
-<!--                                        <div class="drop_content">-->
-<!--                                            <strong> Taiye </strong> <time> 6:43 PM</time>-->
-<!--                                            <p> hi tomi </p>-->
-<!--                                        </div>-->
-<!--                                    </a>-->
-<!--                                </li>-->
-<!--                                -->
-
-
-<!--                            </ul>-->
-<!--                            <a href="#" class="see-all">See all</a>-->
-<!--                        </div>-->
-
-                <!-- profile -->
-
-                <a href="#">
-                    <img src="{{current_user_profile.profileimg.url}}" class="header-avatar" alt="">
-                </a>
                 <div uk-drop="mode: click;offset:9" class="header_dropdown profile_dropdown border-t">
                     <ul>
 

@@ -5,7 +5,6 @@ import uuid
 from datetime import datetime
 
 from django.urls import reverse
-from django.utils.translation import gettext as _
 
 User = get_user_model()
 
@@ -15,7 +14,7 @@ class Profile(models.Model):
     bio = models.TextField('Information', max_length=300, blank=True)
     profileimg = models.ImageField(upload_to='profile_images', default='blank_profile.png')
     location = models.CharField(max_length=100, blank=True)
-    following = models.ManyToManyField('self', verbose_name='Подписки', related_name='followers', symmetrical=False,
+    following = models.ManyToManyField('self', verbose_name='Subscriptions', related_name='followers', symmetrical=False,
                                        blank=True)
 
     def __str__(self):
@@ -35,7 +34,6 @@ class Post(models.Model):
     no_of_likes = models.IntegerField(default=0)
     disable_comments = models.BooleanField(default=False)
 
-
     def get_comments(self):
         return self.postcomments_set.all()
 
@@ -43,9 +41,15 @@ class Post(models.Model):
         return self.user_profile.profileimg.url
 
 
+class UserFavoritePosts(models.Model):
+    user_profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='user_favorite_posts')
+    posts = models.ManyToManyField(Post, verbose_name='User favorite posts', related_name='user_favorite_posts')
+
+
 class PostLikes(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+
     def __str__(self):
         return f'{self.user} likes {self.post}'
 

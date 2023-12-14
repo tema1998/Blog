@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User, auth
 from django.contrib import messages
 from django.urls import reverse
-from .models import Profile, Post, PostLikes, PostComments, CommentLikes
+from .models import Profile, Post, PostLikes, PostComments, CommentLikes, UserFavoritePosts
 from django.views.generic import ListView, DetailView, CreateView
 from django.views import View
 from django.http import Http404, HttpResponse
@@ -384,7 +384,8 @@ class ProfileView(LoginRequiredMixin, View):
                 return HttpResponse('')
             user_posts_paginator = paginator.page(paginator.num_pages)
         if is_ajax(request):
-            return render(request, 'core/profile_ajax.html', {'page_user': page_user, 'user_posts': user_posts_paginator, })
+            return render(request, 'core/profile_ajax.html',
+                          {'page_user': page_user, 'user_posts': user_posts_paginator, })
 
         context = {
             'is_owner': is_owner,
@@ -508,3 +509,39 @@ class Likecomment(LoginRequiredMixin, View):
             return redirect(request.META.get('HTTP_REFERER'))
 
 
+class AddFavoritePost(LoginRequiredMixin, View):
+    login_url = 'signin'
+
+    def post(self, request):
+        current_user_id = int(request.user.id)
+        current_user_profile = Profile.objects.get(id=current_user_id)
+        post_id = request.POST.get('post_id')
+        post = Post.objects.get(id=post_id)
+        if UserFavoritePosts.objects.filter(user_profile=current_user_profile).first():
+            user_favorites_obj = UserFavoritePosts.objects.get(user_profile=current_user_profile)
+            user_favorites_obj.posts.add(post)
+        else:
+            user_favorites_obj = UserFavoritePosts.objects.create(user_profile=current_user_profile)
+            user_favorites_obj.posts.add(post)
+
+        return redirect(request.META.get('HTTP_REFERER'))
+
+
+class FavoritesPosts(LoginRequiredMixin, View):
+    login_url = 'signin'
+
+    def get(self, request):
+        current_user = get_current_user(request)
+        current_user_profile = Profile.objects.select_related('user').get(user=current_user)
+        user_friends_suggestions = get_user_friends_suggestions(current_user_profile)
+
+        if UserFavoritePosts.objects.filter(user_profile=current_user_profile).first():
+            user_favorites_obj = UserFavoritePosts.objects.get(user_profile=current_user_profile)
+            user_favorite_posts = user_favorites_obj.posts.all()
+        else:
+            user_favorite_posts = None
+        return render(request, 'core/favorites_posts.html', {'current_user': current_user,
+                                                              'current_user_profile': current_user_profile,
+                                                              'suggestions_username_profile_list':
+                                                                  user_friends_suggestions[:5],
+                                                              'user_favorite_posts': user_favorite_posts})

@@ -1,5 +1,6 @@
 from .services import get_user_profile_by_username
 from .forms import CommentForm
+from .models import Profile, Post
 
 
 # def get_current_user_profile(request):

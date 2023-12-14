@@ -1,4 +1,5 @@
 {% load static %}
+{% load if_user_add_post_to_favorites %}
 <div class="bg-white shadow rounded-md  -mx-2 lg:mx-0">
     <!-- post header-->
     <div class="flex justify-between items-center px-4 py-3 font-semibold">
@@ -23,14 +24,22 @@
     
                 <ul class="space-y-1">
                 <li>
-                    <a href="#" class="flex items-center px-3 py-2 hover:bg-gray-200 hover:text-gray-800 rounded-md ">
-                    <i class="uil-share-alt mr-1"></i> Share
-                    </a>
-                </li>
-                <li>
-                    <a href="#" class="flex items-center px-3 py-2 hover:bg-gray-200 hover:text-gray-800 rounded-md ">
-                    <i class="uil-favorite mr-1"></i>  Add favorites
-                    </a>
+                    <form action="/add-favorites" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" value="{{user.id}}" name="user_id">
+                        <input type="hidden" value="{{post.id}}" name="post_id">
+                        <button class="flex items-center px-3 py-2 hover:bg-gray-200 hover:text-gray-800 rounded-md " type="submit">
+                            <i class="uil-favorite mr-1"></i>
+                                {% if_user_add_post_to_favorites post.id user.id as if_favorites %}
+                                {% if if_favorites %}
+                                    Remove from favorites
+                                {% else %}
+                                    Add to favorites
+                                {% endif %}
+
+                        </button>
+                    </form>
+
                 </li>
     
                 {% if post.user == user %}

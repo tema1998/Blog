@@ -2,11 +2,12 @@ from django.test import SimpleTestCase
 from django.urls import reverse, resolve
 from core.views import *
 
+
 class TestUrls(SimpleTestCase):
 
     # Resolve give us info about url, we get name func or class of View, and we compare class from view with class
     # from info.
-    # Проверка что вызывается нужна вьюшка
+
 
     def test_index_url_resolves(self):
         url = reverse('index')
