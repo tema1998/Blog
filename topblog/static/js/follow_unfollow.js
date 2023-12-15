@@ -1,6 +1,6 @@
-const allFollowButtons = document.querySelector('#all-foollow-buttons');
+const profilesWrap = document.querySelector('#profiles-wrap');
 
-allFollowButtons.addEventListener('click', event => {
+profilesWrap.addEventListener('click', event => {
     let target = event.target;
     if (target.id != 'btn-follow-unfollow') return;
 
@@ -12,16 +12,7 @@ allFollowButtons.addEventListener('click', event => {
             "X-Requested-With": "XMLHttpRequest",
     }}).then(response => response.json())
     .then(data => {
-//        const isBtnPrimary = followUnfollowBtn.classList.contains('btn-primary');
         const message = data.message || '';
-
-//        if (isBtnPrimary) {
-//            followUnfollowBtn.classList.remove('btn-primary');
-//            followUnfollowBtn.classList.add('btn-danger');
-//        } else {
-//            followUnfollowBtn.classList.remove('btn-danger');
-//            followUnfollowBtn.classList.add('btn-primary');
-//        }
         target.innerHTML = message;
         });
 });

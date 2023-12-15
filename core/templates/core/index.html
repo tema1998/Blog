@@ -10,7 +10,7 @@
 {% block content %}
     <div class="space-y-5 flex-shrink-0 lg:w-7/12">
 
-        <div class="row" id="post_list">
+        <div  class="row" id="post_list">
             {% include 'core/index_ajax.html' %}
         </div>
 
@@ -23,5 +23,7 @@
 
 {% block script %}
 <script src="{% static 'js/posts_load_index_by_scroll.js' %}"></script>
-<script src="{% static 'js/scroll_comments.js' %}"></script>
+<script src="{% static 'js/get_csrf.js' %}"></script>
+<script src="{% static 'js/add_remove_favorites.js' %}"></script>
+<script src="{% static 'js/like_post.js' %}"></script>
 {% endblock %}

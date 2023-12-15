@@ -14,8 +14,8 @@ def if_user_add_post_to_favorites(post_id, user_id):
         user_favorites_obj = UserFavoritePosts.objects.get(user_profile=current_user_profile)
         user_favorites_posts = user_favorites_obj.posts.all()
         if post in user_favorites_posts:
-            return True
+            return 'Remove from favorites'
         else:
-            return False
+            return 'Add to favorites'
     except:
-        return False
+        return 'Remove from favorites'

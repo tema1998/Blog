@@ -509,22 +509,68 @@ class Likecomment(LoginRequiredMixin, View):
             return redirect(request.META.get('HTTP_REFERER'))
 
 
-class AddFavoritePost(LoginRequiredMixin, View):
+class AddRemoveFavoritePost(LoginRequiredMixin, View):
     login_url = 'signin'
 
-    def post(self, request):
-        current_user_id = int(request.user.id)
-        current_user_profile = Profile.objects.get(id=current_user_id)
-        post_id = request.POST.get('post_id')
-        post = Post.objects.get(id=post_id)
-        if UserFavoritePosts.objects.filter(user_profile=current_user_profile).first():
-            user_favorites_obj = UserFavoritePosts.objects.get(user_profile=current_user_profile)
-            user_favorites_obj.posts.add(post)
-        else:
-            user_favorites_obj = UserFavoritePosts.objects.create(user_profile=current_user_profile)
-            user_favorites_obj.posts.add(post)
+    def post(self, request, post_id):
+        if is_ajax(request):
+            try:
+                current_user_id = int(request.user.id)
+                current_user_profile = Profile.objects.get(id=current_user_id)
+                post = Post.objects.get(id=post_id)
+            except Exception:
+                raise Http404
 
-        return redirect(request.META.get('HTTP_REFERER'))
+            if UserFavoritePosts.objects.filter(user_profile=current_user_profile).first():
+                user_favorites_obj = UserFavoritePosts.objects.get(user_profile=current_user_profile)
+                if not post in user_favorites_obj.posts.all():
+                    user_favorites_obj.posts.add(post)
+                    message = f'Remove from favorites'
+                    post_status = True
+                else:
+                    user_favorites_obj.posts.remove(post)
+                    message = f'Add to favorites'
+                    post_status = False
+            else:
+                user_favorites_obj = UserFavoritePosts.objects.create(user_profile=current_user_profile)
+                user_favorites_obj.posts.add(post)
+                message = f'Remove from favorites'
+                post_status = True
+
+            data = {
+                'message': message,
+                'post_status': post_status,
+            }
+
+            return JsonResponse(data, status=200)
+
+    # def post(self, request, user_id):
+    #     try:
+    #         user_id_who_want_follow = int(request.user.id)
+    #         user_who_want_follow = User.objects.get(id=user_id_who_want_follow)
+    #         profile_who_want_follow = Profile.objects.get(user=user_who_want_follow)
+    #
+    #         user_page_owner = User.objects.get(id=int(user_id))
+    #         profile_page_owner = Profile.objects.get(user=user_page_owner)
+    #
+    #     except Exception:
+    #         raise Http404
+    #
+    #     if profile_who_want_follow in profile_page_owner.followers.all():
+    #         profile_page_owner.followers.remove(profile_who_want_follow)
+    #         message = f'Follow'
+    #         status = False
+    #     else:
+    #         profile_page_owner.followers.add(profile_who_want_follow)
+    #         message = f'Unfollow'
+    #         status = True
+    #     data = {
+    #         'username': user_who_want_follow.username,
+    #         'user_id': user_who_want_follow.id,
+    #         'message': message,
+    #         'status': status,
+    #     }
+    #     return JsonResponse(data, status=200)
 
 
 class FavoritesPosts(LoginRequiredMixin, View):
@@ -541,7 +587,7 @@ class FavoritesPosts(LoginRequiredMixin, View):
         else:
             user_favorite_posts = None
         return render(request, 'core/favorites_posts.html', {'current_user': current_user,
-                                                              'current_user_profile': current_user_profile,
-                                                              'suggestions_username_profile_list':
-                                                                  user_friends_suggestions[:5],
-                                                              'user_favorite_posts': user_favorite_posts})
+                                                             'current_user_profile': current_user_profile,
+                                                             'suggestions_username_profile_list':
+                                                                 user_friends_suggestions[:5],
+                                                             'user_favorite_posts': user_favorite_posts})

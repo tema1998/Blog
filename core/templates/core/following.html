@@ -9,7 +9,7 @@
 {% block content %}
 
 <div class="space-y-5 flex-shrink-0 lg:w-7/12 bg-white shadow" style="">
-    <div id="all-foollow-buttons" class=" m-3">
+    <div id="profiles-wrap" class=" m-3">
         {% for following_user_profile in user_following %}
         
          <div class="pb-3 mb-3 border-b-4">
@@ -58,6 +58,6 @@
 {% endblock content %}
 
 {% block script %}
-<script src="{% static 'js/backend.js' %}"></script>
+<script src="{% static 'js/get_csrf.js' %}"></script>
 <script src="{% static 'js/follow_unfollow.js' %}"></script>
 {% endblock %}
