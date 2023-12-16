@@ -20,7 +20,7 @@
             </div>
         {% else %}
             <div class="center-align border rounded-xl bg-slate-200 " id="end_posts">
-                <span class="text-gray-600">There is no favorites posts yet..</span>
+                <span class="text-gray-600">There is no favorites posts yet.</span>
             </div>
         {% endif %}
 
@@ -30,4 +30,6 @@
 {% endblock content %}
 
 {% block script %}
+<script src="{% static 'js/get_csrf.js' %}"></script>
+<script src="{% static 'js/post_js_functions.js' %}"></script>
 {% endblock %}

@@ -149,27 +149,66 @@ class AddComment(LoginRequiredMixin, View):
 class LikePost(LoginRequiredMixin, View):
     login_url = 'signin'
 
-    def post(self, request):
-        try:
-            user = get_current_user(request)
-            post = get_post_by_id(request.POST['post_id'])
+    def post(self, request, post_id):
+        if is_ajax(request):
+            try:
+                user = get_current_user(request)
+                post = get_post_by_id(post_id)
 
-        except Exception:
-            raise Http404
+            except Exception:
+                raise Http404
 
-        liked_post = PostLikes.objects.filter(post=post, user=user).first()
-        if liked_post is None:
-            new_like = PostLikes.objects.create(post=post, user=user)
-            new_like.save()
-            post.no_of_likes += 1
-            post.save()
-            return redirect(request.META.get('HTTP_REFERER'))
+            liked_post = PostLikes.objects.filter(post=post, user=user).first()
+            if liked_post is None:
+                new_like = PostLikes.objects.create(post=post, user=user)
+                new_like.save()
+                post.no_of_likes += 1
+                post.save()
+                like_status = True
 
-        else:
-            liked_post.delete()
-            post.no_of_likes -= 1
-            post.save()
-            return redirect(request.META.get('HTTP_REFERER'))
+            else:
+                liked_post.delete()
+                post.no_of_likes -= 1
+                post.save()
+                like_status = False
+
+            likes = post.no_of_likes
+            data = {
+                'likes': likes,
+                'like_status': like_status,
+            }
+            return JsonResponse(data, status=200)
+
+        # if is_ajax(request):
+        #     try:
+        #         current_user_id = int(request.user.id)
+        #         current_user_profile = Profile.objects.get(id=current_user_id)
+        #         post = Post.objects.get(id=post_id)
+        #     except Exception:
+        #         raise Http404
+        #
+        #     if UserFavoritePosts.objects.filter(user_profile=current_user_profile).first():
+        #         user_favorites_obj = UserFavoritePosts.objects.get(user_profile=current_user_profile)
+        #         if not post in user_favorites_obj.posts.all():
+        #             user_favorites_obj.posts.add(post)
+        #             message = f'Remove from favorites'
+        #             post_status = True
+        #         else:
+        #             user_favorites_obj.posts.remove(post)
+        #             message = f'Add to favorites'
+        #             post_status = False
+        #     else:
+        #         user_favorites_obj = UserFavoritePosts.objects.create(user_profile=current_user_profile)
+        #         user_favorites_obj.posts.add(post)
+        #         message = f'Remove from favorites'
+        #         post_status = True
+        #
+        #     data = {
+        #         'message': message,
+        #         'post_status': post_status,
+        #     }
+        #
+        #     return JsonResponse(data, status=200)
 
 
 class DeletePost(LoginRequiredMixin, View):
@@ -514,26 +553,15 @@ class AddRemoveFavoritePost(LoginRequiredMixin, View):
 
     def post(self, request, post_id):
         if is_ajax(request):
+            current_user = get_current_user(request)
+            post = Post.objects.get(id=post_id)
             try:
-                current_user_id = int(request.user.id)
-                current_user_profile = Profile.objects.get(id=current_user_id)
-                post = Post.objects.get(id=post_id)
-            except Exception:
-                raise Http404
-
-            if UserFavoritePosts.objects.filter(user_profile=current_user_profile).first():
-                user_favorites_obj = UserFavoritePosts.objects.get(user_profile=current_user_profile)
-                if not post in user_favorites_obj.posts.all():
-                    user_favorites_obj.posts.add(post)
-                    message = f'Remove from favorites'
-                    post_status = True
-                else:
-                    user_favorites_obj.posts.remove(post)
-                    message = f'Add to favorites'
-                    post_status = False
-            else:
-                user_favorites_obj = UserFavoritePosts.objects.create(user_profile=current_user_profile)
-                user_favorites_obj.posts.add(post)
+                user_favorites_obj = UserFavoritePosts.objects.get(user=current_user, post__id=post_id)
+                user_favorites_obj.delete()
+                message = f'Add to favorites'
+                post_status = False
+            except:
+                UserFavoritePosts.objects.create(user=current_user, post=post)
                 message = f'Remove from favorites'
                 post_status = True
 
@@ -544,34 +572,6 @@ class AddRemoveFavoritePost(LoginRequiredMixin, View):
 
             return JsonResponse(data, status=200)
 
-    # def post(self, request, user_id):
-    #     try:
-    #         user_id_who_want_follow = int(request.user.id)
-    #         user_who_want_follow = User.objects.get(id=user_id_who_want_follow)
-    #         profile_who_want_follow = Profile.objects.get(user=user_who_want_follow)
-    #
-    #         user_page_owner = User.objects.get(id=int(user_id))
-    #         profile_page_owner = Profile.objects.get(user=user_page_owner)
-    #
-    #     except Exception:
-    #         raise Http404
-    #
-    #     if profile_who_want_follow in profile_page_owner.followers.all():
-    #         profile_page_owner.followers.remove(profile_who_want_follow)
-    #         message = f'Follow'
-    #         status = False
-    #     else:
-    #         profile_page_owner.followers.add(profile_who_want_follow)
-    #         message = f'Unfollow'
-    #         status = True
-    #     data = {
-    #         'username': user_who_want_follow.username,
-    #         'user_id': user_who_want_follow.id,
-    #         'message': message,
-    #         'status': status,
-    #     }
-    #     return JsonResponse(data, status=200)
-
 
 class FavoritesPosts(LoginRequiredMixin, View):
     login_url = 'signin'
@@ -581,11 +581,10 @@ class FavoritesPosts(LoginRequiredMixin, View):
         current_user_profile = Profile.objects.select_related('user').get(user=current_user)
         user_friends_suggestions = get_user_friends_suggestions(current_user_profile)
 
-        if UserFavoritePosts.objects.filter(user_profile=current_user_profile).first():
-            user_favorites_obj = UserFavoritePosts.objects.get(user_profile=current_user_profile)
-            user_favorite_posts = user_favorites_obj.posts.all()
-        else:
-            user_favorite_posts = None
+        user_favorite = UserFavoritePosts.objects.filter(user=current_user)
+        user_favorite_post_id = [obj.post.id for obj in list(user_favorite)]
+        user_favorite_posts = Post.objects.filter(id__in=user_favorite_post_id)
+
         return render(request, 'core/favorites_posts.html', {'current_user': current_user,
                                                              'current_user_profile': current_user_profile,
                                                              'suggestions_username_profile_list':

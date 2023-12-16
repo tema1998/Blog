@@ -42,8 +42,8 @@ class Post(models.Model):
 
 
 class UserFavoritePosts(models.Model):
-    user_profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='user_favorite_posts')
-    posts = models.ManyToManyField(Post, verbose_name='User favorite posts', related_name='user_favorite_posts')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
 
 
 class PostLikes(models.Model):
