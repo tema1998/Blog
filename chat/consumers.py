@@ -83,6 +83,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         chat = Chat.objects.get(id=chat)
 
         message = Message.objects.create(user=user, user_profile=user_profile, chat=chat, content=message)
+        chat.last_update = datetime.now()
+        chat.save()
 
         return (message.id, str(message.date_added.strftime("%d-%m-%Y %H:%M")))
 

@@ -1,9 +1,11 @@
 {% extends 'core/base.html' %}
 {% load static %}
-{% block title %} {{current_user.username}} followers {% endblock title %}
+{% load user_friends_suggestions %}
+
+{% block title %} {{page_owner_profile}} following {% endblock title %}
 
 {% block sidebar %}
-    {% include 'core/include/sidebar_users.html' %}
+    {% user_friends_suggestions user.id %}
 {% endblock sidebar %}
 
 {% block content %}

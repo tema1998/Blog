@@ -50,18 +50,18 @@
 
 				<div class="update-follower-data">
 					{% if user_followers == 0 or user_followers == 1 %}
-					<a href="{% url 'followers' %}">
+					<a href="{% url 'followers' page_user.id %}">
 						<div><span class="number-style">{{user_followers}}</span> follower</div>
 					</a>
 					{% else %}
-					<a href="{% url 'followers' %}">
+					<a href="{% url 'followers' page_user.id %}">
 						<div><span class="number-style">{{user_followers}}</span> followers</div>
 					</a>
 					{% endif %}
 				</div>
 
 				<div>
-					<a href="{% url 'following' %}">
+					<a href="{% url 'following' page_user.id %}">
 						<div><span class="number-style">{{user_following}}</span> following</div>
 					</a>
 				</div>

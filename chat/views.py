@@ -21,11 +21,19 @@ class Chats(LoginRequiredMixin, View):
         current_user = get_current_user(request)
         current_user_profile = Profile.objects.select_related('user').prefetch_related('following').get(
             user=current_user)
-        user_friends_suggestions = get_user_friends_suggestions(current_user_profile)
-        chats = Chat.objects.filter(members=current_user)
+        chats = Chat.objects.filter(members=current_user).order_by('-last_update')
 
-        return render(request, 'chat/chats.html', {'chats': chats, 'current_user_profile': current_user_profile,
-                                                   'suggestions_username_profile_list': user_friends_suggestions[:5]})
+        chats_per_page = 4
+        paginator = Paginator(chats, chats_per_page)
+        page = request.GET.get('page')
+        try:
+            chats_paginator = paginator.page(page)
+        except PageNotAnInteger:
+            chats_paginator = paginator.page(1)
+        except EmptyPage:
+            chats_paginator = paginator.page(paginator.num_pages)
+
+        return render(request, 'chat/chats.html', {'chats': chats_paginator, 'current_user_profile': current_user_profile,})
 
 
 class ChatView(LoginRequiredMixin, View):
@@ -35,7 +43,6 @@ class ChatView(LoginRequiredMixin, View):
         current_user = get_current_user(request)
         current_user_profile = Profile.objects.select_related('user').prefetch_related('following').get(
             user=current_user)
-        user_friends_suggestions = get_user_friends_suggestions(current_user_profile)
         chat_obj = Chat.objects.get(id=chat_id)
         if not current_user in chat_obj.members.all():
             return redirect('chats')
@@ -58,8 +65,7 @@ class ChatView(LoginRequiredMixin, View):
 
         return render(request, 'chat/chat.html', {'chat': chat_obj,'current_user': current_user,
                                                   'current_user_profile': current_user_profile,
-                                                  'messages': messages,
-                                                  'suggestions_username_profile_list': user_friends_suggestions[:5],})
+                                                  'messages': messages,})
 
 
 class StartDialog(LoginRequiredMixin, View):
@@ -88,6 +94,9 @@ class DeleteMessage(LoginRequiredMixin, View):
         if not user in chat.members.all():
             raise Http404
         message.delete()
+        # last_message_date = chat.messages.all().order_by('date').last()
+        # if last_message_date:
+        #     last_message_date.last_update
         return redirect(request.META.get('HTTP_REFERER'))
 
 

@@ -2,12 +2,18 @@
 {% load static %}
 {% load i18n %}
 {% load tags %}
+{% load user_friends_suggestions %}
 
-
-{% block title %} Dialog with {{ chat.id }} {% endblock title %}
+{% block title %} Dialog with
+    {% for member in chat.members.all %}
+        {% if member.username != request.user.username %}
+            {{ member.username }}
+        {% endif %}
+    {% endfor %}
+{% endblock title %}
 
 {% block sidebar %}
-    {% include 'core/include/sidebar_users.html' %}
+    {% user_friends_suggestions user.id %}
 {% endblock sidebar %}
 
 {% block content %}

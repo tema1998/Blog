@@ -19,6 +19,7 @@ class Chat(models.Model):
         default=DIALOG
     )
     members = models.ManyToManyField(User, verbose_name=("Member"))
+    last_update = models.DateTimeField(auto_now_add=True)
 
     def get_absolute_url(self):
         return reverse('messages', kwargs={'chat_id': self.pk})
@@ -28,6 +29,7 @@ class Chat(models.Model):
 
     def get_last_message(self):
         return self.messages.last()
+
 
 class Message(models.Model):
     chat = models.ForeignKey(Chat, related_name='messages', on_delete=models.CASCADE)

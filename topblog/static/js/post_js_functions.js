@@ -17,7 +17,6 @@ async function elementUpdate(selector) {
 postWrap.addEventListener('click', event => {
     let target = event.target;
     if (target.id == 'add-remove-favorite') {
-
     const postId = event.target.dataset.postid
     fetch(`/add-remove-favorites/${postId}/`, {
         method: 'POST',
@@ -36,7 +35,7 @@ postWrap.addEventListener('click', event => {
         });
         }
     else if (target.id == 'like-post-button') {
-            const postId = event.target.dataset.postid
+    const postId = event.target.dataset.postid
     fetch(`/like-post/${postId}/`, {
         method: 'POST',
         headers: {
@@ -57,4 +56,24 @@ postWrap.addEventListener('click', event => {
         });
         }
 
+    else if (target.id == 'like-comment-button') {
+        const commentId = event.target.dataset.commentid
+        fetch(`/like-comment/${commentId}/`, {
+            method: 'POST',
+            headers: {
+                "X-CSRFToken": csrftoken,
+                "X-Requested-With": "XMLHttpRequest",
+        }}).then(response => response.json())
+        .then(data => {
+            comment_like_counter = document.querySelector('[data-commentlikecounter="'+commentId+'"]');
+            commentlikesvg = document.querySelector('[data-likecommentsvg="'+commentId+'"]');
+            comment_like_counter.innerHTML = data.likes
+            if (data.comment_status == true) {
+                commentlikesvg.classList.add("fill-current");
+            }
+            else {
+                commentlikesvg.classList.remove("fill-current");
+            };
+            });
+        }
 });
