@@ -5,10 +5,6 @@ from core.views import *
 
 class TestUrls(SimpleTestCase):
 
-    # Resolve give us info about url, we get name func or class of View, and we compare class from view with class
-    # from info.
-
-
     def test_index_url_resolves(self):
         url = reverse('index')
         self.assertEquals(resolve(url).func.view_class, Index)
@@ -46,7 +42,7 @@ class TestUrls(SimpleTestCase):
         self.assertEquals(resolve(url).func.view_class, EditPost)
 
     def test_like_post_url_resolves(self):
-        url = reverse('like-post')
+        url = reverse('like-post', args=['213-324'])
         self.assertEquals(resolve(url).func.view_class, LikePost)
 
     def test_delete_post_url_resolves(self):
@@ -66,7 +62,7 @@ class TestUrls(SimpleTestCase):
         self.assertEquals(resolve(url).func.view_class, AddComment)
 
     def test_like_comment_url_resolves(self):
-        url = reverse('like-comment')
+        url = reverse('like-comment', args=[2213])
         self.assertEquals(resolve(url).func.view_class, Likecomment)
 
     def test_search_url_resolves(self):

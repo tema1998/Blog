@@ -1,6 +1,6 @@
 {% load static %}
 {% for post in user_friends_posts reversed %}
-    <div class="posts-margin">
+    <div class="pb-3">
         {% include 'core/include/author_post_like_comments.html' %}
     </div>
 {% endfor %}

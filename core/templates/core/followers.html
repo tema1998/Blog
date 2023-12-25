@@ -25,6 +25,11 @@
                     </div>
                     
                     <div class="flex justify-around">
+                        {% if follower_user_profile.user_id == request.user.id %}
+                        <div class="font-semibold">
+                            It is you.
+                        </div>
+                        {% else %}
                         <div class="">
                             <a class=" block px-2 py-2 rounded-xl text-white bg-teal-600 hover:text-white hover:bg-teal-700" href="{% url 'profile' follower_user_profile %}">View profile</a>
                         </div>
@@ -37,6 +42,8 @@
                                 </button>
                             </form>
                         </div>
+                        {% endif %}
+
                     </div>
                 </div>
             

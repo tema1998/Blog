@@ -27,9 +27,8 @@ class Index(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def get(self, request):
-        current_user = get_current_user(request)
         current_user_profile = Profile.objects.select_related('user').prefetch_related('following').get(
-            user=current_user)
+            user_id=request.user.id)
         list_of_subscriptions = current_user_profile.following.values_list('id', flat=True)
 
         list_of_posts = Post.objects.select_related('user', 'user_profile').prefetch_related('postcomments_set',
@@ -39,7 +38,7 @@ class Index(LoginRequiredMixin, View):
             .only('user__username', 'user__id', 'user_profile__profileimg', 'id', 'image', 'caption', 'created_at',
                   'no_of_likes',
                   'disable_comments').filter(
-            Q(user__id__in=list_of_subscriptions) | Q(user__id__in=[current_user.id])).order_by('-created_at')
+            Q(user__id__in=list_of_subscriptions) | Q(user__id__in=[request.user.id])).order_by('-created_at')
 
         posts_per_page = 2
         paginator = Paginator(list_of_posts, posts_per_page)
@@ -56,7 +55,6 @@ class Index(LoginRequiredMixin, View):
             return render(request, 'core/index_ajax.html', {'user_friends_posts': user_friends_posts, })
 
         return render(request, 'core/index.html', {
-            'current_user_profile': current_user_profile,
             'user_friends_posts': user_friends_posts,})
 
 
@@ -72,40 +70,34 @@ class EditPost(LoginRequiredMixin, View):
     def get(self, request, post_id):
         try:
             post = get_post_by_id(post_id)
-            current_user = get_current_user(request)
-            current_user_profile = Profile.objects.select_related('user').prefetch_related('following').get(
-                user=current_user)
         except Exception:
             raise Http404
 
-        if not post.user == current_user:
+        if not post.user == request.user:
             raise Http404
 
         edit_post_form = EditPostForm(instance=post)
 
-        return render(request, 'core/edit_post.html', {'current_user_profile': current_user_profile,
-                                                       'edit_post_form': edit_post_form,
-                                                       'post': post,})
+        return render(request, 'core/edit_post.html', {'edit_post_form': edit_post_form,
+                                                       'post': post,
+                                                       })
 
     def post(self, request, post_id):
         try:
-            current_user = get_current_user(request)
             post = get_post_by_id(post_id)
-            current_user_profile = Profile.objects.select_related('user').prefetch_related('following').get(
-                user=current_user)
         except Exception:
             raise Http404
 
-        if not if_user_is_post_owner(post, current_user):
+        if not if_user_is_post_owner(post, request.user):
             raise Http404
 
         edit_post_form = EditPostForm(request.POST, request.FILES, instance=post)
         if edit_post_form.is_valid():
             edit_post_form.save()
             return redirect('edit-post', post_id=post.id)
-        return render(request, 'core/edit_post.html', {'current_user_profile': current_user_profile,
-                                                       'edit_post_form': edit_post_form,
-                                                       'post': post,})
+        return render(request, 'core/edit_post.html', {'edit_post_form': edit_post_form,
+                                                       'post': post,
+                                                       })
 
 
 class AddComment(LoginRequiredMixin, View):
@@ -126,7 +118,7 @@ class AddComment(LoginRequiredMixin, View):
                 form = form.save(commit=False)
                 form.post = Post.objects.get(id=request.POST['post_id'])
                 form.user = user
-                form.user_profile = Profile.objects.get(id=user.id)
+                form.user_profile = Profile.objects.get(user_id=user.id)
                 form.no_of_likes = 0
                 form.save()
             else:
@@ -170,7 +162,7 @@ class LikePost(LoginRequiredMixin, View):
         # if is_ajax(request):
         #     try:
         #         current_user_id = int(request.user.id)
-        #         current_user_profile = Profile.objects.get(id=current_user_id)
+        #         current_user_profile = Profile.objects.get(user_id=current_user_id)
         #         post = Post.objects.get(id=post_id)
         #     except Exception:
         #         raise Http404
@@ -327,28 +319,21 @@ class Settings(LoginRequiredMixin, View):
             .get(user=current_user)
 
         settings_form = SettingsForm(instance=current_user_profile)
-        return render(request, 'core/settings.html', {'current_user': current_user,
-                                                      'current_user_profile': current_user_profile,
-                                                      'settings_form': settings_form})
+        return render(request, 'core/settings.html', {'settings_form': settings_form})
 
 
 class AddPost(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def get(self, request):
-        current_user = get_current_user(request)
-        current_user_profile = Profile.objects.select_related('user').prefetch_related('following').get(
-            user=current_user)
-
         add_post_form = AddPostForm()
 
-        return render(request, 'core/add_post.html', {'current_user_profile': current_user_profile,
-                                                      'add_post_form': add_post_form,})
+        return render(request, 'core/add_post.html', {'add_post_form': add_post_form,})
 
     def post(self, request):
         user_id = int(request.user.id)
         user = User.objects.get(id=user_id)
-        user_profile = Profile.objects.get(id=user_id)
+        user_profile = Profile.objects.get(user_id=user_id)
 
         add_post_form = AddPostForm(request.POST, request.FILES)
         if add_post_form.is_valid():
@@ -413,7 +398,6 @@ class ProfileView(LoginRequiredMixin, View):
         context = {
             'is_owner': is_owner,
             'is_subscribed': is_subscribed,
-            'current_user_profile': current_user_profile,
             'page_user_profile': page_user_profile,
             'page_user': page_user,
             'user_posts': user_posts_paginator,
@@ -428,14 +412,9 @@ class FollowersList(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def get(self, request, user_id):
-        current_user = get_current_user(request)
-        current_user_profile = Profile.objects.select_related('user').prefetch_related('following').get(
-            user=current_user)
-        page_owner_profile = Profile.objects.get(id=user_id)
+        page_owner_profile = Profile.objects.get(user_id=user_id)
         page_owner_followers = page_owner_profile.followers.all()
         return render(request, 'core/followers.html', {
-            'current_user': current_user,
-            'current_user_profile': current_user_profile,
             'user_followers': page_owner_followers,
             'page_owner_profile': page_owner_profile})
 
@@ -444,15 +423,10 @@ class FollowingList(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def get(self, request, user_id):
-        current_user = get_current_user(request)
-        current_user_profile = Profile.objects.select_related('user').prefetch_related('following').get(
-            user=current_user)
-        page_owner_profile = Profile.objects.get(id=user_id)
+        page_owner_profile = Profile.objects.get(user_id=user_id)
         page_owner_followers = page_owner_profile.following.all()
 
         return render(request, 'core/following.html', {
-            'current_user': current_user,
-            'current_user_profile': current_user_profile,
             'user_following': page_owner_followers,
             'page_owner_profile': page_owner_profile,})
 
@@ -464,40 +438,39 @@ class ProfileFollowingCreateView(LoginRequiredMixin, View):
         return self.request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
     def post(self, request, user_id):
-        try:
-            user_id_who_want_follow = int(request.user.id)
-            user_who_want_follow = User.objects.get(id=user_id_who_want_follow)
-            profile_who_want_follow = Profile.objects.get(user=user_who_want_follow)
+        if is_ajax(request):
+            try:
+                user_id_who_want_follow = int(request.user.id)
+                user_who_want_follow = User.objects.get(id=user_id_who_want_follow)
+                profile_who_want_follow = Profile.objects.get(user=user_who_want_follow)
 
-            user_page_owner = User.objects.get(id=int(user_id))
-            profile_page_owner = Profile.objects.get(user=user_page_owner)
+                user_page_owner = User.objects.get(id=int(user_id))
+                profile_page_owner = Profile.objects.get(user=user_page_owner)
 
-        except Exception:
-            raise Http404
+            except Exception:
+                raise Http404
 
-        if profile_who_want_follow in profile_page_owner.followers.all():
-            profile_page_owner.followers.remove(profile_who_want_follow)
-            message = f'Follow'
-            status = False
-        else:
-            profile_page_owner.followers.add(profile_who_want_follow)
-            message = f'Unfollow'
-            status = True
-        data = {
-            'username': user_who_want_follow.username,
-            'user_id': user_who_want_follow.id,
-            'message': message,
-            'status': status,
-        }
-        return JsonResponse(data, status=200)
+            if profile_who_want_follow in profile_page_owner.followers.all():
+                profile_page_owner.followers.remove(profile_who_want_follow)
+                message = f'Follow'
+                status = False
+            else:
+                profile_page_owner.followers.add(profile_who_want_follow)
+                message = f'Unfollow'
+                status = True
+            data = {
+                'username': user_who_want_follow.username,
+                'user_id': user_who_want_follow.id,
+                'message': message,
+                'status': status,
+            }
+            return JsonResponse(data, status=200)
 
 
 class Search(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def get(self, request):
-        current_user = get_current_user(request)
-        current_user_profile = Profile.objects.select_related('user').get(user=current_user)
         search_user = request.GET['search_user']
         if search_user:
             search_user_profile_list = Profile.objects.select_related('user') \
@@ -507,8 +480,7 @@ class Search(LoginRequiredMixin, View):
             search_user_profile_list = Profile.objects.select_related('user').all()
         return render(request, 'core/search.html',
                       {'search_user_profile_list': search_user_profile_list,
-                       'current_user': current_user,
-                       'current_user_profile': current_user_profile})
+                       })
 
 
 class Likecomment(LoginRequiredMixin, View):
@@ -572,12 +544,9 @@ class FavoritesPosts(LoginRequiredMixin, View):
 
     def get(self, request):
         current_user = get_current_user(request)
-        current_user_profile = Profile.objects.select_related('user').get(user=current_user)
-
         user_favorite = UserFavoritePosts.objects.filter(user=current_user)
         user_favorite_post_id = [obj.post.id for obj in list(user_favorite)]
         user_favorite_posts = Post.objects.filter(id__in=user_favorite_post_id)
 
-        return render(request, 'core/favorites_posts.html', {'current_user': current_user,
-                                                             'current_user_profile': current_user_profile,
-                                                             'user_favorite_posts': user_favorite_posts})
+        return render(request, 'core/favorites_posts.html', {'user_favorite_posts': user_favorite_posts,
+                                                             })

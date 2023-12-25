@@ -1,6 +1,8 @@
 {% load static %}
 {% load if_user_add_post_to_favorites %}
 {% load if_user_like_post %}
+{% load comment_form %}
+
 <div class="bg-white shadow rounded-md  -mx-2 lg:mx-0">
     <!-- post header-->
     <div class="flex justify-between items-center px-4 py-3 font-semibold">
@@ -198,8 +200,8 @@
             <input type="hidden" value="{{user.id}}" name="user_id">
             <input type="hidden" value="{{post.id}}" name="post_id">
             <div class="flex justify-between">
-                <div class="bg-gray-100 bg-gray-100 rounded-full rounded-md input-flex items-center">
-                    {{ comment_form }}
+                <div class="w-5/6 items-center">
+                    {% get_comment_form %}
                 </div>
                 <div class="bg-gray-100 rounded-full rounded-xl items-center flex px-3">
                     <button type="submit"  class="">Send</button>

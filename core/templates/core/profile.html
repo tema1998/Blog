@@ -30,13 +30,13 @@
 						<form action="{% url 'start-dialog' %}" method="POST">
 							{% csrf_token %}
 							<input type="hidden" value="{{page_user.id}}" name="page_owner_id">
-							<button class="btn-follow bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 py-2 mr-2 rounded flex items-center justify-center" data-userid="{{ page_user_profile.user_id }}">
+							<button class="bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 py-2 mr-2 rounded flex items-center justify-center" data-userid="{{ page_user_profile.user_id }}">
 								Message
 							</button>
 						</form>
 
 					{% elif is_owner %}
-						<a href="{% url 'settings' %}" class="btn btn-sm btn-primary">Edit profile</a>
+						<a href="{% url 'settings' %}" class="bg-blue-500 hover:text-white hover:bg-blue-700 text-white font-bold px-2 py-2 mr-2 rounded flex items-center justify-center">Edit profile</a>
 					{% endif %}
 
 			</div>
@@ -80,17 +80,15 @@
 			{% include 'core/profile_ajax.html' %}
 	</div>
 
-	<div class="center-align" id="end_posts">
+	<div class=" flex justify-center" id="end_posts">
             This is all posts.
-        </div>
+	</div>
 
-        <div class="row">
-            <div class="col m12 s12 center-align">
-                <button class="btn waves-effect waves-light" id="lazy_more">
-                    More posts
-                </button>
-            </div>
-        </div>
+	<div class="flex justify-center mb-4">
+		<button class="bg-blue-500 hover:bg-blue-700 text-white font-bold px-1 py-1 mr-2 rounded-2xl flex items-center justify-center" id="lazy_more">
+			More posts
+		</button>
+	</div>
 
 </div>
 

@@ -19,8 +19,6 @@ class Chats(LoginRequiredMixin, View):
 
     def get(self, request):
         current_user = get_current_user(request)
-        current_user_profile = Profile.objects.select_related('user').prefetch_related('following').get(
-            user=current_user)
         chats = Chat.objects.filter(members=current_user).order_by('-last_update')
 
         chats_per_page = 4
@@ -33,7 +31,8 @@ class Chats(LoginRequiredMixin, View):
         except EmptyPage:
             chats_paginator = paginator.page(paginator.num_pages)
 
-        return render(request, 'chat/chats.html', {'chats': chats_paginator, 'current_user_profile': current_user_profile,})
+        return render(request, 'chat/chats.html', {'chats': chats_paginator,
+                                                   })
 
 
 class ChatView(LoginRequiredMixin, View):
@@ -41,8 +40,7 @@ class ChatView(LoginRequiredMixin, View):
 
     def get(self, request, chat_id):
         current_user = get_current_user(request)
-        current_user_profile = Profile.objects.select_related('user').prefetch_related('following').get(
-            user=current_user)
+
         chat_obj = Chat.objects.get(id=chat_id)
         if not current_user in chat_obj.members.all():
             return redirect('chats')
@@ -63,9 +61,9 @@ class ChatView(LoginRequiredMixin, View):
         if is_ajax(request):
             return render(request, 'chat/chat_ajax.html', {'messages': messages, })
 
-        return render(request, 'chat/chat.html', {'chat': chat_obj,'current_user': current_user,
-                                                  'current_user_profile': current_user_profile,
-                                                  'messages': messages,})
+        return render(request, 'chat/chat.html', {'chat': chat_obj,
+                                                  'messages': messages,
+                                                  })
 
 
 class StartDialog(LoginRequiredMixin, View):
@@ -74,7 +72,8 @@ class StartDialog(LoginRequiredMixin, View):
     def post(self, request):
         current_user = get_current_user(request)
         page_owner = User.objects.get(id=request.POST.get('page_owner_id'))
-
+        if current_user == page_owner:
+            return Http404
         if Chat.objects.filter(members__id=current_user.id).filter(members__id=page_owner.id):
             chat_id = Chat.objects.filter(members__id=current_user.id).filter(members__id=page_owner.id).first().id
             return redirect('chat', chat_id=chat_id)

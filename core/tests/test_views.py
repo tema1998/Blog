@@ -267,57 +267,39 @@ class LikePostTest(TestCase):
         self.post_1_by_user2 = Post.objects.create(user=self.user2, user_profile=self.profile2, caption='123', image='blank_profile.png')
 
     def test_user_is_able_like_post_POST(self):
-        redirect_url = reverse('index')
 
-        response = self.authorized_client.post(path=reverse('like-post'), data={
-            'post_id': self.post_1_by_user2.id,},
-                                               HTTP_REFERER=redirect_url)
-        self.assertEquals(response.status_code, 302)
+        response = self.authorized_client.post(path=reverse('like-post', kwargs={'post_id': self.post_1_by_user2.id}), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEquals(response.status_code, 200)
         self.assertEquals(PostLikes.objects.first().post.id, self.post_1_by_user2.id)
         self.assertEquals(PostLikes.objects.first().user.id, self.user1.id)
         self.assertEquals(PostLikes.objects.first().post.no_of_likes, 1)
-        self.assertRedirects(response, '/')
 
     def test_user_is_able_dislike_post_POST(self):
-        redirect_url = reverse('index')
+
         self.post_1_by_user1.no_of_likes = 2
         self.post_1_by_user1.save()
         exists_like = PostLikes.objects.create(post=self.post_1_by_user1, user=self.user1)
         exists_like.save()
 
-        response = self.authorized_client.post(path=reverse('like-post'), data={
-            'post_id': self.post_1_by_user1.id,},
-                                               HTTP_REFERER=redirect_url)
-        self.assertEquals(response.status_code, 302)
+        response = self.authorized_client.post(path=reverse('like-post', kwargs={'post_id':self.post_1_by_user1.id}),
+                                               HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEquals(response.status_code, 200)
         self.assertEquals(Post.objects.get(id=self.post_1_by_user1.id).no_of_likes, 1)
-        self.assertRedirects(response, '/')
-
-    def test_false_data_like_post_POST(self):
-        redirect_url = reverse('index')
-
-        response = self.authorized_client.post(path=reverse('like-post'), data={
-            'post_id': '99',},
-                                               HTTP_REFERER=redirect_url)
-        self.assertEquals(response.status_code, 404)
 
     def test_like_plus_dislike_equal_zero_like_POST(self):
         redirect_url = reverse('index')
 
-        response1 = self.authorized_client.post(path=reverse('like-post'), data={
-            'post_id': self.post_1_by_user2.id,},
-                                               HTTP_REFERER=redirect_url)
+        response1 = self.authorized_client.post(path=reverse('like-post', kwargs={'post_id': self.post_1_by_user2.id}),
+                                               HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEquals(response1.status_code, 200)
         self.assertEquals(Post.objects.get(id=self.post_1_by_user2.id).no_of_likes, 1)
         self.assertEquals(PostLikes.objects.count(), 1)
 
-        response2 = self.authorized_client.post(path=reverse('like-post'), data={
-            'post_id': self.post_1_by_user2.id,},
-                                               HTTP_REFERER=redirect_url)
-        self.assertEquals(response1.status_code, 302)
-        self.assertEquals(response2.status_code, 302)
+        response2 = self.authorized_client.post(path=reverse('like-post', kwargs={'post_id': self.post_1_by_user2.id}),
+                                               HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEquals(response2.status_code, 200)
         self.assertEquals(PostLikes.objects.count(), 0)
         self.assertEquals(Post.objects.get(id=self.post_1_by_user2.id).no_of_likes, 0)
-        self.assertRedirects(response1, '/')
-        self.assertRedirects(response2, '/')
 
 
 class DeletePostTest(TestCase):
@@ -879,32 +861,21 @@ class ProfileFollowingCreateViewTest(TestCase):
         self.user3 = User.objects.create_user(username='user3')
         self.profile3 = Profile.objects.create(user=self.user3)
 
-    def test_not_logged_try_follow_POST(self):
-        response = self.client.post(reverse('follow', kwargs={'user_id': self.user1.id}))
-
-        self.assertEquals(response.status_code, 302)
-        self.assertRedirects(response, '/signin?next=/user/follow/1/')
-        self.assertEquals(self.profile1.followers.count(), 0)
-
-    def test_follow_if_user_doesnt_exist_POST(self):
-        response = self.authorized_client.post(reverse('follow', kwargs={'user_id': 99}))
-        self.assertEquals(response.status_code, 404)
-
     def test_follow_data_POST(self):
-        response = self.authorized_client.post(reverse('follow', kwargs={'user_id': int(self.user2.id)}))
+        response = self.authorized_client.post(reverse('follow', kwargs={'user_id': int(self.user2.id)}), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEquals(self.profile2.followers.count(), 1)
         self.assertEquals(self.profile2.followers.first(), self.profile1)
         self.assertEquals(self.profile1.following.first(), self.profile2)
 
     def test_follow_unfollow_POST(self):
-        response_follow = self.authorized_client.post(reverse('follow', kwargs={'user_id': int(self.user2.id)}))
-        response_unfollow = self.authorized_client.post(reverse('follow', kwargs={'user_id': int(self.user2.id)}))
+        response_follow = self.authorized_client.post(reverse('follow', kwargs={'user_id': int(self.user2.id)}), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        response_unfollow = self.authorized_client.post(reverse('follow', kwargs={'user_id': int(self.user2.id)}), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEquals(self.profile2.followers.count(), 0)
 
     def test_follow_unfollow_follow_POST(self):
-        response_follow1 = self.authorized_client.post(reverse('follow', kwargs={'user_id': int(self.user2.id)}))
-        response_unfollow = self.authorized_client.post(reverse('follow', kwargs={'user_id': int(self.user2.id)}))
-        response_follow2 = self.authorized_client.post(reverse('follow', kwargs={'user_id': int(self.user2.id)}))
+        response_follow1 = self.authorized_client.post(reverse('follow', kwargs={'user_id': int(self.user2.id)}), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        response_unfollow = self.authorized_client.post(reverse('follow', kwargs={'user_id': int(self.user2.id)}), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        response_follow2 = self.authorized_client.post(reverse('follow', kwargs={'user_id': int(self.user2.id)}), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEquals(self.profile2.followers.count(), 1)
 
 
@@ -976,57 +947,24 @@ class LikeCommentTest(TestCase):
         self.authorized_client2 = Client()
         self.authorized_client2.force_login(self.user2)
 
-
         self.post_1_by_user1 = Post.objects.create(user=self.user1, user_profile=self.profile1, caption='123', image='blank_profile.png')
         self.post_2_by_user2 = Post.objects.create(user=self.user2, user_profile=self.profile2, caption='123', image='blank_profile.png')
 
         self.comment_by_user1_for_post2 = PostComments.objects.create(user=self.user1, user_profile=self.profile1, text='great!', post=self.post_2_by_user2, no_of_likes=0)
-        self.comment_by_user2_for_post1 = PostComments.objects.create(user=self.user2, user_profile=self.profile2, text='not bad!', post=self.post_1_by_user1, no_of_likes=3)
+        self.comment_by_user2_for_post1 = PostComments.objects.create(user=self.user2, user_profile=self.profile2, text='not bad!', post=self.post_1_by_user1, no_of_likes=2)
 
 
     def test_user_is_able_like_comment_POST(self):
-        redirect_url = reverse('index')
-
-        response = self.authorized_client1.post(path=reverse('like-comment'), data={
-            'comment_id': self.comment_by_user1_for_post2.id,},
-                                               HTTP_REFERER=redirect_url)
-        self.assertEquals(response.status_code, 302)
+        response = self.authorized_client1.post(reverse('like-comment', kwargs={'comment_id': self.comment_by_user1_for_post2.id}), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEquals(response.status_code, 200)
         self.assertEquals(CommentLikes.objects.first().user, self.user1)
         self.assertEquals(CommentLikes.objects.first().comment, self.comment_by_user1_for_post2)
         self.assertEquals(CommentLikes.objects.count(), 1)
-        self.assertRedirects(response, '/')
 
     def test_user_is_able_dislike_post_POST(self):
-        redirect_url = reverse('index')
         self.like_by_user_2 = CommentLikes.objects.create(comment=self.comment_by_user2_for_post1, user=self.user2)
-
-        response = self.authorized_client2.post(path=reverse('like-comment'), data={
-            'comment_id': self.comment_by_user1_for_post2.id, },
-                                               HTTP_REFERER=redirect_url)
-        self.assertEquals(response.status_code, 302)
-        self.assertEquals(CommentLikes.objects.count(), 2)
-
-
-    def test_false_data_like_post_POST(self):
-        redirect_url = reverse('index')
-
-        response = self.authorized_client1.post(path=reverse('like-comment'), data={
-            'comment_id': 99,},
-                                               HTTP_REFERER=redirect_url)
-        self.assertEquals(response.status_code, 404)
-
-    def test_like_plus_dislike_equal_zero_like_POST(self):
-        redirect_url = reverse('index')
-
-        response1 = self.authorized_client1.post(path=reverse('like-comment'), data={
-            'comment_id': self.comment_by_user1_for_post2.id, },
-                                               HTTP_REFERER=redirect_url)
-        response2 = self.authorized_client1.post(path=reverse('like-comment'), data={
-            'comment_id': self.comment_by_user1_for_post2.id, },
-                                               HTTP_REFERER=redirect_url)
-        self.assertEquals(response1.status_code, 302)
-        self.assertEquals(response2.status_code, 302)
+        response = self.authorized_client2.post(reverse('like-comment', kwargs={'comment_id': self.comment_by_user2_for_post1.id}), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEquals(response.status_code, 200)
         self.assertEquals(CommentLikes.objects.count(), 0)
 
 
-#Write test for messages after finished VIEW

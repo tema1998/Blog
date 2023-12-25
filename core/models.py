@@ -10,10 +10,10 @@ User = get_user_model()
 
 
 class Profile(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='profiles')
+    user = models.ForeignKey(User, verbose_name='User', on_delete=models.CASCADE, related_name='profiles')
     bio = models.TextField('Information', max_length=300, blank=True)
-    profileimg = models.ImageField(upload_to='profile_images', default='blank_profile.png')
-    location = models.CharField(max_length=100, blank=True)
+    profileimg = models.ImageField(upload_to='profile_images', verbose_name='Profile image', default='blank_profile.png')
+    location = models.CharField(max_length=100, verbose_name='Location', blank=True)
     following = models.ManyToManyField('self', verbose_name='Subscriptions', related_name='followers', symmetrical=False,
                                        blank=True)
 
@@ -25,14 +25,17 @@ class Profile(models.Model):
 
 
 class Post(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
-    user_profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='posts')
-    image = models.ImageField(upload_to='post_images')
-    caption = models.TextField(max_length=1000, blank=True)
-    created_at = models.DateTimeField(default=datetime.now)
-    no_of_likes = models.IntegerField(default=0)
-    disable_comments = models.BooleanField(default=False)
+    id = models.UUIDField(verbose_name='Post ID', primary_key=True, default=uuid.uuid4)
+    user = models.ForeignKey(User, verbose_name='User', on_delete=models.CASCADE, related_name='posts')
+    user_profile = models.ForeignKey(Profile, verbose_name='User profile', on_delete=models.CASCADE, related_name='posts')
+    image = models.ImageField(verbose_name='Post image', upload_to='post_images')
+    caption = models.TextField(verbose_name='Caption', max_length=1000, blank=True)
+    created_at = models.DateTimeField(verbose_name='Date of creation', default=datetime.now)
+    no_of_likes = models.IntegerField(default=0, verbose_name='Number of likes')
+    disable_comments = models.BooleanField(default=False, verbose_name='Comment status')
+
+    def __str__(self):
+        return f'Post by {self.user_profile} - {self.created_at}'
 
     def get_comments(self):
         return self.postcomments_set.all()
@@ -42,13 +45,13 @@ class Post(models.Model):
 
 
 class UserFavoritePosts(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, verbose_name='User', on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, verbose_name='Post', on_delete=models.CASCADE)
 
 
 class PostLikes(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, verbose_name='User', on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, verbose_name='Post', on_delete=models.CASCADE)
 
     def __str__(self):
         return f'{self.user} likes {self.post}'
@@ -56,32 +59,29 @@ class PostLikes(models.Model):
 
 class PostComments(models.Model):
     """Комменты"""
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    user_profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='PostComments')
-    text = models.TextField(verbose_name="Comment", max_length=5000)
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    no_of_likes = models.IntegerField(verbose_name='Likes')
-    date = models.DateTimeField(default=datetime.now)
+    user = models.ForeignKey(User, verbose_name='User', on_delete=models.CASCADE)
+    user_profile = models.ForeignKey(Profile, verbose_name='User profile', on_delete=models.CASCADE, related_name='PostComments')
+    text = models.TextField(verbose_name="Comment text", max_length=1000)
+    post = models.ForeignKey(Post, verbose_name='Post', on_delete=models.CASCADE)
+    no_of_likes = models.IntegerField(default=0, verbose_name='Comment likes')
+    date = models.DateTimeField(verbose_name='Date of creation', default=datetime.now)
 
     def __str__(self):
-        return f"{self.user} - {self.post}"
+        return f'Comment by {self.user} - {self.date}'
 
     class Meta:
-        verbose_name = "Комментарий"
-        verbose_name_plural = "Комментарии"
+        verbose_name = 'Comment'
+        verbose_name_plural = 'Comments'
 
     def user_photo(self):
-        return(self.user_profile.profileimg.url)
+        return self.user_profile.profileimg.url
 
-    def get_users_like_comment(self):
-        users = User.objects.filter(comment_id=self.comment_id)
-        return(users)
 
 class CommentLikes(models.Model):
-    comment = models.ForeignKey(PostComments, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, verbose_name='User', on_delete=models.CASCADE)
+    comment = models.ForeignKey(PostComments, verbose_name='Comment', on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.user
+        return f'{self.user} likes comment {self.pk}'
 
 

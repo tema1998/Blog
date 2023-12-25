@@ -14,7 +14,8 @@ class CommentForm(forms.ModelForm):
         model = PostComments
         fields = ('text',)
         widgets = {
-            'text': forms.TextInput(attrs={'class': 'bg-transparent max-h-10 shadow-none', 'placeholder': 'post a comment'})
+            'text': forms.TextInput(attrs={'class': 'bg-gray-100 rounded-full rounded-md max-h-10 shadow-none',
+                                           'placeholder': 'Post a comment...'})
         }
 
 
@@ -54,7 +55,6 @@ class EditPostForm(forms.ModelForm):
         widgets = {
             'caption': forms.Textarea(attrs={'style': 'max-height: 70px;'})
         }
-
 
 
 class SettingsForm(forms.ModelForm):

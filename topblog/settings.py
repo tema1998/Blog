@@ -43,7 +43,9 @@ INSTALLED_APPS = [
     'bootstrap3',
     'channels',
     'core',
-    'chat'
+    'chat',
+    'tailwind',
+    'theme',
 ]
 
 MIDDLEWARE = [
@@ -72,7 +74,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'core.context_processors.get_current_user',
             ],
         },
     },
@@ -155,3 +156,7 @@ INTERNAL_IPS = [
     "127.0.0.1",
     # ...
 ]
+
+NPM_BIN_PATH = "C:/Program Files/nodejs/npm.cmd"
+
+TAILWIND_APP_NAME = 'theme'
