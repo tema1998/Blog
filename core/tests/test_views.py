@@ -279,7 +279,6 @@ class LikePostTest(TestCase):
         self.post_1_by_user1.no_of_likes = 2
         self.post_1_by_user1.save()
         exists_like = PostLikes.objects.create(post=self.post_1_by_user1, user=self.user1)
-        exists_like.save()
 
         response = self.authorized_client.post(path=reverse('like-post', kwargs={'post_id':self.post_1_by_user1.id}),
                                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')

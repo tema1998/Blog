@@ -82,6 +82,6 @@ class CommentLikes(models.Model):
     comment = models.ForeignKey(PostComments, verbose_name='Comment', on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'{self.user} likes comment {self.pk}'
+        return f'{self.pk}'
 
 

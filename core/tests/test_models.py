@@ -10,7 +10,6 @@ class ProfileModelTest(TestCase):
     def setUpTestData(cls):
         # Set up non-modified objects used by all test methods
         user = User.objects.create_user(username='username', email='email@mail.ru', password='password')
-        user.save()
         Profile.objects.create(user=user, bio='I like going for a walk', location='Minsk')
 
     def setUp(self):
@@ -67,7 +66,6 @@ class PostModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         user = User.objects.create_user(username='username', email='email@mail.ru', password='password')
-        user.save()
         user_profile = Profile.objects.create(user=user, bio='I like going for a walk', location='Minsk')
         user = User.objects.get(id=1)
         post_object = Post.objects.create(user=user, user_profile=user_profile, caption='caption')
@@ -135,7 +133,6 @@ class UserFavoritePostsModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         user = User.objects.create_user(username='username', email='email@mail.ru', password='password')
-        user.save()
         user_profile = Profile.objects.create(user=user, bio='I like going for a walk', location='Minsk')
         user = User.objects.get(id=1)
         post = Post.objects.create(user=user, user_profile=user_profile, caption='caption')
@@ -157,7 +154,6 @@ class PostLikesModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         user = User.objects.create_user(username='username', email='email@mail.ru', password='password')
-        user.save()
         user_profile = Profile.objects.create(user=user, bio='I like going for a walk', location='Minsk')
         user = User.objects.get(id=1)
         post = Post.objects.create(user=user, user_profile=user_profile, caption='caption')
@@ -184,7 +180,6 @@ class PostCommentsModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         user = User.objects.create_user(username='username', email='email@mail.ru', password='password')
-        user.save()
         user_profile = Profile.objects.create(user=user, bio='I like going for a walk', location='Minsk')
         user = User.objects.get(id=1)
         post = Post.objects.create(user=user, user_profile=user_profile, caption='caption')
@@ -243,7 +238,6 @@ class CommentLikesModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         user = User.objects.create_user(username='username', email='email@mail.ru', password='password')
-        user.save()
         user_profile = Profile.objects.create(user=user, bio='I like going for a walk', location='Minsk')
         user = User.objects.get(id=1)
         post = Post.objects.create(user=user, user_profile=user_profile, caption='caption')
@@ -262,5 +256,5 @@ class CommentLikesModelTest(TestCase):
 
     def test_str(self):
         comment_like = CommentLikes.objects.first()
-        expected_object_name = f'{comment_like.user} likes comment {comment_like.pk}'
+        expected_object_name = f'{comment_like.pk}'
         self.assertEquals(expected_object_name, str(comment_like))

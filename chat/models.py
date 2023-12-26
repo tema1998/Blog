@@ -5,24 +5,11 @@ from django.contrib.auth.models import User
 
 
 class Chat(models.Model):
-    DIALOG = 'D'
-    CHAT = 'C'
-    CHAT_TYPE_CHOICES = (
-        (DIALOG, ('Dialog')),
-        (CHAT, ('Chat'))
-    )
+    members = models.ManyToManyField(User, verbose_name='Member')
+    last_update = models.DateTimeField(auto_now_add=True, verbose_name='Date of last message')
 
-    type = models.CharField(
-        ('Type'),
-        max_length=1,
-        choices=CHAT_TYPE_CHOICES,
-        default=DIALOG
-    )
-    members = models.ManyToManyField(User, verbose_name=("Member"))
-    last_update = models.DateTimeField(auto_now_add=True)
-
-    def get_absolute_url(self):
-        return reverse('messages', kwargs={'chat_id': self.pk})
+    def __str__(self):
+        return f'{self.pk}'
 
     def get_users(self):
         return self.members.all()
@@ -32,14 +19,17 @@ class Chat(models.Model):
 
 
 class Message(models.Model):
-    chat = models.ForeignKey(Chat, related_name='messages', on_delete=models.CASCADE)
-    user = models.ForeignKey(User, related_name='messages', on_delete=models.CASCADE)
-    user_profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='profile')
-    content = models.TextField()
-    date_added = models.DateTimeField(auto_now_add=True)
+    chat = models.ForeignKey(Chat, verbose_name='Chat', related_name='messages', on_delete=models.CASCADE)
+    user = models.ForeignKey(User,  verbose_name='User', related_name='messages', on_delete=models.CASCADE)
+    user_profile = models.ForeignKey(Profile, verbose_name='User profile', on_delete=models.CASCADE, related_name='profile')
+    content = models.TextField(verbose_name='Message content')
+    date_added = models.DateTimeField(auto_now_add=True, verbose_name='Date added')
 
     class Meta:
         ordering = ('date_added',)
 
     def get_author_photo(self):
         return self.user_profile.profileimg.url
+
+    def __str__(self):
+        return f'{self.pk}'
