@@ -13,7 +13,7 @@ from django.http import JsonResponse
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q
 
-from .services import get_current_user, get_post_by_id, disable_comments, enable_comments, check_if_comment_disable, \
+from .services import get_current_user, get_post, disable_comments, enable_comments, check_if_comment_disable, \
     if_user_is_post_owner, if_user_is_authenticated, get_user_profile, get_friends_posts
 
 from .forms import CommentForm, SignupForm, SigninForm, SettingsForm, AddPostForm, EditPostForm
@@ -53,7 +53,7 @@ class EditPost(LoginRequiredMixin, View):
 
     def get(self, request, post_id):
         try:
-            post = get_post_by_id(post_id)
+            post = get_post(id=post_id)
         except Exception:
             raise Http404
 
@@ -68,7 +68,7 @@ class EditPost(LoginRequiredMixin, View):
 
     def post(self, request, post_id):
         try:
-            post = get_post_by_id(post_id)
+            post = get_post(id=post_id)
         except Exception:
             raise Http404
 
@@ -90,7 +90,7 @@ class AddComment(LoginRequiredMixin, View):
     def post(self, request):
         try:
             user = get_current_user(request)
-            post = get_post_by_id(request.POST['post_id'])
+            post = get_post(request.POST['post_id'])
         except Exception:
             raise Http404
 
@@ -117,7 +117,7 @@ class LikePost(LoginRequiredMixin, View):
         if is_ajax(request):
             try:
                 user = get_current_user(request)
-                post = get_post_by_id(post_id)
+                post = get_post(post_id)
 
             except Exception:
                 raise Http404
@@ -181,7 +181,7 @@ class DeletePost(LoginRequiredMixin, View):
     def post(self, request):
         try:
             user = get_current_user(request)
-            post = get_post_by_id(request.POST['post_id'])
+            post = get_post(request.POST['post_id'])
         except Exception:
             raise Http404
 
@@ -199,7 +199,7 @@ class DisablePostComments(LoginRequiredMixin, View):
     def post(self, request):
         try:
             user = get_current_user(request)
-            post = get_post_by_id(request.POST['post_id'])
+            post = get_post(request.POST['post_id'])
         except Exception:
             raise Http404
         if if_user_is_post_owner(post, user):
@@ -215,7 +215,7 @@ class EnablePostComments(LoginRequiredMixin, View):
     def post(self, request):
         try:
             user = get_current_user(request)
-            post = get_post_by_id(request.POST['post_id'])
+            post = get_post(request.POST['post_id'])
         except Exception:
             raise Http404
         if if_user_is_post_owner(post, user):

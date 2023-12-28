@@ -25,12 +25,15 @@ def get_friends_posts(user_id: int):
 
     return list_of_posts
 
+
+#Было select related User, требуется ли?
+def get_post(id: int):
+    return Post.objects.get(id=id)
+
+
 def check_if_comment_disable(post):
     return post.disable_comments
 
-
-def get_post_by_id(post_id):
-    return Post.objects.select_related('user').get(id=post_id)
 
 
 def get_current_user(request):
