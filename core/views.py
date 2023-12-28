@@ -14,7 +14,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q
 
 from .services import get_current_user, get_post_by_id, disable_comments, enable_comments, check_if_comment_disable, \
-    if_user_is_post_owner, if_user_is_authenticated
+    if_user_is_post_owner, if_user_is_authenticated, get_user_profile, get_friends_posts
 
 from .forms import CommentForm, SignupForm, SigninForm, SettingsForm, AddPostForm, EditPostForm
 
@@ -27,41 +27,25 @@ class Index(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def get(self, request):
-        current_user_profile = Profile.objects.select_related('user').prefetch_related('following').get(
-            user_id=request.user.id)
-        list_of_subscriptions = current_user_profile.following.values_list('id', flat=True)
-
-        list_of_posts = Post.objects.select_related('user', 'user_profile').prefetch_related('postcomments_set',
-                                                                                             'postcomments_set__user',
-                                                                                             'postcomments_set__user_profile',
-                                                                                             ) \
-            .only('user__username', 'user__id', 'user_profile__profileimg', 'id', 'image', 'caption', 'created_at',
-                  'no_of_likes',
-                  'disable_comments').filter(
-            Q(user__id__in=list_of_subscriptions) | Q(user__id__in=[request.user.id])).order_by('-created_at')
+        list_of_posts = get_friends_posts(user_id=request.user.id)
 
         posts_per_page = 2
         paginator = Paginator(list_of_posts, posts_per_page)
         page = request.GET.get('page')
+
         try:
-            user_friends_posts = paginator.page(page)
+            list_of_posts_paginated = paginator.page(page)
         except PageNotAnInteger:
-            user_friends_posts = paginator.page(1)
+            list_of_posts_paginated = paginator.page(1)
         except EmptyPage:
             if is_ajax(request):
                 return HttpResponse('')
-            user_friends_posts = paginator.page(paginator.num_pages)
+            list_of_posts_paginated = paginator.page(paginator.num_pages)
         if is_ajax(request):
-            return render(request, 'core/index_ajax.html', {'user_friends_posts': user_friends_posts, })
+            return render(request, 'core/index_ajax.html', {'user_friends_posts': list_of_posts_paginated, })
 
         return render(request, 'core/index.html', {
-            'user_friends_posts': user_friends_posts,})
-
-
-# def load_comments(request):
-#     if is_ajax(request):
-#         comment = PostComments.objects.all().first()
-#         return render(request, 'core/comments_ajax.html', {'comment': comment, })
+            'user_friends_posts': list_of_posts_paginated,})
 
 
 class EditPost(LoginRequiredMixin, View):

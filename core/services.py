@@ -1,10 +1,29 @@
 from itertools import chain
 
 from django.contrib.auth.models import User, auth
+from django.db.models import Q
 from django.http import Http404
 
 from .models import Profile, Post, PostLikes, PostComments, CommentLikes
 
+
+def get_user_profile(user_id: int):
+    return Profile.objects.get(user_id=user_id)
+
+
+def get_friends_posts(user_id: int):
+    user_profile = get_user_profile(user_id=user_id)
+    list_of_subscriptions = user_profile.following.values_list('id', flat=True)
+    list_of_posts = Post.objects.select_related('user', 'user_profile').prefetch_related('postcomments_set',
+                                                                                         'postcomments_set__user',
+                                                                                         'postcomments_set__user_profile',
+                                                                                         ) \
+        .only('user__username', 'user__id', 'user_profile__profileimg', 'id', 'image', 'caption', 'created_at',
+              'no_of_likes',
+              'disable_comments').filter(
+        Q(user__id__in=list_of_subscriptions) | Q(user__id__in=[user_id])).order_by('-created_at')
+
+    return list_of_posts
 
 def check_if_comment_disable(post):
     return post.disable_comments
