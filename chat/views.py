@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 
 from core.models import Profile
-from core.services import get_current_user, get_user_friends_suggestions
+from core.services import get_user_friends_suggestions
 from .models import Chat, Message
 
 
@@ -18,7 +18,7 @@ class Chats(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def get(self, request):
-        current_user = get_current_user(request)
+        current_user = request.user
         chats = Chat.objects.filter(members=current_user).order_by('-last_update')
 
         chats_per_page = 4
@@ -39,7 +39,7 @@ class ChatView(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def get(self, request, chat_id):
-        current_user = get_current_user(request)
+        current_user = request.user
 
         chat_obj = Chat.objects.get(id=chat_id)
         if not current_user in chat_obj.members.all():
@@ -70,7 +70,7 @@ class StartDialog(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def post(self, request):
-        current_user = get_current_user(request)
+        current_user = request.user
         page_owner = User.objects.get(id=request.POST.get('page_owner_id'))
         if current_user == page_owner:
             raise Http404

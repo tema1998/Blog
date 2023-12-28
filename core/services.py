@@ -35,11 +35,6 @@ def check_if_comment_disable(post):
     return post.disable_comments
 
 
-
-def get_current_user(request):
-    return request.user
-
-
 def get_user_profile_by_user_object(user_object):
     user_profile = Profile.objects.select_related('user').get(user=user_object)
     return user_profile

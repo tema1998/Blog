@@ -13,7 +13,7 @@ from django.http import JsonResponse
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q
 
-from .services import get_current_user, get_post, disable_comments, enable_comments, check_if_comment_disable, \
+from .services import get_post, disable_comments, enable_comments, check_if_comment_disable, \
     if_user_is_post_owner, if_user_is_authenticated, get_user_profile, get_friends_posts
 
 from .forms import CommentForm, SignupForm, SigninForm, SettingsForm, AddPostForm, EditPostForm
@@ -89,25 +89,25 @@ class AddComment(LoginRequiredMixin, View):
 
     def post(self, request):
         try:
-            user = get_current_user(request)
+            user = request.user
             post = get_post(request.POST['post_id'])
         except Exception:
             raise Http404
 
         if check_if_comment_disable(post):
             raise Http404
+
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            form = form.save(commit=False)
+            form.post = post
+            form.user = user
+            form.user_profile = get_user_profile(user_id=request.user.id)
+            form.no_of_likes = 0
+            form.save()
         else:
-            form = CommentForm(request.POST)
-            if form.is_valid():
-                form = form.save(commit=False)
-                form.post = Post.objects.get(id=request.POST['post_id'])
-                form.user = user
-                form.user_profile = Profile.objects.get(user_id=user.id)
-                form.no_of_likes = 0
-                form.save()
-            else:
-                return redirect(request.META.get('HTTP_REFERER'), {'form': form})
-            return redirect(request.META.get('HTTP_REFERER'))
+            return redirect(request.META.get('HTTP_REFERER'), {'form': form})
+        return redirect(request.META.get('HTTP_REFERER'))
 
 
 class LikePost(LoginRequiredMixin, View):
@@ -116,7 +116,7 @@ class LikePost(LoginRequiredMixin, View):
     def post(self, request, post_id):
         if is_ajax(request):
             try:
-                user = get_current_user(request)
+                user = request.user
                 post = get_post(post_id)
 
             except Exception:
@@ -180,7 +180,7 @@ class DeletePost(LoginRequiredMixin, View):
 
     def post(self, request):
         try:
-            user = get_current_user(request)
+            user = request.user
             post = get_post(request.POST['post_id'])
         except Exception:
             raise Http404
@@ -198,7 +198,7 @@ class DisablePostComments(LoginRequiredMixin, View):
 
     def post(self, request):
         try:
-            user = get_current_user(request)
+            user = request.user
             post = get_post(request.POST['post_id'])
         except Exception:
             raise Http404
@@ -214,7 +214,7 @@ class EnablePostComments(LoginRequiredMixin, View):
 
     def post(self, request):
         try:
-            user = get_current_user(request)
+            user = request.user
             post = get_post(request.POST['post_id'])
         except Exception:
             raise Http404
@@ -288,7 +288,7 @@ class Settings(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def post(self, request):
-        current_user = get_current_user(request)
+        current_user = request.user
         current_user_profile = Profile.objects.get(user=current_user)
         settings_form = SettingsForm(request.POST, request.FILES, instance=current_user_profile)
         if settings_form.is_valid():
@@ -297,7 +297,7 @@ class Settings(LoginRequiredMixin, View):
         return render(request, 'core/settings.html', {'settings_form': settings_form})
 
     def get(self, request):
-        current_user = get_current_user(request)
+        current_user = request.user
         current_user_profile = Profile.objects.select_related('user').only('bio', 'profileimg', 'location'
                                                                            , 'user__username') \
             .get(user=current_user)
@@ -335,7 +335,7 @@ class ProfileView(LoginRequiredMixin, View):
 
     def get(self, request, username):
         try:
-            current_user = get_current_user(request)
+            current_user = request.user
             current_user_profile = Profile.objects.select_related('user').get(user=current_user)
             if current_user.username == username:
                 page_user = current_user
@@ -503,7 +503,7 @@ class AddRemoveFavoritePost(LoginRequiredMixin, View):
 
     def post(self, request, post_id):
         if is_ajax(request):
-            current_user = get_current_user(request)
+            current_user = request.user
             post = Post.objects.get(id=post_id)
             try:
                 user_favorites_obj = UserFavoritePosts.objects.get(user=current_user, post__id=post_id)
@@ -527,7 +527,7 @@ class FavoritesPosts(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def get(self, request):
-        current_user = get_current_user(request)
+        current_user = request.user
         user_favorite = UserFavoritePosts.objects.filter(user=current_user)
         user_favorite_post_id = [obj.post.id for obj in list(user_favorite)]
         user_favorite_posts = Post.objects.filter(id__in=user_favorite_post_id)
