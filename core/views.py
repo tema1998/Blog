@@ -13,7 +13,7 @@ from django.http import JsonResponse
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q
 
-from .services import get_post, disable_comments, enable_comments, check_if_comment_disable, \
+from .services import get_post, disable_post_comments, enable_post_comments, check_if_comment_disable, \
     if_user_is_post_owner, if_user_is_authenticated, get_user_profile, get_posts_of_friends, get_like_post_obj, \
     create_like_post_obj
 
@@ -171,7 +171,7 @@ class DisablePostComments(LoginRequiredMixin, View):
         except Exception:
             raise Http404
         if if_user_is_post_owner(post, user):
-            disable_comments(post)
+            disable_post_comments(post)
         else:
             raise Http404
         return redirect(request.META.get('HTTP_REFERER'))
@@ -187,7 +187,7 @@ class EnablePostComments(LoginRequiredMixin, View):
         except Exception:
             raise Http404
         if if_user_is_post_owner(post, user):
-            enable_comments(post)
+            enable_post_comments(post)
         else:
             raise Http404
         return redirect(request.META.get('HTTP_REFERER'))

@@ -71,12 +71,12 @@ def get_user_friends_suggestions(current_user_profile):
     return people_who_are_followed_user_but_user_havent_followed_theirs
 
 
-def disable_comments(post):
+def disable_post_comments(post):
     post.disable_comments = True
     post.save()
 
 
-def enable_comments(post):
+def enable_post_comments(post):
     post.disable_comments = False
     post.save()
 
