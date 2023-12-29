@@ -7,6 +7,10 @@ from django.http import Http404
 from .models import Profile, Post, PostLikes, PostComments, CommentLikes
 
 
+def get_user(username: str):
+    return User.objects.get(username=username)
+
+
 def get_user_profile(user_id: int):
     return Profile.objects.get(user_id=user_id)
 
@@ -45,6 +49,29 @@ def create_user_profile(user):
 
 def check_if_post_comment_disable(post):
     return post.disable_comments
+
+
+def get_all_user_profile_followers(user_profile):
+    return user_profile.followers.all()
+
+
+def get_all_user_profile_following(user_profile):
+    return user_profile.following.all()
+
+
+def get_user_posts_selected_and_prefetch(user):
+    user_posts = Post.objects.select_related('user', 'user_profile').prefetch_related('postcomments_set',
+                                                                                      'postcomments_set__user',
+                                                                                      'postcomments_set__user_profile', ) \
+        .only('user__username', 'user__id', 'user_profile__profileimg', 'id', 'image', 'caption', 'created_at',
+              'no_of_likes',
+              'disable_comments').filter(user=user).order_by('-created_at')
+    return user_posts
+
+
+def count_queryset(queryset):
+    return queryset.count()
+
 
 
 def get_user_profile_by_user_object(user_object):

@@ -15,7 +15,8 @@ from django.db.models import Q
 
 from .services import get_post, disable_post_comments, enable_post_comments, check_if_post_comment_disable, \
     get_user_profile, get_posts_of_friends, get_like_post_obj, \
-    create_like_post_obj, create_user_profile
+    create_like_post_obj, create_user_profile, get_user, get_all_user_profile_followers, \
+    get_user_posts_selected_and_prefetch, count_queryset, get_all_user_profile_following
 
 from .forms import CommentForm, SignupForm, SigninForm, SettingsForm, AddPostForm, EditPostForm
 
@@ -240,18 +241,17 @@ class AddPost(LoginRequiredMixin, View):
         return render(request, 'core/add_post.html', {'add_post_form': add_post_form, })
 
     def post(self, request):
-        user_id = int(request.user.id)
-        user = User.objects.get(id=user_id)
-        user_profile = Profile.objects.get(user_id=user_id)
+
+        user_profile = get_user_profile(user_id=request.user.id)
 
         add_post_form = AddPostForm(request.POST, request.FILES)
         if add_post_form.is_valid():
             image = add_post_form.cleaned_data['image']
             caption = add_post_form.cleaned_data['caption']
             disable_comments = add_post_form.cleaned_data['disable_comments']
-            new_post = Post.objects.create(user=user, user_profile=user_profile, image=image, caption=caption,
+            new_post = Post.objects.create(user=request.user, user_profile=user_profile, image=image, caption=caption,
                                            disable_comments=disable_comments)
-            return redirect('profile', username=user.username)
+            return redirect('profile', username=request.user.username)
         return render(request, 'core/add_post.html', {'add_post_form': add_post_form})
 
 
@@ -259,30 +259,24 @@ class ProfileView(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def get(self, request, username):
-        current_user = request.user
-        current_user_profile = Profile.objects.select_related('user').get(user=current_user)
-        if current_user.username == username:
-            page_user = current_user
-            page_user_profile = current_user_profile
-        else:
-            page_user = User.objects.get(username=username)
-            page_user_profile = Profile.objects.get(user=page_user)
+        user_profile = get_user_profile(user_id=request.user.id)
 
-        is_owner = current_user == page_user
-        if not is_owner:
-            is_subscribed = current_user_profile in page_user_profile.followers.all()
-        else:
+        if request.user.username == username:
+            page_user = request.user
+            page_user_profile = user_profile
+            is_owner = True
             is_subscribed = False
-        user_posts = Post.objects.select_related('user', 'user_profile').prefetch_related('postcomments_set',
-                                                                                          'postcomments_set__user',
-                                                                                          'postcomments_set__user_profile', ) \
-            .only('user__username', 'user__id', 'user_profile__profileimg', 'id', 'image', 'caption', 'created_at',
-                  'no_of_likes',
-                  'disable_comments').filter(user=page_user).order_by('-created_at')
-        user_post_length = user_posts.count()
+        else:
+            page_user = get_user(username=username)
+            page_user_profile = get_user_profile(user_id=page_user.id)
+            is_owner = False
+            is_subscribed = user_profile in get_all_user_profile_followers(user_profile=page_user_profile)
 
-        user_followers = page_user_profile.followers.all().count()
-        user_following = page_user_profile.following.all().count()
+        user_posts = get_user_posts_selected_and_prefetch(user=page_user)
+        user_post_length = count_queryset(user_posts)
+
+        user_followers = count_queryset(get_all_user_profile_followers(user_profile=page_user_profile))
+        user_following = count_queryset(get_all_user_profile_following(user_profile=page_user_profile))
 
         # Pagination
         posts_per_page = 3
