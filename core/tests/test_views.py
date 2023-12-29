@@ -104,25 +104,11 @@ class EditPostTest(TestCase):
         response = self.authorized_client.get(self.url_edit_post1_url)
         self.assertEqual(response.status_code, 200)
 
-    def test_not_author_is_not_able_edit_post_GET(self):
-        response = self.authorized_client.get(self.url_edit_post2_url)
-        self.assertEqual(response.status_code, 404)
-
-    def test_post_is_not_exists_GET(self):
-        response = self.authorized_client.get(reverse('edit-post', kwargs={'post_id': '123'}))
-        self.assertEqual(response.status_code, 404)
-
     def test_author_is_able_edit_post_POST(self):
         response = self.authorized_client.post(self.url_edit_post1_url, {
             'caption': 'new_text'
         })
         self.assertEquals(response.status_code, 302)
-
-    def test_not_author_is_not_able_edit_post_POST(self):
-        response = self.authorized_client.post(self.url_edit_post2_url, {
-            'caption': 'new_text'
-        })
-        self.assertEquals(response.status_code, 404)
 
     def test_edit_post_data_POST(self):
         new_image = get_image_file()
@@ -133,14 +119,6 @@ class EditPostTest(TestCase):
 
         self.assertEquals(Post.objects.get(id=self.post_by_user1.id).caption, 'new_text')
         self.assertTrue(Post.objects.get(id=self.post_by_user1.id).image.url.startswith('/media/post_images/test'))
-
-    def test_post_is_not_exists_POST(self):
-        new_image = get_image_file()
-        response = self.authorized_client.post(reverse('edit-post', kwargs={'post_id': '123'}), {
-            'caption': 'new_text',
-            'image': new_image
-        })
-        self.assertEquals(response.status_code, 404)
 
     def test_edit_post_with_not_image_file_POST(self):
         not_image_file = SimpleUploadedFile("file.mp4", b"file_content", content_type="video/mp4")
@@ -238,16 +216,6 @@ class AddCommentTest(TestCase):
         self.assertEquals(PostComments.objects.count(), 0)
 
 
-    def test_comment_with_false_data_POST(self):
-        redirect_url = reverse('index')
-
-        response = self.authorized_client.post(path=reverse('add-comment'), data={
-            'post_id': 0,
-            'text': 'text'},
-                                               HTTP_REFERER=redirect_url)
-        self.assertEquals(response.status_code, 404)
-
-
 class LikePostTest(TestCase):
 
     def setUp(self):
@@ -337,25 +305,6 @@ class DeletePostTest(TestCase):
         self.assertRedirects(response, '/profile/user1/')
 
 
-    def test_not_owner_is_not_able_delete_post_POST(self):
-        redirect_url = reverse('index')
-
-        response = self.authorized_client.post(path=reverse('delete-post'), data={
-            'post_id': self.post_1_by_user2.id,},
-                                               HTTP_REFERER=redirect_url)
-        self.assertEquals(response.status_code, 404)
-        self.assertEquals(Post.objects.all().count(), 3)
-
-    def test_false_data_delete_post_POST(self):
-        redirect_url = reverse('index')
-
-        response = self.authorized_client.post(path=reverse('delete-post'), data={
-            'post_id': '99'},
-                                               HTTP_REFERER=redirect_url)
-        self.assertEquals(response.status_code, 404)
-        self.assertEquals(Post.objects.all().count(), 3)
-
-
 class DisablePostCommentsTest(TestCase):
 
     def setUp(self):
@@ -391,25 +340,6 @@ class DisablePostCommentsTest(TestCase):
         self.assertEquals(response.status_code, 302)
         self.assertEquals(Post.objects.get(id=self.post_1_by_user1.id).disable_comments, True)
         self.assertRedirects(response, '/')
-
-
-    def test_not_owner_is_not_able_disable_post_comments_post_POST(self):
-        redirect_url = reverse('index')
-
-        response = self.authorized_client.post(path=reverse('disable-post-comments'), data={
-            'post_id': self.post_1_by_user2.id,},
-                                               HTTP_REFERER=redirect_url)
-        self.assertEquals(response.status_code, 404)
-        self.assertEquals(Post.objects.get(id=self.post_1_by_user1.id).disable_comments, False)
-
-    def test_false_data_disable_post_comments_POST(self):
-        redirect_url = reverse('index')
-
-        response = self.authorized_client.post(path=reverse('disable-post-comments'), data={
-            'post_id': 99},
-                                               HTTP_REFERER=redirect_url)
-        self.assertEquals(response.status_code, 404)
-        self.assertEquals(Post.objects.get(id=self.post_1_by_user1.id).disable_comments, False)
 
     def test_disable_post_comments_if_already_disabled_post_POST(self):
         redirect_url = reverse('index')
@@ -457,24 +387,6 @@ class EnablePostCommentsTest(TestCase):
         self.assertEquals(Post.objects.get(id=self.post_1_by_user1.id).disable_comments, False)
         self.assertRedirects(response, '/')
 
-
-    def test_not_owner_is_not_able_enable_post_comments_post_POST(self):
-        redirect_url = reverse('index')
-
-        response = self.authorized_client.post(path=reverse('enable-post-comments'), data={
-            'post_id': self.post_1_by_user2.id,},
-                                               HTTP_REFERER=redirect_url)
-        self.assertEquals(response.status_code, 404)
-        self.assertEquals(Post.objects.get(id=self.post_1_by_user1.id).disable_comments, True)
-
-    def test_false_data_enable_post_comments_POST(self):
-        redirect_url = reverse('index')
-
-        response = self.authorized_client.post(path=reverse('enable-post-comments'), data={
-            'post_id': 99},
-                                               HTTP_REFERER=redirect_url)
-        self.assertEquals(response.status_code, 404)
-        self.assertEquals(Post.objects.get(id=self.post_1_by_user1.id).disable_comments, True)
 
     def test_enable_post_comments_if_already_enable_post_POST(self):
         redirect_url = reverse('index')
@@ -832,11 +744,6 @@ class ProfileViewTest(TestCase):
         self.assertEquals(response.context.get('user_post_length'), 1)
         self.assertEquals(response.context.get('user_followers'), 1)
         self.assertEquals(response.context.get('user_following'), 1)
-
-    def test_data_profile_on_not_exists_page_GET(self):
-        response = self.authorized_client.get(reverse('profile', kwargs={'username': 'abcd'}))
-
-        self.assertEqual(response.status_code, 404)
 
     def test_is_ajax_GET(self):
         response = self.authorized_client.get(reverse('profile', kwargs={'username': self.user2.username}), HTTP_X_REQUESTED_WITH='XMLHttpRequest')

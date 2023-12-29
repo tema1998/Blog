@@ -39,7 +39,7 @@ def create_like_post_obj(post, user):
     return PostLikes.objects.create(post=post, user=user)
 
 
-def check_if_comment_disable(post):
+def check_if_post_comment_disable(post):
     return post.disable_comments
 
 
@@ -90,12 +90,6 @@ def get_user_id_for_get_and_post_methods(request):
         return user_id
     except Exception:
         raise Http404
-
-
-def if_user_is_post_owner(post, user):
-    user_id = user.id
-    post_author_id = post.user.id
-    return user_id == post_author_id
 
 
 def if_user_is_authenticated(request):

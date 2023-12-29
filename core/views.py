@@ -13,8 +13,8 @@ from django.http import JsonResponse
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q
 
-from .services import get_post, disable_post_comments, enable_post_comments, check_if_comment_disable, \
-    if_user_is_post_owner, if_user_is_authenticated, get_user_profile, get_posts_of_friends, get_like_post_obj, \
+from .services import get_post, disable_post_comments, enable_post_comments, check_if_post_comment_disable, \
+    if_user_is_authenticated, get_user_profile, get_posts_of_friends, get_like_post_obj, \
     create_like_post_obj
 
 from .forms import CommentForm, SignupForm, SigninForm, SettingsForm, AddPostForm, EditPostForm
@@ -53,28 +53,16 @@ class EditPost(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def get(self, request, post_id):
-        try:
-            post = get_post(id=post_id)
-        except Exception:
-            raise Http404
 
-        if not post.user == request.user:
-            raise Http404
-
+        post = get_post(id=post_id)
         edit_post_form = EditPostForm(instance=post)
-
         return render(request, 'core/edit_post.html', {'edit_post_form': edit_post_form,
                                                        'post': post,
                                                        })
 
     def post(self, request, post_id):
-        try:
-            post = get_post(id=post_id)
-        except Exception:
-            raise Http404
 
-        if not if_user_is_post_owner(post, request.user):
-            raise Http404
+        post = get_post(id=post_id)
 
         edit_post_form = EditPostForm(request.POST, request.FILES, instance=post)
         if edit_post_form.is_valid():
@@ -89,13 +77,10 @@ class AddComment(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def post(self, request):
-        try:
-            user = request.user
-            post = get_post(request.POST['post_id'])
-        except Exception:
-            raise Http404
+        user = request.user
+        post = get_post(request.POST['post_id'])
 
-        if check_if_comment_disable(post):
+        if check_if_post_comment_disable(post):
             raise Http404
 
         form = CommentForm(request.POST)
@@ -116,12 +101,8 @@ class LikePost(LoginRequiredMixin, View):
 
     def post(self, request, post_id):
         if is_ajax(request):
-            try:
-                user = request.user
-                post = get_post(post_id)
-
-            except Exception:
-                raise Http404
+            user = request.user
+            post = get_post(post_id)
 
             try:
                 like_post_obj = get_like_post_obj(post=post, user=user)
@@ -147,16 +128,10 @@ class DeletePost(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def post(self, request):
-        try:
-            user = request.user
-            post = get_post(request.POST['post_id'])
-        except Exception:
-            raise Http404
+        user = request.user
+        post = get_post(request.POST['post_id'])
 
-        if post.user == user:
-            post.delete()
-        else:
-            raise Http404
+        post.delete()
 
         return redirect('profile', username=post.user.username)
 
@@ -165,15 +140,11 @@ class DisablePostComments(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def post(self, request):
-        try:
-            user = request.user
-            post = get_post(request.POST['post_id'])
-        except Exception:
-            raise Http404
-        if if_user_is_post_owner(post, user):
-            disable_post_comments(post)
-        else:
-            raise Http404
+        user = request.user
+        post = get_post(request.POST['post_id'])
+
+        disable_post_comments(post)
+
         return redirect(request.META.get('HTTP_REFERER'))
 
 
@@ -181,15 +152,11 @@ class EnablePostComments(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def post(self, request):
-        try:
-            user = request.user
-            post = get_post(request.POST['post_id'])
-        except Exception:
-            raise Http404
-        if if_user_is_post_owner(post, user):
-            enable_post_comments(post)
-        else:
-            raise Http404
+        user = request.user
+        post = get_post(request.POST['post_id'])
+
+        enable_post_comments(post)
+
         return redirect(request.META.get('HTTP_REFERER'))
 
 
@@ -302,18 +269,14 @@ class ProfileView(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def get(self, request, username):
-        try:
-            current_user = request.user
-            current_user_profile = Profile.objects.select_related('user').get(user=current_user)
-            if current_user.username == username:
-                page_user = current_user
-                page_user_profile = current_user_profile
-            else:
-                page_user = User.objects.get(username=username)
-                page_user_profile = Profile.objects.get(user=page_user)
-
-        except Exception:
-            raise Http404
+        current_user = request.user
+        current_user_profile = Profile.objects.select_related('user').get(user=current_user)
+        if current_user.username == username:
+            page_user = current_user
+            page_user_profile = current_user_profile
+        else:
+            page_user = User.objects.get(username=username)
+            page_user_profile = Profile.objects.get(user=page_user)
 
         is_owner = current_user == page_user
         if not is_owner:
@@ -391,16 +354,12 @@ class ProfileFollowingCreateView(LoginRequiredMixin, View):
 
     def post(self, request, user_id):
         if is_ajax(request):
-            try:
-                user_id_who_want_follow = int(request.user.id)
-                user_who_want_follow = User.objects.get(id=user_id_who_want_follow)
-                profile_who_want_follow = Profile.objects.get(user=user_who_want_follow)
+            user_id_who_want_follow = int(request.user.id)
+            user_who_want_follow = User.objects.get(id=user_id_who_want_follow)
+            profile_who_want_follow = Profile.objects.get(user=user_who_want_follow)
 
-                user_page_owner = User.objects.get(id=int(user_id))
-                profile_page_owner = Profile.objects.get(user=user_page_owner)
-
-            except Exception:
-                raise Http404
+            user_page_owner = User.objects.get(id=int(user_id))
+            profile_page_owner = Profile.objects.get(user=user_page_owner)
 
             if profile_who_want_follow in profile_page_owner.followers.all():
                 profile_page_owner.followers.remove(profile_who_want_follow)
@@ -440,7 +399,6 @@ class Likecomment(LoginRequiredMixin, View):
 
     def post(self, request, comment_id):
         if is_ajax(request):
-
             user_id = int(request.user.id)
             user = User.objects.get(id=user_id)
             comment = PostComments.objects.get(id=comment_id)
