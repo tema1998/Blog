@@ -14,7 +14,8 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q
 
 from .services import get_post, disable_comments, enable_comments, check_if_comment_disable, \
-    if_user_is_post_owner, if_user_is_authenticated, get_user_profile, get_friends_posts
+    if_user_is_post_owner, if_user_is_authenticated, get_user_profile, get_posts_of_friends, get_like_post_obj, \
+    create_like_post_obj
 
 from .forms import CommentForm, SignupForm, SigninForm, SettingsForm, AddPostForm, EditPostForm
 
@@ -27,7 +28,7 @@ class Index(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def get(self, request):
-        list_of_posts = get_friends_posts(user_id=request.user.id)
+        list_of_posts = get_posts_of_friends(user_id=request.user.id)
 
         posts_per_page = 2
         paginator = Paginator(list_of_posts, posts_per_page)
@@ -122,19 +123,17 @@ class LikePost(LoginRequiredMixin, View):
             except Exception:
                 raise Http404
 
-            liked_post = PostLikes.objects.filter(post=post, user=user).first()
-            if liked_post is None:
-                new_like = PostLikes.objects.create(post=post, user=user)
-                new_like.save()
-                post.no_of_likes += 1
-                post.save()
-                like_status = True
-
-            else:
-                liked_post.delete()
+            try:
+                like_post_obj = get_like_post_obj(post=post, user=user)
+                like_post_obj.delete()
                 post.no_of_likes -= 1
                 post.save()
                 like_status = False
+            except Exception:
+                like_post_obj = create_like_post_obj(post=post, user=user)
+                post.no_of_likes += 1
+                post.save()
+                like_status = True
 
             likes = post.no_of_likes
             data = {
@@ -142,37 +141,6 @@ class LikePost(LoginRequiredMixin, View):
                 'like_status': like_status,
             }
             return JsonResponse(data, status=200)
-
-        # if is_ajax(request):
-        #     try:
-        #         current_user_id = int(request.user.id)
-        #         current_user_profile = Profile.objects.get(user_id=current_user_id)
-        #         post = Post.objects.get(id=post_id)
-        #     except Exception:
-        #         raise Http404
-        #
-        #     if UserFavoritePosts.objects.filter(user_profile=current_user_profile).first():
-        #         user_favorites_obj = UserFavoritePosts.objects.get(user_profile=current_user_profile)
-        #         if not post in user_favorites_obj.posts.all():
-        #             user_favorites_obj.posts.add(post)
-        #             message = f'Remove from favorites'
-        #             post_status = True
-        #         else:
-        #             user_favorites_obj.posts.remove(post)
-        #             message = f'Add to favorites'
-        #             post_status = False
-        #     else:
-        #         user_favorites_obj = UserFavoritePosts.objects.create(user_profile=current_user_profile)
-        #         user_favorites_obj.posts.add(post)
-        #         message = f'Remove from favorites'
-        #         post_status = True
-        #
-        #     data = {
-        #         'message': message,
-        #         'post_status': post_status,
-        #     }
-        #
-        #     return JsonResponse(data, status=200)
 
 
 class DeletePost(LoginRequiredMixin, View):

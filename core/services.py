@@ -11,7 +11,7 @@ def get_user_profile(user_id: int):
     return Profile.objects.get(user_id=user_id)
 
 
-def get_friends_posts(user_id: int):
+def get_posts_of_friends(user_id: int):
     user_profile = get_user_profile(user_id=user_id)
     list_of_subscriptions = user_profile.following.values_list('id', flat=True)
     list_of_posts = Post.objects.select_related('user', 'user_profile').prefetch_related('postcomments_set',
@@ -26,9 +26,17 @@ def get_friends_posts(user_id: int):
     return list_of_posts
 
 
-#Было select related User, требуется ли?
+# Было select related User, требуется ли?
 def get_post(id: int):
     return Post.objects.get(id=id)
+
+
+def get_like_post_obj(post, user):
+    return PostLikes.objects.get(post=post, user=user)
+
+
+def create_like_post_obj(post, user):
+    return PostLikes.objects.create(post=post, user=user)
 
 
 def check_if_comment_disable(post):
@@ -52,11 +60,11 @@ def get_people_who_user_followed_by_userprofile(userprofile):
 
 
 def get_user_friends_suggestions(current_user_profile):
-
     people_who_user_followed = get_people_who_user_followed_by_userprofile(current_user_profile)
     people_who_user_followed_id = [obj.id for obj in people_who_user_followed]
     people_who_user_followed_id.append(current_user_profile.id)
-    people_who_are_followed_user_but_user_havent_followed_theirs = Profile.objects.exclude(id__in=people_who_user_followed_id).select_related('user') \
+    people_who_are_followed_user_but_user_havent_followed_theirs = Profile.objects.exclude(
+        id__in=people_who_user_followed_id).select_related('user') \
                                                                        .only('bio', 'profileimg',
                                                                              'user__username').all().order_by('?')[:5]
 
