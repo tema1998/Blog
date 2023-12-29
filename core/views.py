@@ -46,14 +46,13 @@ class Index(LoginRequiredMixin, View):
             return render(request, 'core/index_ajax.html', {'user_friends_posts': list_of_posts_paginated, })
 
         return render(request, 'core/index.html', {
-            'user_friends_posts': list_of_posts_paginated,})
+            'user_friends_posts': list_of_posts_paginated, })
 
 
 class EditPost(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def get(self, request, post_id):
-
         post = get_post(id=post_id)
         edit_post_form = EditPostForm(instance=post)
         return render(request, 'core/edit_post.html', {'edit_post_form': edit_post_form,
@@ -61,7 +60,6 @@ class EditPost(LoginRequiredMixin, View):
                                                        })
 
     def post(self, request, post_id):
-
         post = get_post(id=post_id)
 
         edit_post_form = EditPostForm(request.POST, request.FILES, instance=post)
@@ -219,22 +217,17 @@ class Logout(View):
 class Settings(LoginRequiredMixin, View):
     login_url = 'signin'
 
+    def get(self, request):
+        user_profile = get_user_profile(user_id=request.user.id)
+        settings_form = SettingsForm(instance=user_profile)
+        return render(request, 'core/settings.html', {'settings_form': settings_form})
+
     def post(self, request):
-        current_user = request.user
-        current_user_profile = Profile.objects.get(user=current_user)
-        settings_form = SettingsForm(request.POST, request.FILES, instance=current_user_profile)
+        user_profile = get_user_profile(user_id=request.user.id)
+        settings_form = SettingsForm(request.POST, request.FILES, instance=user_profile)
         if settings_form.is_valid():
             settings_form.save()
             return redirect('settings')
-        return render(request, 'core/settings.html', {'settings_form': settings_form})
-
-    def get(self, request):
-        current_user = request.user
-        current_user_profile = Profile.objects.select_related('user').only('bio', 'profileimg', 'location'
-                                                                           , 'user__username') \
-            .get(user=current_user)
-
-        settings_form = SettingsForm(instance=current_user_profile)
         return render(request, 'core/settings.html', {'settings_form': settings_form})
 
 
@@ -244,7 +237,7 @@ class AddPost(LoginRequiredMixin, View):
     def get(self, request):
         add_post_form = AddPostForm()
 
-        return render(request, 'core/add_post.html', {'add_post_form': add_post_form,})
+        return render(request, 'core/add_post.html', {'add_post_form': add_post_form, })
 
     def post(self, request):
         user_id = int(request.user.id)
@@ -340,7 +333,7 @@ class FollowingList(LoginRequiredMixin, View):
 
         return render(request, 'core/following.html', {
             'user_following': page_owner_followers,
-            'page_owner_profile': page_owner_profile,})
+            'page_owner_profile': page_owner_profile, })
 
 
 class ProfileFollowingCreateView(LoginRequiredMixin, View):
