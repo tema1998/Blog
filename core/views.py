@@ -14,8 +14,8 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q
 
 from .services import get_post, disable_post_comments, enable_post_comments, check_if_post_comment_disable, \
-    if_user_is_authenticated, get_user_profile, get_posts_of_friends, get_like_post_obj, \
-    create_like_post_obj
+    get_user_profile, get_posts_of_friends, get_like_post_obj, \
+    create_like_post_obj, create_user_profile
 
 from .forms import CommentForm, SignupForm, SigninForm, SettingsForm, AddPostForm, EditPostForm
 
@@ -163,7 +163,7 @@ class EnablePostComments(LoginRequiredMixin, View):
 class Signup(View):
 
     def post(self, request):
-        if if_user_is_authenticated(request):
+        if request.user.is_authenticated:
             return redirect('index')
         else:
             signup_form = SignupForm(request.POST)
@@ -175,15 +175,12 @@ class Signup(View):
 
                     auth.login(request, new_user)
 
-                    # Create profile object
-                    user_model = User.objects.get(username=new_user.username)
-                    new_profile = Profile.objects.create(user=user_model)
-                    new_profile.save()
+                    create_user_profile(user=new_user)
                     return redirect('settings')
             return render(request, 'core/signup.html', {'signup_form': signup_form})
 
     def get(self, request):
-        if if_user_is_authenticated(request):
+        if request.user.is_authenticated:
             return redirect('index')
         else:
             signup_form = SignupForm()
@@ -192,7 +189,7 @@ class Signup(View):
 
 class Signin(View):
     def post(self, request):
-        if if_user_is_authenticated(request):
+        if request.user.is_authenticated:
             return redirect('index')
         else:
             signin_form = SigninForm(request.POST)
@@ -206,7 +203,7 @@ class Signin(View):
             return render(request, 'core/signin.html', {'signin_form': signin_form})
 
     def get(self, request):
-        if if_user_is_authenticated(request):
+        if request.user.is_authenticated:
             return redirect('index')
         else:
             signin_form = SigninForm()
