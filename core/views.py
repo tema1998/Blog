@@ -333,9 +333,6 @@ class FollowingList(LoginRequiredMixin, View):
 class ProfileFollowingCreateView(LoginRequiredMixin, View):
     login_url = 'signin'
 
-    def is_ajax(self):
-        return self.request.headers.get('X-Requested-With') == 'XMLHttpRequest'
-
     def post(self, request, user_id):
         if is_ajax(request):
             user_id_who_want_follow = int(request.user.id)
