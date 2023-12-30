@@ -84,6 +84,25 @@ def filter_user_profiles_by_username(username):
     return search_users_profile_list
 
 
+def get_comment(comment_id):
+    return PostComments.objects.get(id=comment_id)
+
+
+def like_comment(comment, user):
+    CommentLikes.objects.create(comment=comment, user=user)
+    comment.no_of_likes += 1
+    comment.save()
+
+
+def dislike_comment(comment, comment_like):
+    comment_like.delete()
+    comment.no_of_likes -= 1
+    comment.save()
+
+
+def get_comment_like(comment, user):
+    return CommentLikes.objects.filter(comment=comment, user=user).first()
+
 
 def get_user_profile_by_user_object(user_object):
     user_profile = Profile.objects.select_related('user').get(user=user_object)

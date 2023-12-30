@@ -63,7 +63,7 @@ class TestUrls(SimpleTestCase):
 
     def test_like_comment_url_resolves(self):
         url = reverse('like-comment', args=[2213])
-        self.assertEquals(resolve(url).func.view_class, Likecomment)
+        self.assertEquals(resolve(url).func.view_class, LikeComment)
 
     def test_search_url_resolves(self):
         url = reverse('search')

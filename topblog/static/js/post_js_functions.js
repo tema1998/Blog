@@ -68,7 +68,7 @@ postWrap.addEventListener('click', event => {
             comment_like_counter = document.querySelector('[data-commentlikecounter="'+commentId+'"]');
             commentlikesvg = document.querySelector('[data-likecommentsvg="'+commentId+'"]');
             comment_like_counter.innerHTML = data.likes
-            if (data.comment_status == true) {
+            if (data.like_status == true) {
                 commentlikesvg.classList.add("fill-current");
             }
             else {

@@ -17,7 +17,8 @@ from .services import get_post, disable_post_comments, enable_post_comments, che
     get_user_profile, get_posts_of_friends, get_like_post_obj, \
     create_like_post_obj, create_user_profile, get_user, get_all_user_profile_followers, \
     get_user_posts_select_and_prefetch, count_queryset, get_all_user_profile_following, \
-    filter_user_profiles_by_username, get_all_user_profiles
+    filter_user_profiles_by_username, get_all_user_profiles, get_comment, dislike_comment, like_comment, \
+    get_comment_like
 
 from .forms import CommentForm, SignupForm, SigninForm, SettingsForm, AddPostForm, EditPostForm
 
@@ -374,32 +375,24 @@ class Search(LoginRequiredMixin, View):
                        })
 
 
-class Likecomment(LoginRequiredMixin, View):
+class LikeComment(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def post(self, request, comment_id):
         if is_ajax(request):
-            user_id = int(request.user.id)
-            user = User.objects.get(id=user_id)
-            comment = PostComments.objects.get(id=comment_id)
+            comment = get_comment(comment_id=comment_id)
+            comment_like = get_comment_like(comment=comment, user=request.user)
 
-            like_filter = CommentLikes.objects.filter(comment=comment, user=user).first()
-            if like_filter == None:
-                new_like = CommentLikes.objects.create(comment=comment, user=user)
-                new_like.save()
-                comment.no_of_likes += 1
-                comment.save()
-                comment_status = True
-                likes = comment.no_of_likes
+            if comment_like:
+                dislike_comment(comment, comment_like)
+                like_status = False
             else:
-                like_filter.delete()
-                comment.no_of_likes -= 1
-                comment.save()
-                comment_status = False
-                likes = comment.no_of_likes
+                like_comment(comment=comment, user=request.user)
+                like_status = True
+
             data = {
-                'comment_status': comment_status,
-                'likes': likes,
+                'like_status': like_status,
+                'likes': comment.no_of_likes,
             }
             return JsonResponse(data, status=200)
 

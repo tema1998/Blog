@@ -23,7 +23,7 @@ urlpatterns = [
     path('enable-post-comments', views.EnablePostComments.as_view(), name='enable-post-comments'),
     # path('edit-post', views.Likepost.as_view(), name='like-post'),
     path('add-comment', views.AddComment.as_view(), name='add-comment'),
-    path('like-comment/<int:comment_id>/', views.Likecomment.as_view(), name='like-comment'),
+    path('like-comment/<int:comment_id>/', views.LikeComment.as_view(), name='like-comment'),
     # path('follow', views.Follow.as_view(), name='follow'),
     path('search', views.Search.as_view(), name='search'),
 ]
