@@ -16,7 +16,8 @@ from django.db.models import Q
 from .services import get_post, disable_post_comments, enable_post_comments, check_if_post_comment_disable, \
     get_user_profile, get_posts_of_friends, get_like_post_obj, \
     create_like_post_obj, create_user_profile, get_user, get_all_user_profile_followers, \
-    get_user_posts_selected_and_prefetch, count_queryset, get_all_user_profile_following
+    get_user_posts_select_and_prefetch, count_queryset, get_all_user_profile_following, \
+    filter_user_profiles_by_username, get_all_user_profiles
 
 from .forms import CommentForm, SignupForm, SigninForm, SettingsForm, AddPostForm, EditPostForm
 
@@ -272,7 +273,7 @@ class ProfileView(LoginRequiredMixin, View):
             is_owner = False
             is_subscribed = user_profile in get_all_user_profile_followers(user_profile=page_user_profile)
 
-        user_posts = get_user_posts_selected_and_prefetch(user=page_user)
+        user_posts = get_user_posts_select_and_prefetch(user=page_user)
         user_post_length = count_queryset(user_posts)
 
         user_followers = count_queryset(get_all_user_profile_followers(user_profile=page_user_profile))
@@ -363,15 +364,13 @@ class Search(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def get(self, request):
-        search_user = request.GET['search_user']
-        if search_user:
-            search_user_profile_list = Profile.objects.select_related('user') \
-                .filter(user__username__contains=search_user).only('user__username', 'user__id', 'bio', 'profileimg',
-                                                                   'location')
+        search_user_text = request.GET['search_user']
+        if search_user_text:
+            search_users_profile_list = filter_user_profiles_by_username(username=search_user_text)
         else:
-            search_user_profile_list = Profile.objects.select_related('user').all()
+            search_users_profile_list = get_all_user_profiles()
         return render(request, 'core/search.html',
-                      {'search_user_profile_list': search_user_profile_list,
+                      {'search_user_profile_list': search_users_profile_list,
                        })
 
 

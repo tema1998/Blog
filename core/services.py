@@ -59,7 +59,11 @@ def get_all_user_profile_following(user_profile):
     return user_profile.following.all()
 
 
-def get_user_posts_selected_and_prefetch(user):
+def get_all_user_profiles():
+    return Profile.objects.select_related('user').all()
+
+
+def get_user_posts_select_and_prefetch(user):
     user_posts = Post.objects.select_related('user', 'user_profile').prefetch_related('postcomments_set',
                                                                                       'postcomments_set__user',
                                                                                       'postcomments_set__user_profile', ) \
@@ -71,6 +75,14 @@ def get_user_posts_selected_and_prefetch(user):
 
 def count_queryset(queryset):
     return queryset.count()
+
+
+def filter_user_profiles_by_username(username):
+    search_users_profile_list = Profile.objects.select_related('user') \
+        .filter(user__username__contains=username).only('user__username', 'user__id', 'bio', 'profileimg',
+                                                           'location')
+    return search_users_profile_list
+
 
 
 def get_user_profile_by_user_object(user_object):
