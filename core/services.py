@@ -73,7 +73,6 @@ def count_queryset(queryset):
     return queryset.count()
 
 
-
 def get_user_profile_by_user_object(user_object):
     user_profile = Profile.objects.select_related('user').get(user=user_object)
     return user_profile

@@ -311,8 +311,8 @@ class FollowersList(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def get(self, request, user_id):
-        page_owner_profile = Profile.objects.get(user_id=user_id)
-        page_owner_followers = page_owner_profile.followers.all()
+        page_owner_profile = get_user_profile(user_id=user_id)
+        page_owner_followers = get_all_user_profile_followers(page_owner_profile)
         return render(request, 'core/followers.html', {
             'user_followers': page_owner_followers,
             'page_owner_profile': page_owner_profile})
@@ -322,11 +322,11 @@ class FollowingList(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def get(self, request, user_id):
-        page_owner_profile = Profile.objects.get(user_id=user_id)
-        page_owner_followers = page_owner_profile.following.all()
+        page_owner_profile = get_user_profile(user_id=user_id)
+        page_owner_following = get_all_user_profile_following(page_owner_profile)
 
         return render(request, 'core/following.html', {
-            'user_following': page_owner_followers,
+            'user_following': page_owner_following,
             'page_owner_profile': page_owner_profile, })
 
 
