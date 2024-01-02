@@ -1,6 +1,3 @@
-from itertools import chain
-from typing import List
-
 from django.contrib.auth.models import User, auth
 from django.db.models import Q
 from django.http import Http404
@@ -31,7 +28,6 @@ def get_posts_of_friends(user_id: int):
     return list_of_posts
 
 
-# Было select related User, требуется ли?
 def get_post(id: int):
     return Post.objects.get(id=id)
 
@@ -117,17 +113,6 @@ def get_comment_like(comment, user):
     return CommentLikes.objects.filter(comment=comment, user=user).first()
 
 
-def get_user_profile_by_user_object(user_object):
-    user_profile = Profile.objects.select_related('user').get(user=user_object)
-    return user_profile
-
-
-def get_user_profile_by_username(username):
-    user_object = User.objects.get(username=username)
-    user_profile = Profile.objects.get(user=user_object)
-    return user_profile
-
-
 def get_people_who_user_followed_by_userprofile(userprofile):
     people_who_user_followed = userprofile.following.all()
     return people_who_user_followed
@@ -153,17 +138,6 @@ def disable_post_comments(post):
 def enable_post_comments(post):
     post.disable_comments = False
     post.save()
-
-
-def get_user_id_for_get_and_post_methods(request):
-    try:
-        if request.method == 'GET':
-            user_id = request.user.id
-        else:
-            user_id = int(request.POST['user_id'])
-        return user_id
-    except Exception:
-        raise Http404
 
 
 def get_user_favorite_posts(user) -> list:
