@@ -14,7 +14,7 @@
         {% if user_favorite_posts %}
             <div class="row" id="post_list">
                 {% for post in user_favorite_posts reversed %}
-                    <div class="posts-margin">
+                    <div class="pb-3">
                         {% include 'core/include/author_post_like_comments.html' %}
                     </div>
                 {% endfor %}

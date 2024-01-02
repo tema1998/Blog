@@ -4,7 +4,7 @@ from django.contrib.auth.models import User, auth
 from django.db.models import Q
 from django.http import Http404
 
-from .models import Profile, Post, PostLikes, PostComments, CommentLikes
+from .models import Profile, Post, PostLikes, PostComments, CommentLikes, UserFavoritePosts
 
 
 def get_user(username: str):
@@ -41,6 +41,18 @@ def get_like_post_obj(post, user):
 
 def create_like_post_obj(post, user):
     return PostLikes.objects.create(post=post, user=user)
+
+
+def get_user_favourite_post(post, user):
+    return UserFavoritePosts.objects.get(post=post, user=user)
+
+
+def create_user_favourite_post(user, post):
+    UserFavoritePosts.objects.create(user=user, post=post)
+
+
+def delete_user_favourite_post(user_favourite_post):
+    user_favourite_post.delete()
 
 
 def create_user_profile(user):

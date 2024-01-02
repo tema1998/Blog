@@ -18,7 +18,7 @@ from .services import get_post, disable_post_comments, enable_post_comments, che
     create_like_post_obj, create_user_profile, get_user, get_all_user_profile_followers, \
     get_user_posts_select_and_prefetch, count_queryset, get_all_user_profile_following, \
     filter_user_profiles_by_username, get_all_user_profiles, get_comment, dislike_comment, like_comment, \
-    get_comment_like
+    get_comment_like, get_user_favourite_post, delete_user_favourite_post, create_user_favourite_post
 
 from .forms import CommentForm, SignupForm, SigninForm, SettingsForm, AddPostForm, EditPostForm
 
@@ -402,15 +402,14 @@ class AddRemoveFavoritePost(LoginRequiredMixin, View):
 
     def post(self, request, post_id):
         if is_ajax(request):
-            current_user = request.user
-            post = Post.objects.get(id=post_id)
+            post = get_post(id=post_id)
             try:
-                user_favorites_obj = UserFavoritePosts.objects.get(user=current_user, post__id=post_id)
-                user_favorites_obj.delete()
+                user_favorite_post = get_user_favourite_post(user=request.user, post=post)
+                delete_user_favourite_post(user_favorite_post)
                 message = f'Add to favorites'
                 post_status = False
             except:
-                UserFavoritePosts.objects.create(user=current_user, post=post)
+                create_user_favourite_post(user=request.user, post=post)
                 message = f'Remove from favorites'
                 post_status = True
 
