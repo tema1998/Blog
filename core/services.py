@@ -1,4 +1,5 @@
 from itertools import chain
+from typing import List
 
 from django.contrib.auth.models import User, auth
 from django.db.models import Q
@@ -43,15 +44,15 @@ def create_like_post_obj(post, user):
     return PostLikes.objects.create(post=post, user=user)
 
 
-def get_user_favourite_post(post, user):
+def get_favorite_post(post, user):
     return UserFavoritePosts.objects.get(post=post, user=user)
 
 
-def create_user_favourite_post(user, post):
+def create_favorite_post(user, post):
     UserFavoritePosts.objects.create(user=user, post=post)
 
 
-def delete_user_favourite_post(user_favourite_post):
+def delete_favorite_post(user_favourite_post):
     user_favourite_post.delete()
 
 
@@ -92,7 +93,7 @@ def count_queryset(queryset):
 def filter_user_profiles_by_username(username):
     search_users_profile_list = Profile.objects.select_related('user') \
         .filter(user__username__contains=username).only('user__username', 'user__id', 'bio', 'profileimg',
-                                                           'location')
+                                                        'location')
     return search_users_profile_list
 
 
@@ -164,3 +165,8 @@ def get_user_id_for_get_and_post_methods(request):
     except Exception:
         raise Http404
 
+
+def get_user_favorite_posts(user) -> list:
+    user_favorite = UserFavoritePosts.objects.filter(user=user)
+    user_favorite_posts = [obj.post for obj in list(user_favorite)]
+    return user_favorite_posts

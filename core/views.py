@@ -18,7 +18,8 @@ from .services import get_post, disable_post_comments, enable_post_comments, che
     create_like_post_obj, create_user_profile, get_user, get_all_user_profile_followers, \
     get_user_posts_select_and_prefetch, count_queryset, get_all_user_profile_following, \
     filter_user_profiles_by_username, get_all_user_profiles, get_comment, dislike_comment, like_comment, \
-    get_comment_like, get_user_favourite_post, delete_user_favourite_post, create_user_favourite_post
+    get_comment_like, get_favorite_post, delete_favorite_post, create_favorite_post, \
+    get_user_favorite_posts
 
 from .forms import CommentForm, SignupForm, SigninForm, SettingsForm, AddPostForm, EditPostForm
 
@@ -404,12 +405,12 @@ class AddRemoveFavoritePost(LoginRequiredMixin, View):
         if is_ajax(request):
             post = get_post(id=post_id)
             try:
-                user_favorite_post = get_user_favourite_post(user=request.user, post=post)
-                delete_user_favourite_post(user_favorite_post)
+                favorite_post = get_favorite_post(user=request.user, post=post)
+                delete_favorite_post(favorite_post)
                 message = f'Add to favorites'
                 post_status = False
             except:
-                create_user_favourite_post(user=request.user, post=post)
+                create_favorite_post(user=request.user, post=post)
                 message = f'Remove from favorites'
                 post_status = True
 
@@ -425,10 +426,6 @@ class FavoritesPosts(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def get(self, request):
-        current_user = request.user
-        user_favorite = UserFavoritePosts.objects.filter(user=current_user)
-        user_favorite_post_id = [obj.post.id for obj in list(user_favorite)]
-        user_favorite_posts = Post.objects.filter(id__in=user_favorite_post_id)
-
+        user_favorite_posts = get_user_favorite_posts(user=request.user)
         return render(request, 'core/favorites_posts.html', {'user_favorite_posts': user_favorite_posts,
                                                              })
