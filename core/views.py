@@ -1,17 +1,12 @@
 from django.db import transaction
-from django.db.models import Count
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User, auth
 from django.contrib import messages
-from django.urls import reverse
-from .models import Profile, Post, PostLikes, PostComments, CommentLikes, UserFavoritePosts
-from django.views.generic import ListView, DetailView, CreateView
 from django.views import View
 from django.http import Http404, HttpResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.db.models import Q
 
 from .services import get_post, disable_post_comments, enable_post_comments, check_if_post_comment_disable, \
     get_user_profile, get_posts_of_friends, get_like_post_obj, \
@@ -19,8 +14,7 @@ from .services import get_post, disable_post_comments, enable_post_comments, che
     get_user_posts_select_and_prefetch, count_queryset, get_all_user_profile_following, \
     filter_user_profiles_by_username, get_all_user_profiles, get_comment, dislike_comment, like_comment, \
     get_comment_like, get_favorite_post, delete_favorite_post, create_favorite_post, \
-    get_user_favorite_posts
-
+    get_user_favorite_posts, create_new_post
 from .forms import CommentForm, SignupForm, SigninForm, SettingsForm, AddPostForm, EditPostForm
 
 
@@ -252,7 +246,7 @@ class AddPost(LoginRequiredMixin, View):
             image = add_post_form.cleaned_data['image']
             caption = add_post_form.cleaned_data['caption']
             disable_comments = add_post_form.cleaned_data['disable_comments']
-            new_post = Post.objects.create(user=request.user, user_profile=user_profile, image=image, caption=caption,
+            new_post = create_new_post(user=request.user, user_profile=user_profile, image=image, caption=caption,
                                            disable_comments=disable_comments)
             return redirect('profile', username=request.user.username)
         return render(request, 'core/add_post.html', {'add_post_form': add_post_form})
@@ -340,10 +334,10 @@ class ProfileFollowingCreateView(LoginRequiredMixin, View):
         if is_ajax(request):
             user_id_who_want_follow = int(request.user.id)
             user_who_want_follow = User.objects.get(id=user_id_who_want_follow)
-            profile_who_want_follow = Profile.objects.get(user=user_who_want_follow)
+            profile_who_want_follow = get_user_profile(user_id=user_who_want_follow.id)
 
             user_page_owner = User.objects.get(id=int(user_id))
-            profile_page_owner = Profile.objects.get(user=user_page_owner)
+            profile_page_owner = get_user_profile(user_id=user_page_owner.id)
 
             if profile_who_want_follow in profile_page_owner.followers.all():
                 profile_page_owner.followers.remove(profile_who_want_follow)

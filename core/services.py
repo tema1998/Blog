@@ -1,6 +1,5 @@
 from django.contrib.auth.models import User, auth
 from django.db.models import Q
-from django.http import Http404
 
 from .models import Profile, Post, PostLikes, PostComments, CommentLikes, UserFavoritePosts
 
@@ -144,3 +143,8 @@ def get_user_favorite_posts(user) -> list:
     user_favorite = UserFavoritePosts.objects.filter(user=user)
     user_favorite_posts = [obj.post for obj in list(user_favorite)]
     return user_favorite_posts
+
+
+def create_new_post(user, user_profile, image, caption, disable_comments):
+    Post.objects.create(user=user, user_profile=user_profile, image=image, caption=caption,
+                        disable_comments=disable_comments)
