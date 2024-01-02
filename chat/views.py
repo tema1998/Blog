@@ -1,13 +1,11 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import User
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect
 from django.views import View
 
-from core.models import Profile
-from core.services import get_user_friends_suggestions
-from .models import Chat, Message
+from .services import get_chats_list, get_chat, get_chat_messages, get_chat_members, get_user, get_chat_with_two_users, \
+    create_chat_with_two_users, get_message, delete_chat, clear_chat, delete_message
 
 
 def is_ajax(request):
@@ -18,8 +16,7 @@ class Chats(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def get(self, request):
-        current_user = request.user
-        chats = Chat.objects.filter(members=current_user).order_by('-last_update')
+        chats = get_chats_list(user=request.user)
 
         chats_per_page = 4
         paginator = Paginator(chats, chats_per_page)
@@ -31,37 +28,34 @@ class Chats(LoginRequiredMixin, View):
         except EmptyPage:
             chats_paginator = paginator.page(paginator.num_pages)
 
-        return render(request, 'chat/chats.html', {'chats': chats_paginator,
-                                                   })
+        return render(request, 'chat/chats.html', {'chats': chats_paginator,})
 
 
 class ChatView(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def get(self, request, chat_id):
-        current_user = request.user
-
-        chat_obj = Chat.objects.get(id=chat_id)
-        if not current_user in chat_obj.members.all():
+        chat = get_chat(chat_id=chat_id)
+        if not request.user in get_chat_members(chat):
             return redirect('chats')
 
-        messages_set = Message.objects.filter(chat=chat_obj).order_by('-date_added')
+        chat_messages = get_chat_messages(chat=chat)
 
         messages_per_page = 15
-        paginator = Paginator(messages_set, messages_per_page)
+        paginated_messages = Paginator(chat_messages, messages_per_page)
         page = request.GET.get('page')
         try:
-            messages = paginator.page(page)
+            messages = paginated_messages.page(page)
         except PageNotAnInteger:
-            messages = paginator.page(1)
+            messages = paginated_messages.page(1)
         except EmptyPage:
             if is_ajax(request):
                 return HttpResponse('')
-            messages = paginator.page(paginator.num_pages)
+            messages = paginated_messages.page(paginated_messages.num_pages)
         if is_ajax(request):
             return render(request, 'chat/chat_ajax.html', {'messages': messages, })
 
-        return render(request, 'chat/chat.html', {'chat': chat_obj,
+        return render(request, 'chat/chat.html', {'chat': chat,
                                                   'messages': messages,
                                                   })
 
@@ -70,53 +64,44 @@ class StartDialog(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def post(self, request):
-        current_user = request.user
-        page_owner = User.objects.get(id=request.POST.get('page_owner_id'))
-        if current_user == page_owner:
+        page_owner = get_user(user_id=request.POST.get('page_owner_id'))
+        if request.user == page_owner:
             raise Http404
-        if Chat.objects.filter(members__id=current_user.id).filter(members__id=page_owner.id):
-            chat_id = Chat.objects.filter(members__id=current_user.id).filter(members__id=page_owner.id).first().id
-            return redirect('chat', chat_id=chat_id)
 
-        chat = Chat.objects.create()
-        chat.members.add(current_user, page_owner)
-        chat.save()
-        return redirect('chat', chat_id=chat.id)
+        chat = get_chat_with_two_users(first_user_id=request.user.id, second_user_id=page_owner.id)
+        if chat:
+            chat_id = chat.first().id
+        else:
+            chat_id = create_chat_with_two_users(first_user=request.user, second_user=page_owner).id
+        return redirect('chat', chat_id=chat_id)
 
 
 class DeleteMessage(LoginRequiredMixin, View):
 
     def post(self, request):
-        user = request.user
-        message = Message.objects.get(id= request.POST.get('message_id'))
+        message = get_message(message_id=request.POST.get('message_id'))
         chat = message.chat
-        if not user in chat.members.all():
-            raise Http404
-        message.delete()
-        # last_message_date = chat.messages.all().order_by('date').last()
-        # if last_message_date:
-        #     last_message_date.last_update
+        delete_message(message=message)
+        last_message_date = chat.messages.all().order_by('date_added')
+        if last_message_date:
+            date_of_last_message_update = last_message_date.last().date_added
+            chat.last_update = date_of_last_message_update
+            chat.save()
         return redirect(request.META.get('HTTP_REFERER'))
 
 
 class DeleteChat(LoginRequiredMixin, View):
 
     def post(self, request):
-        user = request.user
-        chat = Chat.objects.get(id=request.POST.get('chat_id'))
-        if not user in chat.members.all():
-            raise Http404
-        chat.delete()
+        chat = get_chat(chat_id=request.POST.get('chat_id'))
+        delete_chat(chat=chat)
         return redirect('chats')
 
 
 class ClearChat(LoginRequiredMixin, View):
 
     def post(self, request):
-        user = request.user
-        chat = Chat.objects.get(id=request.POST.get('chat_id'))
-        if not user in chat.members.all():
-            raise Http404
-        chat.messages.all().delete()
+        chat = get_chat(chat_id=request.POST.get('chat_id'))
+        clear_chat(chat=chat)
         return redirect('chats')
 
