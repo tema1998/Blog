@@ -1,19 +1,16 @@
-from django.test import TestCase, Client
-from django.urls import reverse, resolve
-from chat.models import *
-from django.utils import timezone
-import datetime
-from django.contrib.auth.models import User
-from django.contrib.messages import get_messages
-from django.core.files.uploadedfile import SimpleUploadedFile
-
-
 from io import BytesIO
 from PIL import Image
+from django.test import TestCase, Client
+from django.urls import reverse
 from django.core.files.base import File
 
+from chat.models import *
 
-#image file mock
+
+
+
+
+
 def get_image_file(name='test.png', ext='png', size=(50, 50), color=(256, 0, 0)):
     file_obj = BytesIO()
     image = Image.new("RGB", size=size, color=color)

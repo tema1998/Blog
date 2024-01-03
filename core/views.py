@@ -107,7 +107,7 @@ class LikePost(LoginRequiredMixin, View):
                 post.save()
                 like_status = False
             except Exception:
-                like_post_obj = create_like_post_obj(post=post, user=user)
+                create_like_post_obj(post=post, user=user)
                 post.no_of_likes += 1
                 post.save()
                 like_status = True
@@ -124,7 +124,6 @@ class DeletePost(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def post(self, request):
-        user = request.user
         post = get_post(request.POST['post_id'])
 
         post.delete()
@@ -136,7 +135,6 @@ class DisablePostComments(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def post(self, request):
-        user = request.user
         post = get_post(request.POST['post_id'])
 
         disable_post_comments(post)
@@ -148,7 +146,6 @@ class EnablePostComments(LoginRequiredMixin, View):
     login_url = 'signin'
 
     def post(self, request):
-        user = request.user
         post = get_post(request.POST['post_id'])
 
         enable_post_comments(post)
@@ -238,7 +235,6 @@ class AddPost(LoginRequiredMixin, View):
         return render(request, 'core/add_post.html', {'add_post_form': add_post_form, })
 
     def post(self, request):
-
         user_profile = get_user_profile(user_id=request.user.id)
 
         add_post_form = AddPostForm(request.POST, request.FILES)
@@ -246,8 +242,8 @@ class AddPost(LoginRequiredMixin, View):
             image = add_post_form.cleaned_data['image']
             caption = add_post_form.cleaned_data['caption']
             disable_comments = add_post_form.cleaned_data['disable_comments']
-            new_post = create_new_post(user=request.user, user_profile=user_profile, image=image, caption=caption,
-                                           disable_comments=disable_comments)
+            create_new_post(user=request.user, user_profile=user_profile, image=image, caption=caption,
+                            disable_comments=disable_comments)
             return redirect('profile', username=request.user.username)
         return render(request, 'core/add_post.html', {'add_post_form': add_post_form})
 

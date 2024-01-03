@@ -1,9 +1,10 @@
 from core.models import User
+
 from .models import Chat, Message
 
 
 def get_chats_list(user):
-    return Chat.objects.filter(members=user).order_by('-last_update')
+    return Chat.objects.prefetch_related('members').filter(members=user).order_by('-last_update')
 
 
 def get_chat(chat_id):

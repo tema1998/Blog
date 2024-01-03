@@ -3,7 +3,6 @@ from datetime import datetime
 
 from channels.generic.websocket import AsyncWebsocketConsumer
 from asgiref.sync import sync_to_async
-
 from django.contrib.auth.models import User
 
 from core.models import Profile

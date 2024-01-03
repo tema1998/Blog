@@ -1,62 +1,66 @@
 {% load static %}
+{% load cache %}
+
+{% cache 900 header %}
 <header>
-        <div class="flex justify-between basis-full font-semibold">
+    <div class="flex justify-between basis-full font-semibold">
 
-            <div class="flex items-center">
-                <div class="ml-5 mr-2"><a href="/">News </a> </div>
-                <div class="mr-2"><a href="{{ current_user_profile_url }}">My page</a> </div>
-                <div class="mr-2"><a href="{% url 'chats' %}">Messages </a> </div>
-                <div class="mr-5"><a href="{% url 'favorites-posts' %}">Favorites posts </a> </div>
-                <div class="">
-                    <form action="/search" method = "GET">
-                        <div class="flex">
-                            <div class="flex items-center">
-                                <input type="text" name="search_user" placeholder="Search for username.."> &nbsp; &nbsp;
-                            </div>
-                            <div class="flex items-center">
-                                <button type = "submit">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" data-slot="icon" class="w-6 h-6">
-                                      <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                                    </svg>
-                                </button>
-                            </div>
+        <div class="flex items-center">
+            <div class="ml-5 mr-2"><a href="/">News </a> </div>
+            <div class="mr-2"><a href="{{ current_user_profile_url }}">My page</a> </div>
+            <div class="mr-2"><a href="{% url 'chats' %}">Messages </a> </div>
+            <div class="mr-5"><a href="{% url 'favorites-posts' %}">Favorites posts </a> </div>
+            <div class="">
+                <form action="/search" method = "GET">
+                    <div class="flex">
+                        <div class="flex items-center">
+                            <input type="text" name="search_user" placeholder="Search for username.."> &nbsp; &nbsp;
                         </div>
-                    </form>
-                </div>
-            </div>
-
-            <div class="flex items-center mr-5">
-                 <div class="mr-2">
-                    <a href= "{% url 'add-post' %}" class="">
-                        <ion-icon name="add-circle" class="-mb-1 mr-1 opacity-90 text-xl uilus-circle"></ion-icon> Add post
-                    </a>
-                 </div>
-
-                 <div class="items-center mr-2">
-                    <a href="#">
-                        <img src="{{ current_user_profile_img_url }}" class="rounded-3xl w-8 h-8" alt="">
-                    </a>
-                 </div>
-
-                <div uk-drop="mode: click;offset:9" class="header_dropdown profile_dropdown border-t">
-                    <ul>
-
-                        <form action="{% url 'settings' %}" method="GET">
-                            <button class="px-3 py-2 hover:bg-gray-200 hover:text-gray-800 rounded-md " type="submit">
-                                Account settings
+                        <div class="flex items-center">
+                            <button type = "submit">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" data-slot="icon" class="w-6 h-6">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                                </svg>
                             </button>
-                        </form>
-
-                        <form action="{% url 'logout' %}" method="POST">
-                        {% csrf_token %}
-                            <button class="px-3 py-2 hover:bg-gray-200 hover:text-gray-800 rounded-md " type="submit">
-                                Log Out
-                            </button>
-                        </form>
-
-                    </ul>
-                </div>
-
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
-    </header>
+
+        <div class="flex items-center mr-5">
+             <div class="mr-2">
+                <a href= "{% url 'add-post' %}" class="">
+                    <ion-icon name="add-circle" class="-mb-1 mr-1 opacity-90 text-xl uilus-circle"></ion-icon> Add post
+                </a>
+             </div>
+
+             <div class="items-center mr-2">
+                <a href="#">
+                    <img src="{{ current_user_profile_img_url }}" class="rounded-3xl w-8 h-8" alt="">
+                </a>
+             </div>
+
+            <div uk-drop="mode: click;offset:9" class="header_dropdown profile_dropdown border-t">
+                <ul>
+
+                    <form action="{% url 'settings' %}" method="GET">
+                        <button class="px-3 py-2 hover:bg-gray-200 hover:text-gray-800 rounded-md " type="submit">
+                            Account settings
+                        </button>
+                    </form>
+
+                    <form action="{% url 'logout' %}" method="POST">
+                    {% csrf_token %}
+                        <button class="px-3 py-2 hover:bg-gray-200 hover:text-gray-800 rounded-md " type="submit">
+                            Log Out
+                        </button>
+                    </form>
+
+                </ul>
+            </div>
+
+        </div>
+    </div>
+</header>
+{% endcache %}

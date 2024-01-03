@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User, auth
+from django.contrib.auth.models import User
 from django.db.models import Q
 
 from .models import Profile, Post, PostLikes, PostComments, CommentLikes, UserFavoritePosts
@@ -74,7 +74,8 @@ def get_all_user_profiles():
 def get_user_posts_select_and_prefetch(user):
     user_posts = Post.objects.select_related('user', 'user_profile').prefetch_related('postcomments_set',
                                                                                       'postcomments_set__user',
-                                                                                      'postcomments_set__user_profile', ) \
+                                                                                      'postcomments_set__user_profile',
+                                                                                      ) \
         .only('user__username', 'user__id', 'user_profile__profileimg', 'id', 'image', 'caption', 'created_at',
               'no_of_likes',
               'disable_comments').filter(user=user).order_by('-created_at')
@@ -139,9 +140,16 @@ def enable_post_comments(post):
     post.save()
 
 
-def get_user_favorite_posts(user) -> list:
-    user_favorite = UserFavoritePosts.objects.filter(user=user)
-    user_favorite_posts = [obj.post for obj in list(user_favorite)]
+def get_user_favorite_posts(user):
+    user_favorite = UserFavoritePosts.objects.select_related('post').filter(user=user).only('post__id')
+    user_favorite_posts_id = [obj.post.id for obj in list(user_favorite)]
+    user_favorite_posts = Post.objects.select_related('user', 'user_profile').prefetch_related('postcomments_set',
+                                                                                               'postcomments_set__user',
+                                                                                               'postcomments_set__user_profile',
+                                                                                               ) \
+        .only('user__username', 'user__id', 'user_profile__profileimg', 'id', 'image', 'caption', 'created_at',
+              'no_of_likes',
+              'disable_comments').filter(id__in=user_favorite_posts_id)
     return user_favorite_posts
 
 

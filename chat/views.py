@@ -4,7 +4,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect
 from django.views import View
 
-from .services import get_chats_list, get_chat, get_chat_messages, get_chat_members, get_user, get_chat_with_two_users, \
+from .services import get_chats_list, get_chat, get_chat_messages, get_chat_members, get_user, get_chat_with_two_users,\
     create_chat_with_two_users, get_message, delete_chat, clear_chat, delete_message
 
 
@@ -28,7 +28,7 @@ class Chats(LoginRequiredMixin, View):
         except EmptyPage:
             chats_paginator = paginator.page(paginator.num_pages)
 
-        return render(request, 'chat/chats.html', {'chats': chats_paginator,})
+        return render(request, 'chat/chats.html', {'chats': chats_paginator})
 
 
 class ChatView(LoginRequiredMixin, View):
@@ -104,4 +104,3 @@ class ClearChat(LoginRequiredMixin, View):
         chat = get_chat(chat_id=request.POST.get('chat_id'))
         clear_chat(chat=chat)
         return redirect('chats')
-

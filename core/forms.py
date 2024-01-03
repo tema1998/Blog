@@ -1,6 +1,4 @@
 from django import forms
-from django.contrib import auth
-from django.http import request
 
 from .models import User, PostComments, Post, Profile
 

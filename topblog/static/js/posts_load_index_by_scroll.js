@@ -21,7 +21,7 @@ function loadContent() {
 }
 
 window.addEventListener('scroll', () => {
-    if (window.innerHeight + window.scrollY >= document.body.offsetHeight-1) {
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight-5) {
         loadContent();
 }
 });
