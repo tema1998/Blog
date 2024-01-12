@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='userfavoriteposts',
             name='posts',
-            field=models.ForeignKey(default=0, on_delete=django.db.models.deletion.CASCADE, to='core.post'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='core.post'),
             preserve_default=False,
         ),
     ]

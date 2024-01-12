@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='post',
             name='user_profile',
-            field=models.ForeignKey(default=0, on_delete=django.db.models.deletion.CASCADE, related_name='posts', to='core.profile'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='posts', to='core.profile'),
             preserve_default=False,
         ),
     ]
