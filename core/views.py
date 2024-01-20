@@ -168,7 +168,7 @@ class Signup(View):
 
                     auth.login(request, new_user)
 
-                    create_user_profile(user=new_user)
+                    create_user_profile(id=new_user.id ,user=new_user)
                     return redirect('settings')
             return render(request, 'core/signup.html', {'signup_form': signup_form})
 

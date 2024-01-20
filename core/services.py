@@ -51,8 +51,8 @@ def delete_favorite_post(user_favourite_post):
     user_favourite_post.delete()
 
 
-def create_user_profile(user):
-    return Profile.objects.create(user=user)
+def create_user_profile(id, user):
+    return Profile.objects.create(id=id, user=user)
 
 
 def check_if_post_comment_disable(post):
