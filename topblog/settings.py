@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'daphne',
     'django.contrib.staticfiles',
     'debug_toolbar',
-    'bootstrap3',
     'channels',
     'core',
     'chat',
