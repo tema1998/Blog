@@ -1,7 +1,7 @@
-from django.contrib.auth.models import User
 from django.db.models import Q
 
 from .models import Profile, Post, PostLikes, PostComments, CommentLikes, UserFavoritePosts
+from users.models import User
 
 
 def get_user(username: str):
@@ -49,10 +49,6 @@ def create_favorite_post(user, post):
 
 def delete_favorite_post(user_favourite_post):
     user_favourite_post.delete()
-
-
-def create_user_profile(id, user):
-    return Profile.objects.create(id=id, user=user)
 
 
 def check_if_post_comment_disable(post):

@@ -1,8 +1,7 @@
 {% load static %}
-{% load cache %}
 
-{% cache 900 header %}
 <header>
+
     <div class="flex justify-between basis-full font-semibold">
 
         <div class="flex items-center">
@@ -43,7 +42,6 @@
 
             <div uk-drop="mode: click;offset:9" class="header_dropdown profile_dropdown border-t">
                 <ul>
-
                     <form action="{% url 'settings' %}" method="GET">
                         <button class="px-3 py-2 hover:bg-gray-200 hover:text-gray-800 rounded-md " type="submit">
                             Account settings
@@ -63,4 +61,3 @@
         </div>
     </div>
 </header>
-{% endcache %}

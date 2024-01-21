@@ -1,4 +1,4 @@
-from core.models import User
+from users.models import User
 
 from .models import Chat, Message
 

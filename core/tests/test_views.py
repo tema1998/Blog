@@ -3,7 +3,8 @@ from django.urls import reverse, resolve
 from core.models import *
 from django.utils import timezone
 import datetime
-from django.contrib.auth.models import User
+from users.models import User
+
 from django.contrib.messages import get_messages
 from django.core.files.uploadedfile import SimpleUploadedFile
 from core.forms import AddPostForm
@@ -25,12 +26,12 @@ def get_image_file(name='test.png', ext='png', size=(50, 50), color=(256, 0, 0))
 class IndexTest(TestCase):
 
     def setUp(self):
-        self.user = User.objects.create_user(username='ivan')
+        self.user = User.objects.create_user(username='ivan', password='ivan', email="ivan@ma.ru")
         self.client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
 
-        self.profile = Profile.objects.create(user=self.user)
+        self.profile = Profile.objects.get(user=self.user)
 
     def test_redirect_if_not_logged_in_GET(self):
         response = self.client.get(reverse('index'))
@@ -52,32 +53,18 @@ class IndexTest(TestCase):
         self.assertTemplateUsed(response, 'core/index_ajax.html')
 
 
-    # def test_list_of_subscriptions(self):
-    #     resp = self.authorized_client.get(reverse('index'))
-    #
-    #     self.user2 = User.objects.create_user(username='user2')
-    #     self.profile2 = Profile.objects.create(user=self.user2)
-    #     self.post_by_user2 = Post.objects.create(user=self.user2, caption='123', image='blank_profile.png')
-    #     # self.post_by_user = Post.objects.create(user=self.user, image='blank_profile.png')
-    #     self.profile.following.add(self.profile2)
-    #     print(resp.context['posts1'])
-    #     print(resp.context)
-    #
-    #     self.assertEqual(len(resp.context['user_friends_posts']), 1)
-
-
 class EditPostTest(TestCase):
 
     def setUp(self):
-        self.user1 = User.objects.create_user(username='user1')
-        self.profile1 = Profile.objects.create(user=self.user1)
+        self.user1 = User.objects.create_user(username='user1', password='ivan', email="ivan@ma.ru")
+        self.profile1 = Profile.objects.get(user=self.user1)
 
         self.client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user1)
 
-        self.user2 = User.objects.create_user(username='user2')
-        self.profile2 = Profile.objects.create(user=self.user2)
+        self.user2 = User.objects.create_user(username='user2', password='ivan', email="ivan@ma.ru")
+        self.profile2 = Profile.objects.get(user=self.user2)
 
         self.post_by_user1 = Post.objects.create(user=self.user1, user_profile=self.profile1, caption='123', image='blank_profile.png')
         self.post_by_user2 = Post.objects.create(user=self.user2, user_profile=self.profile2, caption='123', image='blank_profile.png')
@@ -148,15 +135,15 @@ class EditPostTest(TestCase):
 class AddCommentTest(TestCase):
 
     def setUp(self):
-        self.user1 = User.objects.create_user(username='user1')
-        self.profile1 = Profile.objects.create(user=self.user1)
+        self.user1 = User.objects.create_user(username='user1', password='ivan', email="ivan@ma.ru")
+        self.profile1 = Profile.objects.get(user=self.user1)
 
         self.client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user1)
 
-        self.user2 = User.objects.create_user(username='user2')
-        self.profile2 = Profile.objects.create(user=self.user2)
+        self.user2 = User.objects.create_user(username='user2', password='ivan', email="ivan@ma.ru")
+        self.profile2 = Profile.objects.get(user=self.user2)
 
         self.post_1_by_user1 = Post.objects.create(user=self.user1, user_profile=self.profile1, caption='123', image='blank_profile.png')
         self.post_2_by_user1_block_comments = Post.objects.create(user=self.user1, user_profile=self.profile1, caption='123',
@@ -219,15 +206,15 @@ class AddCommentTest(TestCase):
 class LikePostTest(TestCase):
 
     def setUp(self):
-        self.user1 = User.objects.create_user(username='user1')
-        self.profile1 = Profile.objects.create(user=self.user1)
+        self.user1 = User.objects.create_user(username='user1', password='ivan', email="ivan@ma.ru")
+        self.profile1 = Profile.objects.get(user=self.user1)
 
         self.client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user1)
 
-        self.user2 = User.objects.create_user(username='user2')
-        self.profile2 = Profile.objects.create(user=self.user2)
+        self.user2 = User.objects.create_user(username='user2', password='ivan', email="ivan@ma.ru")
+        self.profile2 = Profile.objects.get(user=self.user2)
 
         self.post_1_by_user1 = Post.objects.create(user=self.user1, user_profile=self.profile1, caption='123', image='blank_profile.png')
         self.post_2_by_user1_block_comments = Post.objects.create(user=self.user1, user_profile=self.profile1, caption='123',
@@ -272,15 +259,15 @@ class LikePostTest(TestCase):
 class DeletePostTest(TestCase):
 
     def setUp(self):
-        self.user1 = User.objects.create_user(username='user1')
-        self.profile1 = Profile.objects.create(user=self.user1)
+        self.user1 = User.objects.create_user(username='user1', password='ivan', email="ivan@ma.ru")
+        self.profile1 = Profile.objects.get(user=self.user1)
 
         self.client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user1)
 
-        self.user2 = User.objects.create_user(username='user2')
-        self.profile2 = Profile.objects.create(user=self.user2)
+        self.user2 = User.objects.create_user(username='user2', password='ivan', email="ivan@ma.ru")
+        self.profile2 = Profile.objects.get(user=self.user2)
 
         self.post_1_by_user1 = Post.objects.create(user=self.user1, user_profile=self.profile1, caption='123', image='blank_profile.png')
         self.post_2_by_user1 = Post.objects.create(user=self.user1, user_profile=self.profile1, caption='123', image='blank_profile.png')
@@ -308,15 +295,15 @@ class DeletePostTest(TestCase):
 class DisablePostCommentsTest(TestCase):
 
     def setUp(self):
-        self.user1 = User.objects.create_user(username='user1')
-        self.profile1 = Profile.objects.create(user=self.user1)
+        self.user1 = User.objects.create_user(username='user1', password='ivan', email="ivan@ma.ru")
+        self.profile1 = Profile.objects.get(user=self.user1)
 
         self.client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user1)
 
-        self.user2 = User.objects.create_user(username='user2')
-        self.profile2 = Profile.objects.create(user=self.user2)
+        self.user2 = User.objects.create_user(username='user2', password='ivan', email="ivan@ma.ru")
+        self.profile2 = Profile.objects.get(user=self.user2)
 
         self.post_1_by_user1 = Post.objects.create(user=self.user1, user_profile=self.profile1, caption='123', image='blank_profile.png', disable_comments=False)
         self.post_2_by_user1 = Post.objects.create(user=self.user1, user_profile=self.profile1, caption='123', image='blank_profile.png', disable_comments=True)
@@ -354,15 +341,15 @@ class DisablePostCommentsTest(TestCase):
 class EnablePostCommentsTest(TestCase):
 
     def setUp(self):
-        self.user1 = User.objects.create_user(username='user1')
-        self.profile1 = Profile.objects.create(user=self.user1)
+        self.user1 = User.objects.create_user(username='user1', password='ivan', email="ivan@ma.ru")
+        self.profile1 = Profile.objects.get(user=self.user1)
 
         self.client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user1)
 
-        self.user2 = User.objects.create_user(username='user2')
-        self.profile2 = Profile.objects.create(user=self.user2)
+        self.user2 = User.objects.create_user(username='user2', password='ivan', email="ivan@ma.ru")
+        self.profile2 = Profile.objects.get(user=self.user2)
 
         self.post_1_by_user1 = Post.objects.create(user=self.user1, user_profile=self.profile1, caption='123', image='blank_profile.png', disable_comments=True)
         self.post_2_by_user1 = Post.objects.create(user=self.user1, user_profile=self.profile1, caption='123', image='blank_profile.png', disable_comments=False)
@@ -401,15 +388,15 @@ class EnablePostCommentsTest(TestCase):
 class SignupTest(TestCase):
 
     def setUp(self):
-        self.user1 = User.objects.create_user(username='user1')
-        self.profile = Profile.objects.create(user=self.user1)
+        self.user1 = User.objects.create_user(username='user1', password='ivan', email="ivan@ma.ru")
+        self.profile = Profile.objects.get(user=self.user1)
 
         self.client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user1)
 
-        self.user2 = User.objects.create_user(username='user2')
-        self.profile = Profile.objects.create(user=self.user2)
+        self.user2 = User.objects.create_user(username='user2', password='ivan', email="ivan@ma.ru")
+        self.profile = Profile.objects.get(user=self.user2)
 
     def test_if_user_logged_in_GET(self):
         response = self.authorized_client.get(reverse('signup'))
@@ -486,15 +473,15 @@ class SignupTest(TestCase):
 class SigninTest(TestCase):
 
     def setUp(self):
-        self.user1 = User.objects.create_user(username='user1', password='user1')
-        self.profile = Profile.objects.create(user=self.user1)
+        self.user1 = User.objects.create_user(username='user1', password='user1', email="ivan@ma.ru")
+        self.profile = Profile.objects.get(user=self.user1)
 
         self.client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user1)
 
-        self.user2 = User.objects.create_user(username='user2', password='user2')
-        self.profile = Profile.objects.create(user=self.user2)
+        self.user2 = User.objects.create_user(username='user2', password='user2', email="ivan@ma.ru")
+        self.profile = Profile.objects.get(user=self.user2)
 
     def test_if_user_already_logged_in_GET(self):
         response = self.authorized_client.get(reverse('signin'))
@@ -552,15 +539,15 @@ class SigninTest(TestCase):
 class LogoutTest(TestCase):
 
     def setUp(self):
-        self.user1 = User.objects.create_user(username='user1', password='user1')
-        self.profile = Profile.objects.create(user=self.user1)
+        self.user1 = User.objects.create_user(username='user1', password='user1', email="ivan@ma.ru")
+        self.profile = Profile.objects.get(user=self.user1)
 
         self.client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user1)
 
-        self.user2 = User.objects.create_user(username='user2', password='user2')
-        self.profile = Profile.objects.create(user=self.user2)
+        self.user2 = User.objects.create_user(username='user2', password='user2', email="ivan@ma.ru")
+        self.profile = Profile.objects.get(user=self.user2)
 
     def test_logged_user_logout_POST(self):
         response = self.authorized_client.post(path=reverse('logout'))
@@ -584,13 +571,13 @@ class SettingsTest(TestCase):
     def setUp(self):
         self.client = Client()
 
-        self.user1 = User.objects.create_user(username='user1', password='user1')
-        self.profile1 = Profile.objects.create(user=self.user1)
+        self.user1 = User.objects.create_user(username='user1', password='user1', email="ivan@ma.ru")
+        self.profile1 = Profile.objects.get(user=self.user1)
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user1)
 
-        self.user2 = User.objects.create_user(username='user2', password='user2')
-        self.profile2 = Profile.objects.create(user=self.user2)
+        self.user2 = User.objects.create_user(username='user2', password='user2', email="ivan@ma.ru")
+        self.profile2 = Profile.objects.get(user=self.user2)
         self.authorized_client_without_profile2 = Client()
         self.authorized_client_without_profile2.force_login(self.user2)
 
@@ -633,8 +620,8 @@ class AddPostTest(TestCase):
     def setUp(self):
         self.client = Client()
 
-        self.user1 = User.objects.create_user(username='user1', password='user1')
-        self.profile1 = Profile.objects.create(user=self.user1)
+        self.user1 = User.objects.create_user(username='user1', password='user1', email="ivan@ma.ru")
+        self.profile1 = Profile.objects.get(user=self.user1)
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user1)
 
@@ -692,18 +679,18 @@ class AddPostTest(TestCase):
 class ProfileViewTest(TestCase):
 
     def setUp(self):
-        self.user1 = User.objects.create_user(username='user1')
-        self.profile1 = Profile.objects.create(user=self.user1)
+        self.user1 = User.objects.create_user(username='user1', password='ivan', email="ivan@ma.ru")
+        self.profile1 = Profile.objects.get(user=self.user1)
 
         self.client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user1)
 
-        self.user2 = User.objects.create_user(username='user2')
-        self.profile2 = Profile.objects.create(user=self.user2)
+        self.user2 = User.objects.create_user(username='user2', password='ivan', email="ivan@ma.ru")
+        self.profile2 = Profile.objects.get(user=self.user2)
 
-        self.user3 = User.objects.create_user(username='user3')
-        self.profile3 = Profile.objects.create(user=self.user3)
+        self.user3 = User.objects.create_user(username='user3', password='ivan', email="ivan@ma.ru")
+        self.profile3 = Profile.objects.get(user=self.user3)
 
         #creating posts
         self.post_1_by_user1 = Post.objects.create(user=self.user1, user_profile=self.profile1, caption='123', image='blank_profile.png')
@@ -754,18 +741,18 @@ class ProfileViewTest(TestCase):
 class ProfileFollowingCreateViewTest(TestCase):
 
     def setUp(self):
-        self.user1 = User.objects.create_user(username='user1')
-        self.profile1 = Profile.objects.create(user=self.user1)
+        self.user1 = User.objects.create_user(username='user1', password='ivan', email="ivan@ma.ru")
+        self.profile1 = Profile.objects.get(user=self.user1)
 
         self.client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user1)
 
-        self.user2 = User.objects.create_user(username='user2')
-        self.profile2 = Profile.objects.create(user=self.user2)
+        self.user2 = User.objects.create_user(username='user2', password='ivan', email="ivan@ma.ru")
+        self.profile2 = Profile.objects.get(user=self.user2)
 
-        self.user3 = User.objects.create_user(username='user3')
-        self.profile3 = Profile.objects.create(user=self.user3)
+        self.user3 = User.objects.create_user(username='user3', password='ivan', email="ivan@ma.ru")
+        self.profile3 = Profile.objects.get(user=self.user3)
 
     def test_follow_data_POST(self):
         response = self.authorized_client.post(reverse('follow', kwargs={'user_id': int(self.user2.id)}), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
@@ -788,18 +775,18 @@ class ProfileFollowingCreateViewTest(TestCase):
 class SearchTest(TestCase):
 
     def setUp(self):
-        self.user1 = User.objects.create_user(username='user1')
-        self.profile1 = Profile.objects.create(user=self.user1)
+        self.user1 = User.objects.create_user(username='user1', password='ivan', email="ivan@ma.ru")
+        self.profile1 = Profile.objects.get(user=self.user1)
 
         self.client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user1)
 
-        self.user2 = User.objects.create_user(username='user2')
-        self.profile2 = Profile.objects.create(user=self.user2)
+        self.user2 = User.objects.create_user(username='user2', password='ivan', email="ivan@ma.ru")
+        self.profile2 = Profile.objects.get(user=self.user2)
 
-        self.user3 = User.objects.create_user(username='user3')
-        self.profile3 = Profile.objects.create(user=self.user3)
+        self.user3 = User.objects.create_user(username='user3', password='ivan', email="ivan@ma.ru")
+        self.profile3 = Profile.objects.get(user=self.user3)
 
     def test_if_user_not_logged_in_GET(self):
         response = self.client.get(reverse('search'))
@@ -839,11 +826,11 @@ class SearchTest(TestCase):
 class LikeCommentTest(TestCase):
 
     def setUp(self):
-        self.user1 = User.objects.create_user(username='user1')
-        self.profile1 = Profile.objects.create(user=self.user1)
+        self.user1 = User.objects.create_user(username='user1', password='ivan', email="ivan@ma.ru")
+        self.profile1 = Profile.objects.get(user=self.user1)
 
-        self.user2 = User.objects.create_user(username='user2')
-        self.profile2 = Profile.objects.create(user=self.user2)
+        self.user2 = User.objects.create_user(username='user2', password='ivan', email="ivan@ma.ru")
+        self.profile2 = Profile.objects.get(user=self.user2)
 
         self.client = Client()
 

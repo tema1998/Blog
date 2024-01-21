@@ -7,10 +7,6 @@ from django.core.files.base import File
 from chat.models import *
 
 
-
-
-
-
 def get_image_file(name='test.png', ext='png', size=(50, 50), color=(256, 0, 0)):
     file_obj = BytesIO()
     image = Image.new("RGB", size=size, color=color)
@@ -22,12 +18,12 @@ def get_image_file(name='test.png', ext='png', size=(50, 50), color=(256, 0, 0))
 class ChatsTest(TestCase):
 
     def setUp(self):
-        self.user = User.objects.create_user(username='ivan')
+        self.user = User.objects.create_user(username='ivan', password='user1', email="ivan@ma.ru")
         self.client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
 
-        self.profile = Profile.objects.create(user=self.user)
+        self.profile = Profile.objects.get(user=self.user)
 
     def test_redirect_if_not_logged_in_GET(self):
         response = self.client.get(reverse('chats'))
@@ -45,12 +41,12 @@ class ChatsTest(TestCase):
 class ChatViewTest(TestCase):
 
     def setUp(self):
-        self.user1_in_chat = User.objects.create_user(username='ivan1')
-        self.profile1 = Profile.objects.create(user=self.user1_in_chat)
-        self.user2_in_chat = User.objects.create_user(username='ivan2')
-        self.profile2 = Profile.objects.create(user=self.user2_in_chat)
-        self.user3_not_in_chat = User.objects.create_user(username='ivan3')
-        self.profile3 = Profile.objects.create(user=self.user3_not_in_chat)
+        self.user1_in_chat = User.objects.create_user(username='ivan1', password='user1', email="ivan@ma.ru")
+        self.profile1 = Profile.objects.get(user=self.user1_in_chat)
+        self.user2_in_chat = User.objects.create_user(username='ivan2', password='user1', email="ivan@ma.ru")
+        self.profile2 = Profile.objects.get(user=self.user2_in_chat)
+        self.user3_not_in_chat = User.objects.create_user(username='ivan3', password='user1', email="ivan@ma.ru")
+        self.profile3 = Profile.objects.get(user=self.user3_not_in_chat)
         self.client = Client()
         self.authorized_client_in_chat = Client()
         self.authorized_client_in_chat.force_login(self.user1_in_chat)
@@ -87,10 +83,10 @@ class ChatViewTest(TestCase):
 class StartDialogTest(TestCase):
 
     def setUp(self):
-        self.user1 = User.objects.create_user(username='ivan1')
-        self.profile1 = Profile.objects.create(user=self.user1)
-        self.user2 = User.objects.create_user(username='ivan2')
-        self.profile2 = Profile.objects.create(user=self.user2)
+        self.user1 = User.objects.create_user(username='ivan1', password='user1', email="ivan@ma.ru")
+        self.profile1 = Profile.objects.get(user=self.user1)
+        self.user2 = User.objects.create_user(username='ivan2', password='user1', email="ivan@ma.ru")
+        self.profile2 = Profile.objects.get(user=self.user2)
         self.client = Client()
         self.authorized_user1 = Client()
         self.authorized_user1.force_login(self.user1)
@@ -114,12 +110,12 @@ class StartDialogTest(TestCase):
 class DeleteMessageTest(TestCase):
 
     def setUp(self):
-        self.user1_in_chat = User.objects.create_user(username='ivan1')
-        self.profile1 = Profile.objects.create(user=self.user1_in_chat)
-        self.user2_in_chat = User.objects.create_user(username='ivan2')
-        self.profile2 = Profile.objects.create(user=self.user2_in_chat)
-        self.user3_not_in_chat = User.objects.create_user(username='ivan3')
-        self.profile3 = Profile.objects.create(user=self.user3_not_in_chat)
+        self.user1_in_chat = User.objects.create_user(username='ivan1', password='user1', email="ivan@ma.ru")
+        self.profile1 = Profile.objects.get(user=self.user1_in_chat)
+        self.user2_in_chat = User.objects.create_user(username='ivan2', password='user1', email="ivan@ma.ru")
+        self.profile2 = Profile.objects.get(user=self.user2_in_chat)
+        self.user3_not_in_chat = User.objects.create_user(username='ivan3', password='user1', email="ivan@ma.ru")
+        self.profile3 = Profile.objects.get(user=self.user3_not_in_chat)
         self.client = Client()
         self.auth_user1_in_chat = Client()
         self.auth_user1_in_chat.force_login(self.user1_in_chat)
@@ -147,10 +143,10 @@ class DeleteMessageTest(TestCase):
 class DeleteChatTest(TestCase):
 
     def setUp(self):
-        self.user1_in_chat = User.objects.create_user(username='ivan1')
-        self.profile1 = Profile.objects.create(user=self.user1_in_chat)
-        self.user2_in_chat = User.objects.create_user(username='ivan2')
-        self.profile2 = Profile.objects.create(user=self.user2_in_chat)
+        self.user1_in_chat = User.objects.create_user(username='ivan1', password='user1', email="ivan@ma.ru")
+        self.profile1 = Profile.objects.get(user=self.user1_in_chat)
+        self.user2_in_chat = User.objects.create_user(username='ivan2', password='user1', email="ivan@ma.ru")
+        self.profile2 = Profile.objects.get(user=self.user2_in_chat)
         self.client = Client()
         self.auth_user1_in_chat = Client()
         self.auth_user1_in_chat.force_login(self.user1_in_chat)
@@ -173,10 +169,10 @@ class DeleteChatTest(TestCase):
 class ClearChatTest(TestCase):
 
     def setUp(self):
-        self.user1_in_chat = User.objects.create_user(username='ivan1')
-        self.profile1 = Profile.objects.create(user=self.user1_in_chat)
-        self.user2_in_chat = User.objects.create_user(username='ivan2')
-        self.profile2 = Profile.objects.create(user=self.user2_in_chat)
+        self.user1_in_chat = User.objects.create_user(username='ivan1', password='user1', email="ivan@ma.ru")
+        self.profile1 = Profile.objects.get(user=self.user1_in_chat)
+        self.user2_in_chat = User.objects.create_user(username='ivan2', password='user1', email="ivan@ma.ru")
+        self.profile2 = Profile.objects.get(user=self.user2_in_chat)
         self.client = Client()
         self.auth_user1_in_chat = Client()
         self.auth_user1_in_chat.force_login(self.user1_in_chat)

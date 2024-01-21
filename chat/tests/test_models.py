@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from django.test import TestCase
-from django.contrib.auth.models import User
+from users.models import User
 
 from chat.models import *
 
@@ -11,9 +11,7 @@ class ChatModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         user1 = User.objects.create_user(username='username1', email='email1@mail.ru', password='password')
-        Profile.objects.create(user=user1, bio='I like going for a walk', location='Minsk')
         user2 = User.objects.create_user(username='username2', email='email2@mail.ru', password='password')
-        Profile.objects.create(user=user2, bio='I like going for a walk', location='Minsk')
         chat = Chat.objects.create()
         chat.members.add(user1)
         chat.members.add(user2)
@@ -40,9 +38,9 @@ class MessageModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         user1 = User.objects.create_user(username='username1', email='email1@mail.ru', password='password')
-        user1_profile = Profile.objects.create(user=user1, bio='I like going for a walk', location='Minsk')
+        user1_profile = Profile.objects.get(user=user1)
         user2 = User.objects.create_user(username='username2', email='email2@mail.ru', password='password')
-        user2_profile = Profile.objects.create(user=user2, bio='I like going for a walk', location='Minsk')
+        user2_profile = Profile.objects.get(user=user2)
         chat = Chat.objects.create()
         chat.members.add(user1)
         chat.members.add(user2)

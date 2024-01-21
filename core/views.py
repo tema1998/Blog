@@ -1,6 +1,6 @@
 from django.db import transaction
 from django.shortcuts import render, redirect
-from django.contrib.auth.models import User, auth
+from django.contrib.auth.models import auth
 from django.contrib import messages
 from django.views import View
 from django.http import Http404, HttpResponse
@@ -10,13 +10,13 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from .services import get_post, disable_post_comments, enable_post_comments, check_if_post_comment_disable, \
     get_user_profile, get_posts_of_friends, get_like_post_obj, \
-    create_like_post_obj, create_user_profile, get_user, get_all_user_profile_followers, \
+    create_like_post_obj, get_user, get_all_user_profile_followers, \
     get_user_posts_select_and_prefetch, count_queryset, get_all_user_profile_following, \
     filter_user_profiles_by_username, get_all_user_profiles, get_comment, dislike_comment, like_comment, \
     get_comment_like, get_favorite_post, delete_favorite_post, create_favorite_post, \
     get_user_favorite_posts, create_new_post
 from .forms import CommentForm, SignupForm, SigninForm, SettingsForm, AddPostForm, EditPostForm
-
+from users.models import User
 
 def is_ajax(request):
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
@@ -162,13 +162,14 @@ class Signup(View):
             signup_form = SignupForm(request.POST)
             if signup_form.is_valid():
                 with transaction.atomic():
-                    new_user = signup_form.save(commit=False)
-                    new_user.set_password(signup_form.cleaned_data['password'])
-                    new_user.save()
+                    cd = signup_form.cleaned_data
+                    username = cd['username']
+                    email = cd['email']
+                    password = cd['password']
+                    new_user = User.objects.create_user(username=username, password=password, email=email)
 
                     auth.login(request, new_user)
 
-                    create_user_profile(id=new_user.id ,user=new_user)
                     return redirect('settings')
             return render(request, 'core/signup.html', {'signup_form': signup_form})
 

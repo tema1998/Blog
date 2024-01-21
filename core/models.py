@@ -2,14 +2,14 @@ import uuid
 from datetime import datetime
 
 from django.db import models
-from django.contrib.auth import get_user_model
-from django.urls import reverse
 
-User = get_user_model()
+from topblog import settings
+
+from django.urls import reverse
 
 
 class Profile(models.Model):
-    user = models.ForeignKey(User, verbose_name='User', on_delete=models.CASCADE, related_name='profiles')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='User', on_delete=models.CASCADE, related_name='profiles')
     bio = models.TextField('Information', max_length=300, blank=True)
     profileimg = models.ImageField(upload_to='profile_images', verbose_name='Profile image', default='blank_profile.png')
     location = models.CharField(max_length=100, verbose_name='Location', blank=True)
@@ -25,7 +25,7 @@ class Profile(models.Model):
 
 class Post(models.Model):
     id = models.UUIDField(verbose_name='Post ID', primary_key=True, default=uuid.uuid4)
-    user = models.ForeignKey(User, verbose_name='User', on_delete=models.CASCADE, related_name='posts')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='User', on_delete=models.CASCADE, related_name='posts')
     user_profile = models.ForeignKey(Profile, verbose_name='User profile', on_delete=models.CASCADE, related_name='posts')
     image = models.ImageField(verbose_name='Post image', upload_to='post_images')
     caption = models.TextField(verbose_name='Caption', max_length=1000, blank=True)
@@ -44,12 +44,12 @@ class Post(models.Model):
 
 
 class UserFavoritePosts(models.Model):
-    user = models.ForeignKey(User, verbose_name='User', on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='User', on_delete=models.CASCADE)
     post = models.ForeignKey(Post, verbose_name='Post', on_delete=models.CASCADE)
 
 
 class PostLikes(models.Model):
-    user = models.ForeignKey(User, verbose_name='User', on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='User', on_delete=models.CASCADE)
     post = models.ForeignKey(Post, verbose_name='Post', on_delete=models.CASCADE)
 
     def __str__(self):
@@ -58,7 +58,7 @@ class PostLikes(models.Model):
 
 class PostComments(models.Model):
     """Комменты"""
-    user = models.ForeignKey(User, verbose_name='User', on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='User', on_delete=models.CASCADE)
     user_profile = models.ForeignKey(Profile, verbose_name='User profile', on_delete=models.CASCADE, related_name='PostComments')
     text = models.TextField(verbose_name="Comment text", max_length=1000)
     post = models.ForeignKey(Post, verbose_name='Post', on_delete=models.CASCADE)
@@ -77,7 +77,7 @@ class PostComments(models.Model):
 
 
 class CommentLikes(models.Model):
-    user = models.ForeignKey(User, verbose_name='User', on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='User', on_delete=models.CASCADE)
     comment = models.ForeignKey(PostComments, verbose_name='Comment', on_delete=models.CASCADE)
 
     def __str__(self):

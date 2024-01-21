@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'chat',
     'tailwind',
     'theme',
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -60,6 +61,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'topblog.urls'
+AUTH_USER_MODEL = "users.User"
 
 TEMPLATES = [
     {
