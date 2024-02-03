@@ -10,6 +10,16 @@ Document
 /**
 Use a better box model (opinionated).
 */
+.button-correct {
+  padding: 0;
+  border: none;
+  font: inherit;
+  color: inherit;
+  background-color: transparent;
+  /* отображаем курсор в виде руки при наведении; некоторые
+  считают, что необходимо оставлять стрелочный вид для кнопок */
+  cursor: pointer;
+  }
 
 *,
 *::before,
@@ -543,6 +553,7 @@ video {
   }
 }
 
+
 @media (min-width: 1536px){
   .container{
     max-width: 1536px;
@@ -583,6 +594,13 @@ video {
   --tw-space-y-reverse: 0;
   margin-top: calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));
   margin-bottom: calc(0.75rem * var(--tw-space-y-reverse));
+}
+
+.post_size {
+    max-width: 900px; /* Ширина */
+    background: #f0f0f0; /* Цвет фона */
+    border-radius: 5px; /* Радиус скругления */
+    padding: 2%; /* Поля */
 }
 
 .space-x-3 > :not([hidden]) ~ :not([hidden]){
@@ -2473,4 +2491,37 @@ body{  font-family: inter, sans-serif !important
 }
 
 @media (min-width: 1536px){
+}
+
+.button-correct {
+  padding: 0;
+  border: none;
+  font: inherit;
+  color: inherit;
+  background-color: transparent;
+  /* отображаем курсор в виде руки при наведении; некоторые
+  считают, что необходимо оставлять стрелочный вид для кнопок */
+  cursor: pointer;
+  }
+
+.list-pages-center {
+  text-align: center;
+  font-size: 20px;
+}
+
+.list-pages {
+  display: inline-block;
+}
+
+.posts-margin {
+  margin-bottom: 20px;
+}
+
+.center-align {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.settings_form {
+  padding: 20px;
 }

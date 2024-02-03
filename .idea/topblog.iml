@@ -5,7 +5,6 @@
       <sourceFolder url="file://$MODULE_DIR$" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
       <excludeFolder url="file://$MODULE_DIR$/Lib" />
-      <excludeFolder url="file://$MODULE_DIR$/static" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.10 (Blog)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

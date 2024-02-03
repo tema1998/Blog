@@ -10045,23 +10045,11 @@ aside.sidebar.full-style {
     height: 5%;
 }
 
-.messages {
-  color: #DC143C;
+.svg-delete-message {
+  display: none;
+  text-color: red;
 }
 
-.message_form {
-  color: #DC143C;
-  vertical_align: top;
+.message:hover .svg-delete-message{
+    display: block
 }
-
-
-.button-correct {
-  padding: 0;
-  border: none;
-  font: inherit;
-  color: inherit;
-  background-color: transparent;
-  /* отображаем курсор в виде руки при наведении; некоторые
-  считают, что необходимо оставлять стрелочный вид для кнопок */
-  cursor: pointer;
-  }
