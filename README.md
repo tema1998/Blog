@@ -1,5 +1,5 @@
 # Blog Django application
-It is a blog application.
+It is a blog application
 
 Functions |
 -- |
