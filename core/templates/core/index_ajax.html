@@ -1,6 +1,12 @@
 {% load static %}
-{% for post in user_friends_posts reversed %}
-    <div class="pb-3">
-        {% include 'core/include/author_post_like_comments.html' %}
+{% if user_friends_posts %}
+    {% for post in user_friends_posts reversed %}
+        <div class="pb-3">
+            {% include 'core/include/author_post_like_comments.html' %}
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="border rounded-xl bg-slate-200">
+        <span class="px-2 py-1 text-gray-600"> No posts yet. <a href="/search?search_user=" class="text-gray-800"> Follow new people </a> to get news. </span>
     </div>
-{% endfor %}
+{% endif %}
