@@ -35,10 +35,10 @@ class Post(models.Model):
     caption = models.TextField(verbose_name='Caption', max_length=1000, blank=True)
     created_at = models.DateTimeField(verbose_name='Date of creation', default=datetime.now)
     no_of_likes = models.IntegerField(default=0, verbose_name='Number of likes')
-    disable_comments = models.BooleanField(default=False, verbose_name='Comment status')
+    disable_comments = models.BooleanField(default=False, verbose_name='Disabled comments')
 
     def __str__(self):
-        return f'Post by {self.user_profile} - {self.created_at}'
+        return f'ID: {self.id}'
 
     def get_comments(self):
         return self.postcomments_set.all()
