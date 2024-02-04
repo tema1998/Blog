@@ -128,7 +128,7 @@ class DeletePost(LoginRequiredMixin, View):
 
         post.delete()
 
-        return redirect('profile', username=post.user.username)
+        return redirect(request.META.get('HTTP_REFERER'))
 
 
 class DisablePostComments(LoginRequiredMixin, View):

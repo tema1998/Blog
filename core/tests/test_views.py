@@ -289,7 +289,7 @@ class DeletePostTest(TestCase):
                                                HTTP_REFERER=redirect_url)
         self.assertEquals(response.status_code, 302)
         self.assertEquals(Post.objects.all().count(), 2)
-        self.assertRedirects(response, '/profile/user1/')
+        self.assertRedirects(response, '/')
 
 
 class DisablePostCommentsTest(TestCase):
