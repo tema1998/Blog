@@ -1,15 +1,23 @@
 {% extends 'core/base.html' %}
 {% load static %}
+{% load user_friends_suggestions %}
+
 {% block title %} {{page_owner_profile}} followers {% endblock title %}
 
 {% block sidebar %}
-    {% include 'core/include/sidebar_users.html' %}
+    {% user_friends_suggestions user.id %}
 {% endblock sidebar %}
 
 {% block content %}
 
 <div class="space-y-5 flex-shrink-0 lg:w-7/12 bg-white shadow" style="">
     <div class=" m-3">
+        {% if not user_followers %}
+            <div class="border rounded-xl bg-slate-200">
+                <span class="px-2 py-1 text-gray-600"> No followers.</span>
+            </div>
+        {% endif %}
+
         {% for follower_user_profile in user_followers %}
         
          <div class="pb-3 mb-3 border-b-4">

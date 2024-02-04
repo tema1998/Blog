@@ -12,6 +12,12 @@
 
 <div class="space-y-5 flex-shrink-0 lg:w-7/12 bg-white shadow" style="">
     <div id="profiles-wrap" class=" m-3">
+        {% if not user_following %}
+            <div class="border rounded-xl bg-slate-200">
+                <span class="px-2 py-1 text-gray-600"> No following yet. <a href="/search?search_user=" class="text-gray-800"> Follow new people. </a> </span>
+            </div>
+        {% endif %}
+
         {% for following_user_profile in user_following %}
         
          <div class="pb-3 mb-3 border-b-4">
@@ -55,8 +61,6 @@
 
             
         </div>
-
-
         {% endfor %}
     </div>
     
