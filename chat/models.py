@@ -17,6 +17,10 @@ class Chat(models.Model):
     def get_last_message(self):
         return self.messages.last()
 
+    class Meta:
+        verbose_name = "Chat"
+        verbose_name_plural = "Chats"
+
 
 class Message(models.Model):
     chat = models.ForeignKey(Chat, verbose_name='Chat', related_name='messages', on_delete=models.CASCADE)
@@ -26,6 +30,8 @@ class Message(models.Model):
     date_added = models.DateTimeField(auto_now_add=True, verbose_name='Date added')
 
     class Meta:
+        verbose_name = "Message"
+        verbose_name_plural = "Messages"
         ordering = ('date_added',)
 
     def get_author_photo(self):
@@ -33,3 +39,4 @@ class Message(models.Model):
 
     def __str__(self):
         return f'{self.pk}'
+

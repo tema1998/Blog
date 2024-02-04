@@ -22,6 +22,10 @@ class Profile(models.Model):
     def get_absolute_url(self):
         return reverse('profile', kwargs={'username': self.user.username})
 
+    class Meta:
+        verbose_name = 'Profile'
+        verbose_name_plural = 'Profiles'
+
 
 class Post(models.Model):
     id = models.UUIDField(verbose_name='Post ID', primary_key=True, default=uuid.uuid4)
@@ -42,10 +46,18 @@ class Post(models.Model):
     def get_author_photo(self):
         return self.user_profile.profileimg.url
 
+    class Meta:
+        verbose_name = 'Post'
+        verbose_name_plural = 'Posts'
+
 
 class UserFavoritePosts(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='User', on_delete=models.CASCADE)
     post = models.ForeignKey(Post, verbose_name='Post', on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = "User's favourite post"
+        verbose_name_plural = "User's favourite posts"
 
 
 class PostLikes(models.Model):
@@ -54,6 +66,10 @@ class PostLikes(models.Model):
 
     def __str__(self):
         return f'{self.user} likes {self.post}'
+
+    class Meta:
+        verbose_name = "Post like"
+        verbose_name_plural = "Post likes"
 
 
 class PostComments(models.Model):
@@ -69,8 +85,8 @@ class PostComments(models.Model):
         return f'Comment by {self.user} - {self.date}'
 
     class Meta:
-        verbose_name = 'Comment'
-        verbose_name_plural = 'Comments'
+        verbose_name = 'Post comment'
+        verbose_name_plural = 'Post comments'
 
     def user_photo(self):
         return self.user_profile.profileimg.url
@@ -82,5 +98,9 @@ class CommentLikes(models.Model):
 
     def __str__(self):
         return f'{self.pk}'
+
+    class Meta:
+        verbose_name = "Like of comment"
+        verbose_name_plural = "Likes of comments"
 
 
