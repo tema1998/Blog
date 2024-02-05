@@ -6,13 +6,13 @@
 
 /* VARIABLE DEFINITIONS */
 :root {
-  --primary: #79aec8;
-  --secondary: #417690;
-  --accent: #f5dd5d;
+  --primary: #348a5f;
+  --secondary: #424190;
+  --accent: #c06060;
   --primary-fg: #fff;
 
-  --body-fg: #333;
-  --body-bg: #fff;
+  --body-fg: #333333;
+  --body-bg: #e2e2e2;
   --body-quiet-color: #666;
   --body-loud-color: #000;
 
