@@ -10,6 +10,8 @@ class PostAdmin(admin.ModelAdmin):
     search_fields = ('id', 'caption')
     list_editable = ('disable_comments',)
     list_filter = ('created_at',)
+    fields = ('id', 'user_profile', 'image', 'caption', 'disable_comments', 'no_of_likes', 'created_at',)
+    readonly_fields = ('created_at', 'no_of_likes', 'user_profile')
 
     def get_html_image(self, object):
         if object.image:
@@ -23,12 +25,16 @@ class PostCommentsAdmin(admin.ModelAdmin):
     list_display_links = ('id', 'post', 'date')
     search_fields = ('id', 'text', 'user')
     list_filter = ('date',)
+    fields = ('id', 'user_profile', 'post', 'text', 'no_of_likes', 'date')
+    readonly_fields = ('date', 'id', 'user_profile', 'post', 'no_of_likes')
 
 
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'get_html_image')
     list_display_links = ('id', 'user', 'get_html_image')
     search_fields = ('id', 'user')
+    fields = ('id', 'user', 'bio', 'location', 'profileimg', 'following')
+    readonly_fields = ('id', 'user', )
 
     def get_html_image(self, object):
         if object.profileimg:
