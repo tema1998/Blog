@@ -17,3 +17,7 @@ if settings.DEBUG:
 
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+admin.site.index_title = 'The Blog'
+admin.site.site_header = 'The Blog admin panel'
+admin.site.site_title = 'Admin panel'
