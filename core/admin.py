@@ -4,13 +4,25 @@ from django.utils.safestring import mark_safe
 from .models import Profile, Post, PostLikes, PostComments, CommentLikes, UserFavoritePosts
 
 
+@admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
     list_display = ('id', 'user_profile', 'get_html_image', 'disable_comments', 'created_at')
     list_display_links = ('id', 'get_html_image', 'created_at')
     search_fields = ('id', 'caption')
     list_editable = ('disable_comments',)
     list_filter = ('created_at',)
-    fields = ('id', 'user_profile', 'image', 'caption', 'disable_comments', 'no_of_likes', 'created_at',)
+    fieldsets = (
+        ('Post settings',
+         {'fields': ('id','user_profile', 'disable_comments')}
+         ),
+        ('Post data',
+         {'fields': ('image', 'caption'),
+          'description': 'You are able to moderate this fields.'}
+         ),
+        ('Post info',
+         {'fields': ('no_of_likes', 'created_at')}
+         ),
+    )
     readonly_fields = ('created_at', 'no_of_likes', 'user_profile')
 
     def get_html_image(self, object):
@@ -33,7 +45,18 @@ class ProfileAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'get_html_image')
     list_display_links = ('id', 'user', 'get_html_image')
     search_fields = ('id', 'user')
-    fields = ('id', 'user', 'bio', 'location', 'profileimg', 'following')
+    fieldsets = (
+        ('Profile info',
+         {'fields': ('id', 'user')}
+         ),
+        ('Profile data',
+         {'fields': ('profileimg', 'bio', 'location'),
+          'description': 'You are able to moderate this fields.'}
+         ),
+        ('User following settings',
+         {'fields': ('following',)}
+         ),
+    )
     readonly_fields = ('id', 'user', )
 
     def get_html_image(self, object):
@@ -63,7 +86,6 @@ class UserFavouritePostsAdmin(admin.ModelAdmin):
 
 admin.site.register(PostComments, PostCommentsAdmin)
 admin.site.register(Profile, ProfileAdmin)
-admin.site.register(Post, PostAdmin)
 admin.site.register(PostLikes, PostLikesAdmin)
 admin.site.register(CommentLikes, CommentLikesAdmin)
 admin.site.register(UserFavoritePosts, UserFavouritePostsAdmin)
