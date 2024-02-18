@@ -20,7 +20,7 @@ Chat(*in real time*) application implemented using **Channels**
 
 
 ## URL
-[http://vovanihc.pythonanywhere.com/](http://vovanihc.pythonanywhere.com/)
+[http://tema98.pythonanywhere.com/](http://tema98.pythonanywhere.com/)
 
 ## Installation on linux
 First of all - clone repository.
