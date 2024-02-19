@@ -112,7 +112,7 @@ class PostModelTest(TestCase):
     def test_disable_comments_label(self):
         post = Post.objects.first()
         field_label = post._meta.get_field('disable_comments').verbose_name
-        self.assertEquals(field_label, 'Comment status')
+        self.assertEquals(field_label, 'Disabled comments')
 
     def test_caption_length(self):
         post = Post.objects.first()
@@ -121,7 +121,7 @@ class PostModelTest(TestCase):
 
     def test_str(self):
         post = Post.objects.first()
-        expected_object_name = f'Post by {post.user_profile} - {post.created_at}'
+        expected_object_name = f'ID: {post.id}'
         self.assertEquals(expected_object_name, str(post))
 
     def test_get_author_photo(self):

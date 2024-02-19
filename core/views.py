@@ -1,3 +1,4 @@
+from django import http
 from django.db import transaction
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import auth
@@ -18,15 +19,15 @@ from .services import get_post, disable_post_comments, enable_post_comments, che
 from .forms import CommentForm, SignupForm, SigninForm, SettingsForm, AddPostForm, EditPostForm
 from users.models import User
 
-def is_ajax(request):
+def is_ajax(request: http.HttpRequest) -> http.HttpResponse:
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
 
 
 class Index(LoginRequiredMixin, View):
     login_url = 'signin'
 
-    def get(self, request):
-        list_of_posts = get_posts_of_friends(user_id=request.user.id)
+    def get(self, request: http.HttpRequest) -> http.HttpResponse:
+        list_of_posts = get_posts_of_friends(user_id=self.request.user.id)
 
         posts_per_page = 2
         paginator = Paginator(list_of_posts, posts_per_page)
@@ -50,14 +51,14 @@ class Index(LoginRequiredMixin, View):
 class EditPost(LoginRequiredMixin, View):
     login_url = 'signin'
 
-    def get(self, request, post_id):
+    def get(self, request: http.HttpRequest, post_id) -> http.HttpResponse:
         post = get_post(id=post_id)
         edit_post_form = EditPostForm(instance=post)
         return render(request, 'core/edit_post.html', {'edit_post_form': edit_post_form,
                                                        'post': post,
                                                        })
 
-    def post(self, request, post_id):
+    def post(self, request: http.HttpRequest, post_id) -> http.HttpResponseRedirect:
         post = get_post(id=post_id)
 
         edit_post_form = EditPostForm(request.POST, request.FILES, instance=post)
@@ -72,8 +73,8 @@ class EditPost(LoginRequiredMixin, View):
 class AddComment(LoginRequiredMixin, View):
     login_url = 'signin'
 
-    def post(self, request):
-        user = request.user
+    def post(self, request: http.HttpRequest) -> http.HttpResponseRedirect:
+        user = self.request.user
         post = get_post(request.POST['post_id'])
 
         if check_if_post_comment_disable(post):
@@ -84,7 +85,7 @@ class AddComment(LoginRequiredMixin, View):
             form = form.save(commit=False)
             form.post = post
             form.user = user
-            form.user_profile = get_user_profile(user_id=request.user.id)
+            form.user_profile = get_user_profile(user_id=self.request.user.id)
             form.no_of_likes = 0
             form.save()
         else:
@@ -95,9 +96,9 @@ class AddComment(LoginRequiredMixin, View):
 class LikePost(LoginRequiredMixin, View):
     login_url = 'signin'
 
-    def post(self, request, post_id):
+    def post(self, request: http.HttpRequest, post_id) -> http.HttpResponse:
         if is_ajax(request):
-            user = request.user
+            user = self.request.user
             post = get_post(post_id)
 
             try:
@@ -123,7 +124,7 @@ class LikePost(LoginRequiredMixin, View):
 class DeletePost(LoginRequiredMixin, View):
     login_url = 'signin'
 
-    def post(self, request):
+    def post(self, request: http.HttpRequest) -> http.HttpResponseRedirect:
         post = get_post(request.POST['post_id'])
 
         post.delete()
@@ -134,7 +135,7 @@ class DeletePost(LoginRequiredMixin, View):
 class DisablePostComments(LoginRequiredMixin, View):
     login_url = 'signin'
 
-    def post(self, request):
+    def post(self, request: http.HttpRequest) -> http.HttpResponseRedirect:
         post = get_post(request.POST['post_id'])
 
         disable_post_comments(post)
@@ -145,7 +146,7 @@ class DisablePostComments(LoginRequiredMixin, View):
 class EnablePostComments(LoginRequiredMixin, View):
     login_url = 'signin'
 
-    def post(self, request):
+    def post(self, request: http.HttpRequest) -> http.HttpResponseRedirect:
         post = get_post(request.POST['post_id'])
 
         enable_post_comments(post)
@@ -155,8 +156,8 @@ class EnablePostComments(LoginRequiredMixin, View):
 
 class Signup(View):
 
-    def post(self, request):
-        if request.user.is_authenticated:
+    def post(self, request: http.HttpRequest) -> http.HttpResponseRedirect:
+        if self.request.user.is_authenticated:
             return redirect('index')
         else:
             signup_form = SignupForm(request.POST)
@@ -173,8 +174,8 @@ class Signup(View):
                     return redirect('settings')
             return render(request, 'core/signup.html', {'signup_form': signup_form})
 
-    def get(self, request):
-        if request.user.is_authenticated:
+    def get(self, request: http.HttpRequest) -> http.HttpResponseRedirect:
+        if self.request.user.is_authenticated:
             return redirect('index')
         else:
             signup_form = SignupForm()
@@ -182,8 +183,8 @@ class Signup(View):
 
 
 class Signin(View):
-    def post(self, request):
-        if request.user.is_authenticated:
+    def post(self, request: http.HttpRequest) -> http.HttpResponse:
+        if self.request.user.is_authenticated:
             return redirect('index')
         else:
             signin_form = SigninForm(request.POST)
@@ -196,8 +197,8 @@ class Signin(View):
             messages.error(request, f'Invalid username or password')
             return render(request, 'core/signin.html', {'signin_form': signin_form})
 
-    def get(self, request):
-        if request.user.is_authenticated:
+    def get(self, request: http.HttpRequest) -> http.HttpResponseRedirect:
+        if self.request.user.is_authenticated:
             return redirect('index')
         else:
             signin_form = SigninForm()
@@ -205,7 +206,7 @@ class Signin(View):
 
 
 class Logout(View):
-    def post(self, request):
+    def post(self, request: http.HttpRequest) -> http.HttpResponseRedirect:
         auth.logout(request)
         return redirect('signin')
 
@@ -213,13 +214,13 @@ class Logout(View):
 class Settings(LoginRequiredMixin, View):
     login_url = 'signin'
 
-    def get(self, request):
-        user_profile = get_user_profile(user_id=request.user.id)
+    def get(self, request: http.HttpRequest) -> http.HttpResponse:
+        user_profile = get_user_profile(user_id=self.request.user.id)
         settings_form = SettingsForm(instance=user_profile)
         return render(request, 'core/settings.html', {'settings_form': settings_form})
 
-    def post(self, request):
-        user_profile = get_user_profile(user_id=request.user.id)
+    def post(self, request: http.HttpRequest) -> http.HttpResponseRedirect:
+        user_profile = get_user_profile(user_id=self.request.user.id)
         settings_form = SettingsForm(request.POST, request.FILES, instance=user_profile)
         if settings_form.is_valid():
             settings_form.save()
@@ -230,33 +231,32 @@ class Settings(LoginRequiredMixin, View):
 class AddPost(LoginRequiredMixin, View):
     login_url = 'signin'
 
-    def get(self, request):
+    def get(self, request: http.HttpRequest) -> http.HttpResponse:
         add_post_form = AddPostForm()
-
         return render(request, 'core/add_post.html', {'add_post_form': add_post_form, })
 
-    def post(self, request):
-        user_profile = get_user_profile(user_id=request.user.id)
+    def post(self, request: http.HttpRequest) -> http.HttpResponseRedirect:
+        user_profile = get_user_profile(user_id=self.request.user.id)
 
         add_post_form = AddPostForm(request.POST, request.FILES)
         if add_post_form.is_valid():
             image = add_post_form.cleaned_data['image']
             caption = add_post_form.cleaned_data['caption']
             disable_comments = add_post_form.cleaned_data['disable_comments']
-            create_new_post(user=request.user, user_profile=user_profile, image=image, caption=caption,
+            create_new_post(user=self.request.user, user_profile=user_profile, image=image, caption=caption,
                             disable_comments=disable_comments)
-            return redirect('profile', username=request.user.username)
+            return redirect('profile', username=self.request.user.username)
         return render(request, 'core/add_post.html', {'add_post_form': add_post_form})
 
 
 class ProfileView(LoginRequiredMixin, View):
     login_url = 'signin'
 
-    def get(self, request, username):
-        user_profile = get_user_profile(user_id=request.user.id)
+    def get(self, request: http.HttpRequest, username) -> http.HttpResponse:
+        user_profile = get_user_profile(user_id=self.request.user.id)
 
-        if request.user.username == username:
-            page_user = request.user
+        if self.request.user.username == username:
+            page_user = self.request.user
             page_user_profile = user_profile
             is_owner = True
             is_subscribed = False
@@ -304,7 +304,7 @@ class ProfileView(LoginRequiredMixin, View):
 class FollowersList(LoginRequiredMixin, View):
     login_url = 'signin'
 
-    def get(self, request, user_id):
+    def get(self, request: http.HttpRequest, user_id) -> http.HttpResponse:
         page_owner_profile = get_user_profile(user_id=user_id)
         page_owner_followers = get_all_user_profile_followers(page_owner_profile)
         return render(request, 'core/followers.html', {
@@ -315,7 +315,7 @@ class FollowersList(LoginRequiredMixin, View):
 class FollowingList(LoginRequiredMixin, View):
     login_url = 'signin'
 
-    def get(self, request, user_id):
+    def get(self, request: http.HttpRequest, user_id) -> http.HttpResponse:
         page_owner_profile = get_user_profile(user_id=user_id)
         page_owner_following = get_all_user_profile_following(page_owner_profile)
 
@@ -327,9 +327,9 @@ class FollowingList(LoginRequiredMixin, View):
 class ProfileFollowingCreateView(LoginRequiredMixin, View):
     login_url = 'signin'
 
-    def post(self, request, user_id):
+    def post(self, request: http.HttpRequest, user_id) -> http.HttpResponse:
         if is_ajax(request):
-            user_id_who_want_follow = int(request.user.id)
+            user_id_who_want_follow = int(self.request.user.id)
             user_who_want_follow = User.objects.get(id=user_id_who_want_follow)
             profile_who_want_follow = get_user_profile(user_id=user_who_want_follow.id)
 
@@ -356,7 +356,7 @@ class ProfileFollowingCreateView(LoginRequiredMixin, View):
 class Search(LoginRequiredMixin, View):
     login_url = 'signin'
 
-    def get(self, request):
+    def get(self, request: http.HttpRequest) -> http.HttpResponse:
         search_user_text = request.GET['search_user']
         if search_user_text:
             search_users_profile_list = filter_user_profiles_by_username(username=search_user_text)
@@ -370,16 +370,16 @@ class Search(LoginRequiredMixin, View):
 class LikeComment(LoginRequiredMixin, View):
     login_url = 'signin'
 
-    def post(self, request, comment_id):
+    def post(self, request: http.HttpRequest, comment_id) -> http.HttpResponse:
         if is_ajax(request):
             comment = get_comment(comment_id=comment_id)
-            comment_like = get_comment_like(comment=comment, user=request.user)
+            comment_like = get_comment_like(comment=comment, user=self.request.user)
 
             if comment_like:
                 dislike_comment(comment, comment_like)
                 like_status = False
             else:
-                like_comment(comment=comment, user=request.user)
+                like_comment(comment=comment, user=self.request.user)
                 like_status = True
 
             data = {
@@ -392,16 +392,16 @@ class LikeComment(LoginRequiredMixin, View):
 class AddRemoveFavoritePost(LoginRequiredMixin, View):
     login_url = 'signin'
 
-    def post(self, request, post_id):
+    def post(self, request: http.HttpRequest, post_id) -> http.HttpResponse:
         if is_ajax(request):
             post = get_post(id=post_id)
             try:
-                favorite_post = get_favorite_post(user=request.user, post=post)
+                favorite_post = get_favorite_post(user=self.request.user, post=post)
                 delete_favorite_post(favorite_post)
                 message = f'Add to favorites'
                 post_status = False
             except:
-                create_favorite_post(user=request.user, post=post)
+                create_favorite_post(user=self.request.user, post=post)
                 message = f'Remove from favorites'
                 post_status = True
 
@@ -416,7 +416,7 @@ class AddRemoveFavoritePost(LoginRequiredMixin, View):
 class FavoritesPosts(LoginRequiredMixin, View):
     login_url = 'signin'
 
-    def get(self, request):
-        user_favorite_posts = get_user_favorite_posts(user=request.user)
+    def get(self, request: http.HttpRequest) -> http.HttpResponse:
+        user_favorite_posts = get_user_favorite_posts(user=self.request.user)
         return render(request, 'core/favorites_posts.html', {'user_favorite_posts': user_favorite_posts,
                                                              })

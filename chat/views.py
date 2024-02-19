@@ -1,3 +1,4 @@
+from django import http
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import Http404, HttpResponse
@@ -8,15 +9,15 @@ from .services import get_chats_list, get_chat, get_chat_messages, get_chat_memb
     create_chat_with_two_users, get_message, delete_chat, clear_chat, delete_message
 
 
-def is_ajax(request):
+def is_ajax(request: http.HttpRequest) -> http.HttpResponse:
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
 
 
 class Chats(LoginRequiredMixin, View):
     login_url = 'signin'
 
-    def get(self, request):
-        chats = get_chats_list(user=request.user)
+    def get(self, request: http.HttpRequest) -> http.HttpResponseRedirect:
+        chats = get_chats_list(user=self.request.user)
 
         chats_per_page = 4
         paginator = Paginator(chats, chats_per_page)
@@ -34,9 +35,9 @@ class Chats(LoginRequiredMixin, View):
 class ChatView(LoginRequiredMixin, View):
     login_url = 'signin'
 
-    def get(self, request, chat_id):
+    def get(self, request: http.HttpRequest, chat_id) -> http.HttpResponse:
         chat = get_chat(chat_id=chat_id)
-        if not request.user in get_chat_members(chat):
+        if not self.request.user in get_chat_members(chat):
             return redirect('chats')
 
         chat_messages = get_chat_messages(chat=chat)
@@ -63,22 +64,22 @@ class ChatView(LoginRequiredMixin, View):
 class StartDialog(LoginRequiredMixin, View):
     login_url = 'signin'
 
-    def post(self, request):
+    def post(self, request: http.HttpRequest) -> http.HttpResponseRedirect:
         page_owner = get_user(user_id=request.POST.get('page_owner_id'))
         if request.user == page_owner:
             raise Http404
 
-        chat = get_chat_with_two_users(first_user_id=request.user.id, second_user_id=page_owner.id)
+        chat = get_chat_with_two_users(first_user_id=self.request.user.id, second_user_id=page_owner.id)
         if chat:
             chat_id = chat.first().id
         else:
-            chat_id = create_chat_with_two_users(first_user=request.user, second_user=page_owner).id
+            chat_id = create_chat_with_two_users(first_user=self.request.user, second_user=page_owner).id
         return redirect('chat', chat_id=chat_id)
 
 
 class DeleteMessage(LoginRequiredMixin, View):
 
-    def post(self, request):
+    def post(self, request: http.HttpRequest) -> http.HttpResponseRedirect:
         message = get_message(message_id=request.POST.get('message_id'))
         chat = message.chat
         delete_message(message=message)
@@ -92,7 +93,7 @@ class DeleteMessage(LoginRequiredMixin, View):
 
 class DeleteChat(LoginRequiredMixin, View):
 
-    def post(self, request):
+    def post(self, request: http.HttpRequest) -> http.HttpResponse:
         chat = get_chat(chat_id=request.POST.get('chat_id'))
         delete_chat(chat=chat)
         return redirect('chats')
@@ -100,7 +101,7 @@ class DeleteChat(LoginRequiredMixin, View):
 
 class ClearChat(LoginRequiredMixin, View):
 
-    def post(self, request):
+    def post(self, request: http.HttpRequest) -> http.HttpResponse:
         chat = get_chat(chat_id=request.POST.get('chat_id'))
         clear_chat(chat=chat)
         return redirect('chats')
