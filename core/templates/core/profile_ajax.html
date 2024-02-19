@@ -1,19 +1,19 @@
 {% load static %}
 
 {% for post in user_posts %}
-
-    <div class="photo-one">
-        <a href="#" class="open-popup" id="{{post.id}}">
-            <img src="{{post.image.url}}" data-poppostid="{{post.id}}" id="small-post-image" style="height: 300px; width: 350px; " alt="">
-        </a>
-    </div>
-
-    <!-- start POP UP -->
-    <div data-popup="{{post.id}}" class="popup__bg">
-        <div data-popup="{{post.id}}" class="popup">
-            {% include 'core/include/author_post_like_comments.html' %}
+        <div class="photo-one">
+            <a href="#" class="open-popup" id="{{post.id}}">
+                <img class="round-xl" src="{{post.image.url}}" data-poppostid="{{post.id}}" id="small-post-image" style="height: 300px; width: 350px; " alt="">
+            </a>
         </div>
-    </div>
-    <!-- end POP UP -->
+    
+        <!-- start POP UP -->
+        <div data-popup="{{post.id}}" class="popup__bg">
+            <div data-popup="{{post.id}}" class="popup">
+                {% include 'core/include/author_post_like_comments.html' %}
+            </div>
+        </div>
+        <!-- end POP UP -->
+
 
 {% endfor %}

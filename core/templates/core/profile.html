@@ -4,18 +4,19 @@
 {% block content %}
 
 
-<div class="profile">
-	<div class="profile-info">
-		<div class="user-profile-photo">
+<div class="bg-white rounded-2xl p-5 w-full">
+	<div class="flex w-full">
+		<div class="shrink-0 mx-2">
 			<img src="{{page_user_profile.profileimg.url}}" style="height: 150px; width: 150px; border-radius: 100px; " alt="">
 		</div>
 
-		<div class="user-profile-data">
-			<div class="user-profile-username">
-				<div>
-					<p style="margin-left: 70px;font-size: 30px; font-family:cursive;">{{page_user.username}}</p>
+		<div class="flex flex-col p-1 w-full">
+			<div class="flex justify-between">
+				<div class="flex justify-center items-center">
+					<p class="italic text-2xl font-semibold">{{page_user.username}}</p>
 				</div>
 
+				<div class="flex">
 					{% if not is_owner %}
 						{% if is_subscribed %}
 							<button class="btn-follow bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 py-2 mr-2 rounded flex items-center justify-center" data-userid="{{ page_user_profile.user_id }}">
@@ -36,47 +37,52 @@
 						</form>
 
 					{% elif is_owner %}
-						<a href="{% url 'settings' %}" class="bg-blue-500 hover:text-white hover:bg-blue-700 text-white font-bold px-2 py-2 mr-2 rounded flex items-center justify-center">Edit profile</a>
+						<a href="{% url 'settings' %}" class="bg-blue-500 hover:text-white hover:bg-blue-700 text-white font-bold px-2 py-2 mr-2 rounded ">Edit profile</a>
 					{% endif %}
-
+				</div>
 			</div>
 
-			<div class="subscribe-data">
-				{% if user_post_length == 1 %}
-				<div><span class="number-style">{{user_post_length}}</span> post</div>
-				{% else %}
-				<div><span class="number-style">{{user_post_length}}</span> posts</div>
-				{% endif %}
-
-				<div class="update-follower-data">
+			<div class="flex p-1">
+				<div class="mr-4">
+					{% if user_post_length == 1 %}
+					<span class="text-lg font-semibold">{{user_post_length}}</span> post
+					{% else %}
+					<span class="text-lg font-semibold">{{user_post_length}}</span> posts
+					{% endif %}
+				</div>
+				
+				<div class="update-follower-data mx-4">
 					{% if user_followers == 0 or user_followers == 1 %}
 					<a href="{% url 'followers' page_user.id %}">
-						<div><span class="number-style">{{user_followers}}</span> follower</div>
+						<div><span class="text-lg font-semibold">{{user_followers}}</span> follower</div>
 					</a>
 					{% else %}
 					<a href="{% url 'followers' page_user.id %}">
-						<div><span class="number-style">{{user_followers}}</span> followers</div>
+						<div><span class="text-lg font-semibold">{{user_followers}}</span> followers</div>
 					</a>
 					{% endif %}
 				</div>
 
-				<div>
+				<div class="mx-4">
 					<a href="{% url 'following' page_user.id %}">
-						<div><span class="number-style">{{user_following}}</span> following</div>
+						<div><span class="text-lg font-semibold">{{user_following}}</span> following</div>
 					</a>
 				</div>
 			</div>
 
-			<div class="subscribe-data">
-				<div>{{page_user.profiles.all.first.bio}}</div>
+			<div class="p-1">
+				<div class="text-lg font-medium">{{page_user.profiles.all.first.location|truncatechars:30}}</div>
+			</div>
 
+			<div class="p-1">
+				<div>{{page_user.profiles.all.first.bio|truncatechars:300}}</div>
 			</div>
 
 		</div>
 
 	</div>
 
-	<div class="photo-grid" id="post_list">
+	<div class="grid grid-cols-1 justify-items-center lg:grid-cols-3 " id="post_list">
 			{% include 'core/profile_ajax.html' %}
 	</div>
 
