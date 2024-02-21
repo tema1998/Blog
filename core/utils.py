@@ -1,4 +1,5 @@
 from .models import *
+from users.models import User
 
 
 class GetUserProfileInContext:

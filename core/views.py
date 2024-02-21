@@ -22,10 +22,17 @@ from .forms import CommentForm, SignupForm, SigninForm, SettingsForm, AddPostFor
 from users.models import User
 
 def is_ajax(request: http.HttpRequest) -> bool:
+    """
+    Check if request is ajax.
+    Return bool.
+    """
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
 
 
 class Index(LoginRequiredMixin, View):
+    """
+    View returns friend's posts.
+    """
     login_url = 'signin'
 
     def get(self, request: http.HttpRequest) -> http.HttpResponse:
@@ -51,6 +58,9 @@ class Index(LoginRequiredMixin, View):
 
 
 class EditPost(LoginRequiredMixin, View):
+    """
+    View for editing post.
+    """
     login_url = 'signin'
 
     def get(self, request: http.HttpRequest, post_id) -> http.HttpResponse:
@@ -73,6 +83,9 @@ class EditPost(LoginRequiredMixin, View):
 
 
 class AddComment(LoginRequiredMixin, View):
+    """
+    View for adding comment to post.
+    """
     login_url = 'signin'
 
     def post(self, request: http.HttpRequest) -> http.HttpResponseRedirect:
@@ -96,6 +109,9 @@ class AddComment(LoginRequiredMixin, View):
 
 
 class LikePost(LoginRequiredMixin, View):
+    """
+    View for adding like to post.
+    """
     login_url = 'signin'
 
     def post(self, request: http.HttpRequest, post_id) -> JsonResponse | Type[Http404]:
@@ -126,6 +142,9 @@ class LikePost(LoginRequiredMixin, View):
 
 
 class DeletePost(LoginRequiredMixin, View):
+    """
+    View for deleting post.
+    """
     login_url = 'signin'
 
     def post(self, request: http.HttpRequest) -> http.HttpResponseRedirect:
@@ -137,6 +156,9 @@ class DeletePost(LoginRequiredMixin, View):
 
 
 class DisablePostComments(LoginRequiredMixin, View):
+    """
+    View for disabling comments to post.
+    """
     login_url = 'signin'
 
     def post(self, request: http.HttpRequest) -> http.HttpResponseRedirect:
@@ -148,6 +170,9 @@ class DisablePostComments(LoginRequiredMixin, View):
 
 
 class EnablePostComments(LoginRequiredMixin, View):
+    """
+    View for enabling comments to post.
+    """
     login_url = 'signin'
 
     def post(self, request: http.HttpRequest) -> http.HttpResponseRedirect:
@@ -159,6 +184,9 @@ class EnablePostComments(LoginRequiredMixin, View):
 
 
 class Signup(View):
+    """
+    View for signing up.
+    """
 
     def post(self, request: http.HttpRequest) -> http.HttpResponseRedirect | HttpResponse:
         if self.request.user.is_authenticated:
@@ -187,6 +215,9 @@ class Signup(View):
 
 
 class Signin(View):
+    """
+    View for signing in.
+    """
     def post(self, request: http.HttpRequest) -> http.HttpResponse:
         if self.request.user.is_authenticated:
             return redirect('index')
@@ -210,12 +241,18 @@ class Signin(View):
 
 
 class Logout(View):
+    """
+    View for loging out.
+    """
     def post(self, request: http.HttpRequest) -> http.HttpResponseRedirect:
         auth.logout(request)
         return redirect('signin')
 
 
 class Settings(LoginRequiredMixin, View):
+    """
+    View for profile settings.
+    """
     login_url = 'signin'
 
     def get(self, request: http.HttpRequest) -> http.HttpResponse:
@@ -233,6 +270,9 @@ class Settings(LoginRequiredMixin, View):
 
 
 class AddPost(LoginRequiredMixin, View):
+    """
+    View for adding post.
+    """
     login_url = 'signin'
 
     def get(self, request: http.HttpRequest) -> http.HttpResponse:
@@ -254,6 +294,9 @@ class AddPost(LoginRequiredMixin, View):
 
 
 class ProfileView(LoginRequiredMixin, View):
+    """
+    View returns user's page with posts and follow data.
+    """
     login_url = 'signin'
 
     def get(self, request: http.HttpRequest, username) -> http.HttpResponse:
@@ -306,6 +349,9 @@ class ProfileView(LoginRequiredMixin, View):
 
 
 class FollowersList(LoginRequiredMixin, View):
+    """
+    View returns the profiles who are followed to user.
+    """
     login_url = 'signin'
 
     def get(self, request: http.HttpRequest, user_id) -> http.HttpResponse:
@@ -317,6 +363,9 @@ class FollowersList(LoginRequiredMixin, View):
 
 
 class FollowingList(LoginRequiredMixin, View):
+    """
+    View returns the profiles the user is followed to.
+    """
     login_url = 'signin'
 
     def get(self, request: http.HttpRequest, user_id) -> http.HttpResponse:
@@ -329,6 +378,9 @@ class FollowingList(LoginRequiredMixin, View):
 
 
 class ProfileFollowingCreateView(LoginRequiredMixin, View):
+    """
+    View for creating a subscription.
+    """
     login_url = 'signin'
 
     def post(self, request: http.HttpRequest, user_id) -> JsonResponse | Type[Http404]:
@@ -360,6 +412,9 @@ class ProfileFollowingCreateView(LoginRequiredMixin, View):
 
 
 class Search(LoginRequiredMixin, View):
+    """
+    View for search profiles.
+    """
     login_url = 'signin'
 
     def get(self, request: http.HttpRequest) -> http.HttpResponse:
@@ -374,6 +429,9 @@ class Search(LoginRequiredMixin, View):
 
 
 class LikeComment(LoginRequiredMixin, View):
+    """
+    View to create or delete like to comment.
+    """
     login_url = 'signin'
 
     def post(self, request: http.HttpRequest, comment_id) -> JsonResponse | Type[Http404]:
@@ -398,6 +456,10 @@ class LikeComment(LoginRequiredMixin, View):
 
 
 class AddRemoveFavoritePost(LoginRequiredMixin, View):
+    """
+    View for adding post to favourites
+    or removing from favourites if it was there.
+    """
     login_url = 'signin'
 
     def post(self, request: http.HttpRequest, post_id) -> JsonResponse | Type[Http404]:
@@ -424,6 +486,9 @@ class AddRemoveFavoritePost(LoginRequiredMixin, View):
 
 
 class FavoritesPosts(LoginRequiredMixin, View):
+    """
+    View return user's favourite posts.
+    """
     login_url = 'signin'
 
     def get(self, request: http.HttpRequest) -> http.HttpResponse:

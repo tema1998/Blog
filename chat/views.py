@@ -19,7 +19,7 @@ def is_ajax(request: http.HttpRequest) -> bool:
 
 class Chats(LoginRequiredMixin, View):
     """
-    View return user's chats.
+    View returns user's chats.
     """
     login_url = 'signin'
 
@@ -41,7 +41,7 @@ class Chats(LoginRequiredMixin, View):
 
 class ChatView(LoginRequiredMixin, View):
     """
-    View return chat with messages.
+    View returns chat with messages.
     """
     login_url = 'signin'
 
@@ -73,7 +73,7 @@ class ChatView(LoginRequiredMixin, View):
 
 class StartDialog(LoginRequiredMixin, View):
     """
-    View start a dialog between two users.
+    View starts a dialog between two users.
     """
     login_url = 'signin'
 
@@ -92,7 +92,7 @@ class StartDialog(LoginRequiredMixin, View):
 
 class DeleteMessage(LoginRequiredMixin, View):
     """
-    View delete the message and
+    View deletes the message and
     update date of last message
     of chat.
     """
@@ -110,7 +110,7 @@ class DeleteMessage(LoginRequiredMixin, View):
 
 class DeleteChat(LoginRequiredMixin, View):
     """
-    View delete the chat.
+    View deletes the chat.
     """
     def post(self, request: http.HttpRequest) -> http.HttpResponse:
         chat = get_chat(chat_id=request.POST.get('chat_id'))
@@ -120,7 +120,7 @@ class DeleteChat(LoginRequiredMixin, View):
 
 class ClearChat(LoginRequiredMixin, View):
     """
-    View clear the chat.
+    View clears the chat.
     """
     def post(self, request: http.HttpRequest) -> http.HttpResponse:
         chat = get_chat(chat_id=request.POST.get('chat_id'))

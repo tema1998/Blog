@@ -88,7 +88,6 @@ class PostComments(models.Model):
     """
     Model for storing comments of post.
     """
-    """Комменты"""
     user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='User', on_delete=models.CASCADE)
     user_profile = models.ForeignKey(Profile, verbose_name='User profile', on_delete=models.CASCADE, related_name='PostComments')
     text = models.TextField(verbose_name="Comment text", max_length=1000)
