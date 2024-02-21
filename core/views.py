@@ -1,10 +1,12 @@
+from typing import Type
+
 from django import http
 from django.db import transaction
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import auth
 from django.contrib import messages
 from django.views import View
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -19,7 +21,7 @@ from .services import get_post, disable_post_comments, enable_post_comments, che
 from .forms import CommentForm, SignupForm, SigninForm, SettingsForm, AddPostForm, EditPostForm
 from users.models import User
 
-def is_ajax(request: http.HttpRequest) -> http.HttpResponse:
+def is_ajax(request: http.HttpRequest) -> bool:
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
 
 
@@ -58,7 +60,7 @@ class EditPost(LoginRequiredMixin, View):
                                                        'post': post,
                                                        })
 
-    def post(self, request: http.HttpRequest, post_id) -> http.HttpResponseRedirect:
+    def post(self, request: http.HttpRequest, post_id) -> http.HttpResponseRedirect | http.HttpResponse:
         post = get_post(id=post_id)
 
         edit_post_form = EditPostForm(request.POST, request.FILES, instance=post)
@@ -96,7 +98,7 @@ class AddComment(LoginRequiredMixin, View):
 class LikePost(LoginRequiredMixin, View):
     login_url = 'signin'
 
-    def post(self, request: http.HttpRequest, post_id) -> http.HttpResponse:
+    def post(self, request: http.HttpRequest, post_id) -> JsonResponse | Type[Http404]:
         if is_ajax(request):
             user = self.request.user
             post = get_post(post_id)
@@ -119,6 +121,8 @@ class LikePost(LoginRequiredMixin, View):
                 'like_status': like_status,
             }
             return JsonResponse(data, status=200)
+        else:
+            return http.Http404
 
 
 class DeletePost(LoginRequiredMixin, View):
@@ -156,7 +160,7 @@ class EnablePostComments(LoginRequiredMixin, View):
 
 class Signup(View):
 
-    def post(self, request: http.HttpRequest) -> http.HttpResponseRedirect:
+    def post(self, request: http.HttpRequest) -> http.HttpResponseRedirect | HttpResponse:
         if self.request.user.is_authenticated:
             return redirect('index')
         else:
@@ -174,7 +178,7 @@ class Signup(View):
                     return redirect('settings')
             return render(request, 'core/signup.html', {'signup_form': signup_form})
 
-    def get(self, request: http.HttpRequest) -> http.HttpResponseRedirect:
+    def get(self, request: http.HttpRequest) -> http.HttpResponse:
         if self.request.user.is_authenticated:
             return redirect('index')
         else:
@@ -197,7 +201,7 @@ class Signin(View):
             messages.error(request, f'Invalid username or password')
             return render(request, 'core/signin.html', {'signin_form': signin_form})
 
-    def get(self, request: http.HttpRequest) -> http.HttpResponseRedirect:
+    def get(self, request: http.HttpRequest) -> http.HttpResponse:
         if self.request.user.is_authenticated:
             return redirect('index')
         else:
@@ -219,7 +223,7 @@ class Settings(LoginRequiredMixin, View):
         settings_form = SettingsForm(instance=user_profile)
         return render(request, 'core/settings.html', {'settings_form': settings_form})
 
-    def post(self, request: http.HttpRequest) -> http.HttpResponseRedirect:
+    def post(self, request: http.HttpRequest) -> http.HttpResponseRedirect | http.HttpResponse:
         user_profile = get_user_profile(user_id=self.request.user.id)
         settings_form = SettingsForm(request.POST, request.FILES, instance=user_profile)
         if settings_form.is_valid():
@@ -235,7 +239,7 @@ class AddPost(LoginRequiredMixin, View):
         add_post_form = AddPostForm()
         return render(request, 'core/add_post.html', {'add_post_form': add_post_form, })
 
-    def post(self, request: http.HttpRequest) -> http.HttpResponseRedirect:
+    def post(self, request: http.HttpRequest) -> http.HttpResponseRedirect | http.HttpResponse:
         user_profile = get_user_profile(user_id=self.request.user.id)
 
         add_post_form = AddPostForm(request.POST, request.FILES)
@@ -327,7 +331,7 @@ class FollowingList(LoginRequiredMixin, View):
 class ProfileFollowingCreateView(LoginRequiredMixin, View):
     login_url = 'signin'
 
-    def post(self, request: http.HttpRequest, user_id) -> http.HttpResponse:
+    def post(self, request: http.HttpRequest, user_id) -> JsonResponse | Type[Http404]:
         if is_ajax(request):
             user_id_who_want_follow = int(self.request.user.id)
             user_who_want_follow = User.objects.get(id=user_id_who_want_follow)
@@ -351,6 +355,8 @@ class ProfileFollowingCreateView(LoginRequiredMixin, View):
                 'status': status,
             }
             return JsonResponse(data, status=200)
+        else:
+            return Http404
 
 
 class Search(LoginRequiredMixin, View):
@@ -370,7 +376,7 @@ class Search(LoginRequiredMixin, View):
 class LikeComment(LoginRequiredMixin, View):
     login_url = 'signin'
 
-    def post(self, request: http.HttpRequest, comment_id) -> http.HttpResponse:
+    def post(self, request: http.HttpRequest, comment_id) -> JsonResponse | Type[Http404]:
         if is_ajax(request):
             comment = get_comment(comment_id=comment_id)
             comment_like = get_comment_like(comment=comment, user=self.request.user)
@@ -387,12 +393,14 @@ class LikeComment(LoginRequiredMixin, View):
                 'likes': comment.no_of_likes,
             }
             return JsonResponse(data, status=200)
+        else:
+            return Http404
 
 
 class AddRemoveFavoritePost(LoginRequiredMixin, View):
     login_url = 'signin'
 
-    def post(self, request: http.HttpRequest, post_id) -> http.HttpResponse:
+    def post(self, request: http.HttpRequest, post_id) -> JsonResponse | Type[Http404]:
         if is_ajax(request):
             post = get_post(id=post_id)
             try:
@@ -411,6 +419,8 @@ class AddRemoveFavoritePost(LoginRequiredMixin, View):
             }
 
             return JsonResponse(data, status=200)
+        else:
+            return Http404
 
 
 class FavoritesPosts(LoginRequiredMixin, View):

@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Q, QuerySet
 
 from .models import Profile, Post, PostLikes, PostComments, CommentLikes, UserFavoritePosts
 from users.models import User
@@ -8,11 +8,11 @@ def get_user(username: str):
     return User.objects.get(username=username)
 
 
-def get_user_profile(user_id: int):
+def get_user_profile(user_id):
     return Profile.objects.get(user_id=user_id)
 
 
-def get_posts_of_friends(user_id: int):
+def get_posts_of_friends(user_id):
     user_profile = get_user_profile(user_id=user_id)
     list_of_subscriptions = user_profile.following.values_list('id', flat=True)
     list_of_posts = Post.objects.select_related('user', 'user_profile').prefetch_related('postcomments_set',
@@ -27,7 +27,7 @@ def get_posts_of_friends(user_id: int):
     return list_of_posts
 
 
-def get_post(id: int):
+def get_post(id):
     return Post.objects.get(id=id)
 
 
