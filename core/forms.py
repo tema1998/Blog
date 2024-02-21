@@ -5,6 +5,9 @@ from users.models import User
 
 
 class CommentForm(forms.ModelForm):
+    """
+    Form for processing a new comment to the post.
+    """
     def __init__(self, *args, **kwargs):
         super(CommentForm, self).__init__(*args, **kwargs)
         self.fields['text'].label = ""
@@ -19,6 +22,9 @@ class CommentForm(forms.ModelForm):
 
 
 class SignupForm(forms.ModelForm):
+    """
+    Form for processing sign up.
+    """
     password = forms.CharField(label='Password', widget=forms.PasswordInput)
     password2 = forms.CharField(label='Repeat password', widget=forms.PasswordInput)
 
@@ -34,11 +40,17 @@ class SignupForm(forms.ModelForm):
 
 
 class SigninForm(forms.Form):
+    """
+    Form for processing sign in.
+    """
     username = forms.CharField()
     password = forms.CharField(widget=forms.PasswordInput)
 
 
 class AddPostForm(forms.ModelForm):
+    """
+    Form for processing creating a new post.
+    """
     class Meta:
         model = Post
         fields = ('image', 'caption', 'disable_comments')
@@ -48,6 +60,9 @@ class AddPostForm(forms.ModelForm):
 
 
 class EditPostForm(forms.ModelForm):
+    """
+    Form for processing editing of post.
+    """
     class Meta:
         model = Post
         fields = ('image', 'caption', 'disable_comments')
@@ -57,6 +72,9 @@ class EditPostForm(forms.ModelForm):
 
 
 class SettingsForm(forms.ModelForm):
+    """
+    Form for processing user's settings data.
+    """
     class Meta:
         model = Profile
         fields = ('bio', 'profileimg', 'location')

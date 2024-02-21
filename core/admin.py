@@ -6,6 +6,9 @@ from .models import Profile, Post, PostLikes, PostComments, CommentLikes, UserFa
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
+    """
+    Admin for Post model.
+    """
     list_display = ('id', 'user_profile', 'get_html_image', 'disable_comments', 'created_at')
     list_display_links = ('id', 'get_html_image', 'created_at')
     search_fields = ('id', 'caption')
@@ -33,6 +36,9 @@ class PostAdmin(admin.ModelAdmin):
 
 
 class PostCommentsAdmin(admin.ModelAdmin):
+    """
+    Admin for PostComments model.
+    """
     list_display = ('id', 'user_profile', 'post', 'date')
     list_display_links = ('id', 'post', 'date')
     search_fields = ('id', 'text', 'user')
@@ -42,6 +48,9 @@ class PostCommentsAdmin(admin.ModelAdmin):
 
 
 class ProfileAdmin(admin.ModelAdmin):
+    """
+    Admin for Profile model.
+    """
     list_display = ('id', 'user', 'get_html_image')
     list_display_links = ('id', 'user', 'get_html_image')
     search_fields = ('id', 'user')
@@ -67,18 +76,27 @@ class ProfileAdmin(admin.ModelAdmin):
 
 
 class PostLikesAdmin(admin.ModelAdmin):
+    """
+    Admin for PostLikes model.
+    """
     list_display = ('id', 'user', 'post')
     list_display_links = ('id', 'post', 'user')
     search_fields = ('id', 'user', 'post')
 
 
 class CommentLikesAdmin(admin.ModelAdmin):
+    """
+    Admin for CommentLikes model.
+    """
     list_display = ('id', 'user', 'comment')
     list_display_links = ('id', 'user', 'comment')
     search_fields = ('id', 'user', 'comment')
 
 
 class UserFavouritePostsAdmin(admin.ModelAdmin):
+    """
+    Admin for UserFavouritePosts model.
+    """
     list_display = ('id', 'user', 'post')
     list_display_links = ('id', 'post', 'user')
     search_fields = ('id', 'user', 'post')

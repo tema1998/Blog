@@ -9,6 +9,9 @@ from django.urls import reverse
 
 
 class Profile(models.Model):
+    """
+    Model for storing profile data.
+    """
     user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='User', on_delete=models.CASCADE, related_name='profiles')
     bio = models.TextField('Information', max_length=300, blank=True)
     profileimg = models.ImageField(upload_to='profile_images', verbose_name='Profile image', default='blank_profile.png')
@@ -28,6 +31,9 @@ class Profile(models.Model):
 
 
 class Post(models.Model):
+    """
+    Model for storing profile data.
+    """
     id = models.UUIDField(verbose_name='Post ID', primary_key=True, default=uuid.uuid4)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='User', on_delete=models.CASCADE, related_name='posts')
     user_profile = models.ForeignKey(Profile, verbose_name='User profile', on_delete=models.CASCADE, related_name='posts')
@@ -52,6 +58,9 @@ class Post(models.Model):
 
 
 class UserFavoritePosts(models.Model):
+    """
+    Model for storing favourites posts of user.
+    """
     user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='User', on_delete=models.CASCADE)
     post = models.ForeignKey(Post, verbose_name='Post', on_delete=models.CASCADE)
 
@@ -61,6 +70,9 @@ class UserFavoritePosts(models.Model):
 
 
 class PostLikes(models.Model):
+    """
+    Model for likes of post.
+    """
     user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='User', on_delete=models.CASCADE)
     post = models.ForeignKey(Post, verbose_name='Post', on_delete=models.CASCADE)
 
@@ -73,6 +85,9 @@ class PostLikes(models.Model):
 
 
 class PostComments(models.Model):
+    """
+    Model for storing comments of post.
+    """
     """Комменты"""
     user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='User', on_delete=models.CASCADE)
     user_profile = models.ForeignKey(Profile, verbose_name='User profile', on_delete=models.CASCADE, related_name='PostComments')
@@ -93,6 +108,9 @@ class PostComments(models.Model):
 
 
 class CommentLikes(models.Model):
+    """
+    Model for storing likes of comments.
+    """
     user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='User', on_delete=models.CASCADE)
     comment = models.ForeignKey(PostComments, verbose_name='Comment', on_delete=models.CASCADE)
 
