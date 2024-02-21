@@ -5,6 +5,9 @@ from core.models import Profile
 
 
 class Chat(models.Model):
+    """
+    Model for storing chats.
+    """
     members = models.ManyToManyField(User, verbose_name='Member')
     last_update = models.DateTimeField(auto_now_add=True, verbose_name='Date of last message')
 
@@ -12,9 +15,15 @@ class Chat(models.Model):
         return f'{self.pk}'
 
     def get_users(self):
+        """
+        Return members of chat.
+        """
         return self.members.all()
 
     def get_last_message(self):
+        """
+        Return last message of chat.
+        """
         return self.messages.last()
 
     class Meta:
@@ -23,6 +32,9 @@ class Chat(models.Model):
 
 
 class Message(models.Model):
+    """
+    Model for storing messages.
+    """
     chat = models.ForeignKey(Chat, verbose_name='Chat', related_name='messages', on_delete=models.CASCADE)
     user = models.ForeignKey(User,  verbose_name='User', related_name='messages', on_delete=models.CASCADE)
     user_profile = models.ForeignKey(Profile, verbose_name='User profile', on_delete=models.CASCADE, related_name='profile')
@@ -35,6 +47,9 @@ class Message(models.Model):
         ordering = ('date_added',)
 
     def get_author_photo(self):
+        """
+        Return message's author photo.
+        """
         return self.user_profile.profileimg.url
 
     def __str__(self):

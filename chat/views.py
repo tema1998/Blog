@@ -10,10 +10,17 @@ from .services import get_chats_list, get_chat, get_chat_messages, get_chat_memb
 
 
 def is_ajax(request: http.HttpRequest) -> bool:
+    """
+    Check if request is ajax.
+    Return bool.
+    """
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
 
 
 class Chats(LoginRequiredMixin, View):
+    """
+    View return user's chats.
+    """
     login_url = 'signin'
 
     def get(self, request: http.HttpRequest) -> http.HttpResponseRedirect | http.HttpResponse:
@@ -33,6 +40,9 @@ class Chats(LoginRequiredMixin, View):
 
 
 class ChatView(LoginRequiredMixin, View):
+    """
+    View return chat with messages.
+    """
     login_url = 'signin'
 
     def get(self, request: http.HttpRequest, chat_id) -> http.HttpResponse:
@@ -62,6 +72,9 @@ class ChatView(LoginRequiredMixin, View):
 
 
 class StartDialog(LoginRequiredMixin, View):
+    """
+    View start a dialog between two users.
+    """
     login_url = 'signin'
 
     def post(self, request: http.HttpRequest) -> http.HttpResponseRedirect:
@@ -78,7 +91,11 @@ class StartDialog(LoginRequiredMixin, View):
 
 
 class DeleteMessage(LoginRequiredMixin, View):
-
+    """
+    View delete the message and
+    update date of last message
+    of chat.
+    """
     def post(self, request: http.HttpRequest) -> http.HttpResponseRedirect:
         message = get_message(message_id=request.POST.get('message_id'))
         chat = message.chat
@@ -92,7 +109,9 @@ class DeleteMessage(LoginRequiredMixin, View):
 
 
 class DeleteChat(LoginRequiredMixin, View):
-
+    """
+    View delete the chat.
+    """
     def post(self, request: http.HttpRequest) -> http.HttpResponse:
         chat = get_chat(chat_id=request.POST.get('chat_id'))
         delete_chat(chat=chat)
@@ -100,7 +119,9 @@ class DeleteChat(LoginRequiredMixin, View):
 
 
 class ClearChat(LoginRequiredMixin, View):
-
+    """
+    View clear the chat.
+    """
     def post(self, request: http.HttpRequest) -> http.HttpResponse:
         chat = get_chat(chat_id=request.POST.get('chat_id'))
         clear_chat(chat=chat)

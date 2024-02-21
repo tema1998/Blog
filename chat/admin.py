@@ -4,6 +4,9 @@ from chat.models import Chat, Message
 
 
 class ChatAdmin(admin.ModelAdmin):
+    """
+    Admin for Chat model.
+    """
     list_display = ('id', 'last_update')
     list_display_links = ('id', 'last_update')
     search_fields = ('id', 'members')
@@ -11,6 +14,9 @@ class ChatAdmin(admin.ModelAdmin):
 
 
 class MessageAdmin(admin.ModelAdmin):
+    """
+    Admin for message model.
+    """
     list_display = ('id', 'chat', 'user_profile', 'date_added')
     list_display_links = ('id', 'chat', 'user_profile')
     search_fields = ('id', 'chat', 'user_profile')
