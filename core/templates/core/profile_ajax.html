@@ -3,7 +3,7 @@
 {% for post in user_posts %}
         <div class="photo-one">
             <a href="#" class="open-popup" id="{{post.id}}">
-                <img class="round-xl" src="{{post.image.url}}" data-poppostid="{{post.id}}" id="small-post-image" style="height: 300px; width: 350px; " alt="">
+                <img class="round-xl object-cover" src="{{post.image.url}}" data-poppostid="{{post.id}}" id="small-post-image" style="height: 300px; width: 350px; " alt="">
             </a>
         </div>
     

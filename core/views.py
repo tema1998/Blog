@@ -258,7 +258,8 @@ class Settings(LoginRequiredMixin, View):
     def get(self, request: http.HttpRequest) -> http.HttpResponse:
         user_profile = get_user_profile(user_id=self.request.user.id)
         settings_form = SettingsForm(instance=user_profile)
-        return render(request, 'core/settings.html', {'settings_form': settings_form})
+        return render(request, 'core/settings.html', {'settings_form': settings_form,
+                                                      'user_profile': user_profile})
 
     def post(self, request: http.HttpRequest) -> http.HttpResponseRedirect | http.HttpResponse:
         user_profile = get_user_profile(user_id=self.request.user.id)
@@ -266,7 +267,8 @@ class Settings(LoginRequiredMixin, View):
         if settings_form.is_valid():
             settings_form.save()
             return redirect('settings')
-        return render(request, 'core/settings.html', {'settings_form': settings_form})
+        return render(request, 'core/settings.html', {'settings_form': settings_form,
+                                                      'user_profile': user_profile})
 
 
 class AddPost(LoginRequiredMixin, View):

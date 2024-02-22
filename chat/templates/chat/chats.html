@@ -25,7 +25,7 @@
                                 <div class="flex">
 
                                     <div class="shrink-0 pr-2 flex items-center basis-14">
-                                        <img src="{{user.profiles.first.profileimg.url}}" class="bg-gray-200 border border-white rounded-full w-12 h-12">
+                                        <img src="{{user.profiles.first.profileimg.url}}" class="bg-gray-200 border border-white rounded-full w-12 h-12 object-cover">
                                     </div>
 
                                     <div class="basis-full hover:bg-slate-100">
@@ -69,7 +69,7 @@
                                             <div class="bg-white shadow rounded-md mx-2 py-2 mb-2 flex">
                                             {% if request.user == last_message.user %}
                                             <div class="shrink-0 pl-2">
-                                                <img src="{{last_message.get_author_photo}}" class="bg-gray-200 border border-white rounded-full w-8 h-8">
+                                                <img src="{{last_message.get_author_photo}}" class="bg-gray-200 border border-white rounded-full w-8 h-8 object-cover">
                                             </div>
                                             {% endif %}
                                             <div class="items-center basis-full pl-2"> {{ last_message.content|truncatechars:44 }}</div>
