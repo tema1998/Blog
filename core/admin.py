@@ -9,14 +9,14 @@ class PostAdmin(admin.ModelAdmin):
     """
     Admin for Post model.
     """
-    list_display = ('id', 'user_profile', 'get_html_image', 'disable_comments', 'created_at')
+    list_display = ('id', 'user_profile', 'get_html_image', 'comments_status', 'created_at')
     list_display_links = ('id', 'get_html_image', 'created_at')
     search_fields = ('id', 'caption')
-    list_editable = ('disable_comments',)
+    list_editable = ('comments_status',)
     list_filter = ('created_at',)
     fieldsets = (
         ('Post settings',
-         {'fields': ('id','user_profile', 'disable_comments')}
+         {'fields': ('id','user_profile', 'comments_status')}
          ),
         ('Post data',
          {'fields': ('image', 'caption'),

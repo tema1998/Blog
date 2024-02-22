@@ -109,9 +109,9 @@ class PostModelTest(TestCase):
         field_label = post._meta.get_field('no_of_likes').verbose_name
         self.assertEquals(field_label, 'Number of likes')
 
-    def test_disable_comments_label(self):
+    def test_comments_status_label(self):
         post = Post.objects.first()
-        field_label = post._meta.get_field('disable_comments').verbose_name
+        field_label = post._meta.get_field('comments_status').verbose_name
         self.assertEquals(field_label, 'Disabled comments')
 
     def test_caption_length(self):

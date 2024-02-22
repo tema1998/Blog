@@ -30,7 +30,7 @@ def get_posts_of_friends(user_id):
                                                                                          ) \
         .only('user__username', 'user__id', 'user_profile__profileimg', 'id', 'image', 'caption', 'created_at',
               'no_of_likes',
-              'disable_comments').filter(
+              'comments_status').filter(
         Q(user__id__in=list_of_subscriptions) | Q(user__id__in=[user_id])).order_by('-created_at')
 
     return list_of_posts
@@ -79,12 +79,12 @@ def delete_favorite_post(user_favourite_post):
     user_favourite_post.delete()
 
 
-def check_if_post_comment_disable(post):
+def check_post_comments_status(post):
     """
     Check if comments to post are disabled.
     Return bool.
     """
-    return post.disable_comments
+    return post.comments_status
 
 
 def get_all_user_profile_followers(user_profile):
@@ -118,7 +118,7 @@ def get_user_posts_select_and_prefetch(user):
                                                                                       ) \
         .only('user__username', 'user__id', 'user_profile__profileimg', 'id', 'image', 'caption', 'created_at',
               'no_of_likes',
-              'disable_comments').filter(user=user).order_by('-created_at')
+              'comments_status').filter(user=user).order_by('-created_at')
     return user_posts
 
 
@@ -200,7 +200,7 @@ def disable_post_comments(post):
     """
     Disable post's comments.
     """
-    post.disable_comments = True
+    post.comments_status = False
     post.save()
 
 
@@ -208,7 +208,7 @@ def enable_post_comments(post):
     """
     Enable post's comments.
     """
-    post.disable_comments = False
+    post.comments_status = True
     post.save()
 
 
@@ -224,13 +224,12 @@ def get_user_favorite_posts(user):
                                                                                                ) \
         .only('user__username', 'user__id', 'user_profile__profileimg', 'id', 'image', 'caption', 'created_at',
               'no_of_likes',
-              'disable_comments').filter(id__in=user_favorite_posts_id)
+              'comments_status').filter(id__in=user_favorite_posts_id)
     return user_favorite_posts
 
 
-def create_new_post(user, user_profile, image, caption, disable_comments):
+def create_new_post(user, user_profile, image, caption):
     """
     Create post object.
     """
-    Post.objects.create(user=user, user_profile=user_profile, image=image, caption=caption,
-                        disable_comments=disable_comments)
+    Post.objects.create(user=user, user_profile=user_profile, image=image, caption=caption)

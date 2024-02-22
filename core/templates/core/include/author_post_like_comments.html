@@ -51,7 +51,7 @@
                     </a>
                 </li>
     
-                {% if post.disable_comments == False %}
+                {% if post.comments_status == True %}
                 <li>
                     <form action="/disable-post-comments" method="POST">
                         {% csrf_token %}
@@ -149,7 +149,7 @@
         </div>
 
 
-    {% if post.disable_comments == False %}
+    {% if post.comments_status == True %}
 
         <div id="comments_list" class="border-t pt-4 space-y-4 max-h-80 overflow-y-auto">
             {% for comment in post.get_comments %}

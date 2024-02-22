@@ -147,7 +147,7 @@ class AddCommentTest(TestCase):
 
         self.post_1_by_user1 = Post.objects.create(user=self.user1, user_profile=self.profile1, caption='123', image='blank_profile.png')
         self.post_2_by_user1_block_comments = Post.objects.create(user=self.user1, user_profile=self.profile1, caption='123',
-                                                                  image='blank_profile.png', disable_comments=True)
+                                                                  image='blank_profile.png', comments_status=False)
         self.post_1_by_user2 = Post.objects.create(user=self.user2, user_profile=self.profile2,  caption='123', image='blank_profile.png')
 
     def test_user_is_not_loggin_in_POST(self):
@@ -170,7 +170,7 @@ class AddCommentTest(TestCase):
         self.assertEquals(response.status_code, 302)
         self.assertRedirects(response, '/')
 
-    def test_user_is_not_able_add_comment_where_it_blocked_POST(self):
+    def test_user_is_not_able_add_comment_if_comments_disables_POST(self):
         redirect_url = reverse('index')
 
         response = self.authorized_client.post(path=reverse('add-comment'), data={
@@ -218,7 +218,7 @@ class LikePostTest(TestCase):
 
         self.post_1_by_user1 = Post.objects.create(user=self.user1, user_profile=self.profile1, caption='123', image='blank_profile.png')
         self.post_2_by_user1_block_comments = Post.objects.create(user=self.user1, user_profile=self.profile1, caption='123',
-                                                                  image='blank_profile.png', disable_comments=True)
+                                                                  image='blank_profile.png', comments_status=True)
         self.post_1_by_user2 = Post.objects.create(user=self.user2, user_profile=self.profile2, caption='123', image='blank_profile.png')
 
     def test_user_is_able_like_post_POST(self):
@@ -305,9 +305,7 @@ class DisablePostCommentsTest(TestCase):
         self.user2 = User.objects.create_user(username='user2', password='ivan', email="ivan@ma.ru")
         self.profile2 = Profile.objects.get(user=self.user2)
 
-        self.post_1_by_user1 = Post.objects.create(user=self.user1, user_profile=self.profile1, caption='123', image='blank_profile.png', disable_comments=False)
-        self.post_2_by_user1 = Post.objects.create(user=self.user1, user_profile=self.profile1, caption='123', image='blank_profile.png', disable_comments=True)
-        self.post_1_by_user2 = Post.objects.create(user=self.user2, user_profile=self.profile2, caption='123', image='blank_profile.png', disable_comments=False)
+        self.post_1_by_user1 = Post.objects.create(user=self.user1, user_profile=self.profile1, caption='123', image='blank_profile.png', comments_status=True)
 
     def test_if_not_logged_in_POST(self):
         redirect_url = reverse('index')
@@ -316,7 +314,7 @@ class DisablePostCommentsTest(TestCase):
                                                HTTP_REFERER=redirect_url)
         self.assertEquals(response.status_code, 302)
         self.assertRedirects(response, '/signin?next=/disable-post-comments')
-        self.assertEquals(Post.objects.get(id=self.post_1_by_user1.id).disable_comments, False)
+        self.assertEquals(Post.objects.get(id=self.post_1_by_user1.id).comments_status, True)
 
     def test_owner_is_able_disable_post_comments_post_POST(self):
         redirect_url = reverse('index')
@@ -325,17 +323,8 @@ class DisablePostCommentsTest(TestCase):
             'post_id': self.post_1_by_user1.id,},
                                                HTTP_REFERER=redirect_url)
         self.assertEquals(response.status_code, 302)
-        self.assertEquals(Post.objects.get(id=self.post_1_by_user1.id).disable_comments, True)
+        self.assertEquals(Post.objects.get(id=self.post_1_by_user1.id).comments_status, False)
         self.assertRedirects(response, '/')
-
-    def test_disable_post_comments_if_already_disabled_post_POST(self):
-        redirect_url = reverse('index')
-
-        response = self.authorized_client.post(path=reverse('disable-post-comments'), data={
-            'post_id': self.post_2_by_user1.id,},
-                                               HTTP_REFERER=redirect_url)
-        self.assertEquals(response.status_code, 302)
-        self.assertEquals(Post.objects.get(id=self.post_2_by_user1.id).disable_comments, True)
 
 
 class EnablePostCommentsTest(TestCase):
@@ -351,9 +340,7 @@ class EnablePostCommentsTest(TestCase):
         self.user2 = User.objects.create_user(username='user2', password='ivan', email="ivan@ma.ru")
         self.profile2 = Profile.objects.get(user=self.user2)
 
-        self.post_1_by_user1 = Post.objects.create(user=self.user1, user_profile=self.profile1, caption='123', image='blank_profile.png', disable_comments=True)
-        self.post_2_by_user1 = Post.objects.create(user=self.user1, user_profile=self.profile1, caption='123', image='blank_profile.png', disable_comments=False)
-        self.post_1_by_user2 = Post.objects.create(user=self.user2, user_profile=self.profile2, caption='123', image='blank_profile.png', disable_comments=True)
+        self.post_1_by_user1 = Post.objects.create(user=self.user1, user_profile=self.profile1, caption='123', image='blank_profile.png', comments_status=False)
 
     def test_if_not_logged_in_POST(self):
         redirect_url = reverse('index')
@@ -362,7 +349,7 @@ class EnablePostCommentsTest(TestCase):
                                                HTTP_REFERER=redirect_url)
         self.assertEquals(response.status_code, 302)
         self.assertRedirects(response, '/signin?next=/enable-post-comments')
-        self.assertEquals(Post.objects.get(id=self.post_1_by_user1.id).disable_comments, True)
+        self.assertEquals(Post.objects.get(id=self.post_1_by_user1.id).comments_status, False)
 
     def test_owner_is_able_enable_post_comments_post_POST(self):
         redirect_url = reverse('index')
@@ -371,18 +358,8 @@ class EnablePostCommentsTest(TestCase):
             'post_id': self.post_1_by_user1.id,},
                                                HTTP_REFERER=redirect_url)
         self.assertEquals(response.status_code, 302)
-        self.assertEquals(Post.objects.get(id=self.post_1_by_user1.id).disable_comments, False)
+        self.assertEquals(Post.objects.get(id=self.post_1_by_user1.id).comments_status, True)
         self.assertRedirects(response, '/')
-
-
-    def test_enable_post_comments_if_already_enable_post_POST(self):
-        redirect_url = reverse('index')
-
-        response = self.authorized_client.post(path=reverse('enable-post-comments'), data={
-            'post_id': self.post_2_by_user1.id,},
-                                               HTTP_REFERER=redirect_url)
-        self.assertEquals(response.status_code, 302)
-        self.assertEquals(Post.objects.get(id=self.post_2_by_user1.id).disable_comments, False)
 
 
 class SignupTest(TestCase):
@@ -641,15 +618,14 @@ class AddPostTest(TestCase):
         image = get_image_file()
         response = self.authorized_client.post(path=reverse('add-post'), data={
             'image': image,
-            'caption': 'new_caption',
-            'disable_comments': True})
+            'caption': 'new_caption'})
 
         self.assertEquals(response.status_code, 302)
         self.assertRedirects(response, f'/profile/{self.user1.username}/')
         self.assertEquals(Post.objects.count(), 1)
         self.assertTrue(Post.objects.first().image.url.startswith('/media/post_images/test'))
         self.assertEquals(Post.objects.first().caption, 'new_caption')
-        self.assertEquals(Post.objects.first().disable_comments, True)
+        self.assertEquals(Post.objects.first().comments_status, True)
 
 
     def test_upload_post_user_not_auth_POST(self):
@@ -658,7 +634,7 @@ class AddPostTest(TestCase):
         response = self.client.post(path=reverse('add-post'), data={
             'image': image,
             'caption': 'new_caption',
-            'disable_comments': True})
+            'comments_status': True})
 
         self.assertEquals(response.status_code, 302)
         self.assertRedirects(response, '/signin?next=/add-post')
@@ -670,7 +646,7 @@ class AddPostTest(TestCase):
             response = self.authorized_client.post(path=reverse('add-post'), data={
                 'image': not_image_file,
                 'caption': 'new_caption',
-                'disable_comments': True})
+                'comments_status': True})
 
             self.assertEquals(response.status_code, 200)
             self.assertEquals(Post.objects.count(), 0)

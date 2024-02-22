@@ -53,7 +53,7 @@ class AddPostForm(forms.ModelForm):
     """
     class Meta:
         model = Post
-        fields = ('image', 'caption', 'disable_comments')
+        fields = ('image', 'caption')
         widgets = {
             'caption': forms.Textarea(attrs={'style': 'max-height: 70px;'})
         }
@@ -65,7 +65,7 @@ class EditPostForm(forms.ModelForm):
     """
     class Meta:
         model = Post
-        fields = ('image', 'caption', 'disable_comments')
+        fields = ('image', 'caption', 'comments_status')
         widgets = {
             'caption': forms.Textarea(attrs={'style': 'max-height: 70px;'})
         }

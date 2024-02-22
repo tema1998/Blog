@@ -11,7 +11,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
-from .services import get_post, disable_post_comments, enable_post_comments, check_if_post_comment_disable, \
+from .services import get_post, disable_post_comments, enable_post_comments, check_post_comments_status, \
     get_user_profile, get_posts_of_friends, get_like_post_obj, \
     create_like_post_obj, get_user, get_all_user_profile_followers, \
     get_user_posts_select_and_prefetch, count_queryset, get_all_user_profile_following, \
@@ -92,7 +92,7 @@ class AddComment(LoginRequiredMixin, View):
         user = self.request.user
         post = get_post(request.POST['post_id'])
 
-        if check_if_post_comment_disable(post):
+        if not check_post_comments_status(post):
             raise Http404
 
         form = CommentForm(request.POST)
@@ -286,9 +286,7 @@ class AddPost(LoginRequiredMixin, View):
         if add_post_form.is_valid():
             image = add_post_form.cleaned_data['image']
             caption = add_post_form.cleaned_data['caption']
-            disable_comments = add_post_form.cleaned_data['disable_comments']
-            create_new_post(user=self.request.user, user_profile=user_profile, image=image, caption=caption,
-                            disable_comments=disable_comments)
+            create_new_post(user=self.request.user, user_profile=user_profile, image=image, caption=caption)
             return redirect('profile', username=self.request.user.username)
         return render(request, 'core/add_post.html', {'add_post_form': add_post_form})
 
