@@ -66,7 +66,7 @@
                 {{ field.errors }}
                 {{ field.label_tag }}
 
-                {% if field.label == "Image" %}
+                {% if field.label == "Post image" %}
                     <img src="{{ post.image.url }}" alt="" align="center" class="post_image">
                 {% endif %}
 
@@ -76,7 +76,9 @@
                 {% endif %}
             </div>
         {% endfor %}
-        <button class="button bg-blue-700" type="submit">Edit</button>
+            <div class="flex items-center justify-end mx-2">
+                <button class="button bg-blue-700" type="submit">Save</button>
+            </div>
     </div>
 
 </form>
