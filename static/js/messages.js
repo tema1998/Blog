@@ -14,7 +14,7 @@ chatSocket.onmessage = function(e) {
 
     const data = JSON.parse(e.data);
 
-
+//    Hide help-string after starting a conversation
     if (! (is_messages_in_conversation)) {
     start_conversation.hidden = true;
     is_messages_in_conversation = true;
