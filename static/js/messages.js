@@ -1,9 +1,14 @@
+var loc = window.location;
+var wsStart = 'ws://';
+if (loc.protocol === 'https:') {
+    wsStart = 'wss://'
+}
 const chatSocket = new WebSocket(
-'ws://'
-+ window.location.host
-+'/ws/'
-+ chatId
-+'/'
+    wsStart
+    + window.location.host
+    + '/ws/'
+    + chatId
+    + '/'
 );
 
 const start_conversation = document.getElementById('start-conversation');
@@ -40,7 +45,7 @@ chatSocket.onmessage = function(e) {
 }}
 
 chatSocket.onclose = function(e) {
-    console.log('onclose')
+    console.log('onclose.v31')
 }
 
 document.querySelector('#chat-message-submit').onclick = function (e) {
