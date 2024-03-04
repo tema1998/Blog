@@ -1,0 +1,66 @@
+version: "2"
+
+services:
+  tb_project:
+    image: tb_docker:latest
+    container_name: tb_project
+    depends_on:
+      - tb_postgres
+    volumes:
+      - static_volume:/topblog/static
+      - media_volume:/topblog/media
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    command: >
+      bash -c "python3 manage.py collectstatic --noinput && python3 manage.py makemigrations && python3 manage.py migrate  && gunicorn -b 0.0.0.0:8000 topblog.wsgi:application"
+  tb_daphne:
+    user: root
+    image: tb_docker:latest
+    container_name: tb_daphne
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env
+    depends_on:
+      - redis
+    links:
+      - redis
+    command: >
+      bash -c "daphne -b 0.0.0.0 -p 8001 topblog.asgi:application"
+  tb_postgres:
+    image: postgres:15
+    container_name: tb_postgres
+    volumes:
+      - pgdbdata:/var/lib/postgresql/data/
+    env_file:
+      - .env
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+  nginx:
+    user: root
+    build:
+      dockerfile: ./Dockerfile
+      context: ./docker/nginx/
+    container_name: tb_nginx
+#    image: tb_nginx
+    volumes:
+      - static_volume:/topblog/static
+      - media_volume:/topblog/media
+    depends_on:
+      - tb_project
+      - tb_daphne
+    links:
+      - tb_daphne
+      - tb_project
+    ports:
+      - "80:80"
+
+volumes:
+  static_volume:
+  media_volume:
+  pgdbdata:
