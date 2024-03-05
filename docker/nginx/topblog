@@ -44,7 +44,7 @@ server {
     }
 
     location /.well-known/acme-challenge/ {
-                alias /usr/local/ispconfig/interface/acme/;
+                alias /var/www/html/;
                 default_type text/plain;
          }
 }
