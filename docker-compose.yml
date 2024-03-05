@@ -10,7 +10,7 @@ services:
       - static_volume:/topblog/static
       - media_volume:/topblog/media
     ports:
-      - "8002:8002"
+      - "8002:8003"
     env_file:
       - .env
     environment:
