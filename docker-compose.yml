@@ -9,7 +9,6 @@ services:
     volumes:
       - static_volume:/topblog/static
       - media_volume:/topblog/media
-      - tb:/
     ports:
       - "8000:8000"
     env_file:
@@ -86,7 +85,6 @@ volumes:
   pgdbdata:
   etc-letsencrypt:
   www-certbot:
-  tb:
 
 networks:
   app:
