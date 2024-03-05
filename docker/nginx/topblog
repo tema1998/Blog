@@ -42,4 +42,9 @@ server {
         proxy_redirect     off;
         proxy_pass         http://django;
     }
+
+    location /.well-known/acme-challenge/ {
+                alias /usr/local/ispconfig/interface/acme/;
+                default_type text/plain;
+         }
 }
