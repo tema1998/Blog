@@ -10,7 +10,7 @@ services:
       - static_volume:/topblog/static
       - media_volume:/topblog/media
     ports:
-      - "8000:8000"
+      - "8002:8002"
     env_file:
       - .env
     environment:
@@ -18,7 +18,7 @@ services:
       - LETSENCRYPT_HOST=${ALLOWED_HOST}
       - VIRTUAL_PORT=8002
     command: >
-      bash -c "python3 manage.py collectstatic --noinput && python3 manage.py makemigrations && python3 manage.py migrate  && gunicorn -b 0.0.0.0:8000 topblog.wsgi:application"
+      bash -c "python3 manage.py collectstatic --noinput && python3 manage.py makemigrations && python3 manage.py migrate  && gunicorn -b 0.0.0.0:8002 topblog.wsgi:application"
   tb_daphne:
     user: root
     image: tb_docker:latest
