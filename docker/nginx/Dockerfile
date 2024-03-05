@@ -1,3 +1,6 @@
-FROM jwilder/nginx-proxy:1.2
+FROM nginx:latest
 
-COPY default_location /etc/nginx/vhost.d/default_location
+RUN rm /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/nginx.conf
+COPY topblog /etc/nginx/sites-enabled/topblog
+
