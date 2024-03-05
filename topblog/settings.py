@@ -122,12 +122,6 @@ else:
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-INTERNAL_IPS = [
-    # ...
-    "*",
-    # ...
-]
-
 NPM_BIN_PATH = "/usr/local/bin/npm"
 
 TAILWIND_APP_NAME = 'theme'
