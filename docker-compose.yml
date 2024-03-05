@@ -13,8 +13,6 @@ services:
       - "8000:8000"
     env_file:
       - .env
-    networks:
-      - app
     command: >
       bash -c "python3 manage.py collectstatic --noinput && python3 manage.py makemigrations && python3 manage.py migrate  && gunicorn -b 0.0.0.0:8000 topblog.wsgi:application"
   tb_daphne:
@@ -29,8 +27,6 @@ services:
       - redis
     links:
       - redis
-    networks:
-      - app
     command: >
       bash -c "daphne -b 0.0.0.0 -p 8001 topblog.asgi:application"
   tb_postgres:
@@ -40,15 +36,11 @@ services:
       - pgdbdata:/var/lib/postgresql/data/
     env_file:
       - .env
-    networks:
-      - app
   redis:
     image: redis:alpine
     container_name: redis
     ports:
       - "6379:6379"
-    networks:
-      - app
   nginx:
     build:
       dockerfile: ./Dockerfile
@@ -59,7 +51,7 @@ services:
       - static_volume:/topblog/static
       - media_volume:/topblog/media
       - etc-letsencrypt:/etc/letsencrypt
-      - www-certbot:/var/www/certbot
+      - www-certbot:/var/www/html
     depends_on:
       - tb_project
       - tb_daphne
@@ -77,7 +69,7 @@ services:
     container_name: certbot
     volumes:
       - etc-letsencrypt:/etc/letsencrypt
-      - www-certbot:/var/www/certbot
+      - www-certbot:/var/www/html
     command: certonly --webroot --webroot-path=/var/www/html --email vovanihc@mail.ru --agree-tos --no-eff-email -d tema1998.online
 volumes:
   static_volume:
