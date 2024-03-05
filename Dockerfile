@@ -6,7 +6,7 @@ SHELL ["/bin/bash", "-c"]
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-EXPOSE 8002
+EXPOSE 8000
 
 RUN pip install --upgrade pip
 
@@ -26,4 +26,4 @@ RUN pip install -U 'Twisted[tls,http2]'
 
 USER topblog
 
-CMD ["gunicorn","-b","0.0.0.0:8002","topblog.wsgi:application"]
+CMD ["gunicorn","-b","0.0.0.0:8000","topblog.wsgi:application"]
