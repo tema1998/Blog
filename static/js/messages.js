@@ -13,17 +13,9 @@ const chatSocket = new WebSocket(
 
 const start_conversation = document.getElementById('start-conversation');
 
-var is_messages_in_conversation = false;
-
 chatSocket.onmessage = function(e) {
 
     const data = JSON.parse(e.data);
-
-//    Hide help-string after starting a conversation
-    if (! (is_messages_in_conversation)) {
-    start_conversation.hidden = true;
-    is_messages_in_conversation = true;
-    }
 
     if (data.message) {
     let html = '<div class="bg-white shadow rounded-md  -mx-2 lg:mx-0 py-2 px-2 mb-2 flex svg-messages-show"><div><a href="/profile/'
