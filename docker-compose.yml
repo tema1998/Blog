@@ -33,6 +33,8 @@ services:
     environment:
       - VIRTUAL_HOST=${ALLOWED_HOST}
       - LETSENCRYPT_HOST=${ALLOWED_HOST}
+      - VIRTUAL_PROTO=https
+      - VIRTUAL_PORT=443
     command: >
       bash -c "daphne -b 0.0.0.0 -p 8001 topblog.asgi:application"
   tb_postgres:
