@@ -29,10 +29,10 @@ services:
       - redis
     volumes:
       - ./data/certbot/conf:/etc/letsencrypt
-    command: >
-      bash -c "daphne -e ssl:8001:privateKey=/etc/letsencrypt/live/tema1998.online/privkey.pem:certKey=/etc/letsencrypt/live/tema1998.online/fullchain.pem  topblog.asgi:application"
 #    command: >
-#      bash -c "daphne -b 0.0.0.0 -p 8001 topblog.asgi:application"
+#      bash -c "daphne -e ssl:8001:privateKey=/etc/letsencrypt/live/tema1998.online/privkey.pem:certKey=/etc/letsencrypt/live/tema1998.online/fullchain.pem  topblog.asgi:application"
+    command: >
+      bash -c "daphne -b 0.0.0.0 -p 8001 topblog.asgi:application"
   tb_postgres:
     image: postgres:15
     container_name: tb_postgres
