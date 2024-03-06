@@ -47,4 +47,4 @@ server {
             alias /var/www/html/;
             default_type text/plain;
     }
-
+}
