@@ -133,7 +133,11 @@ CACHES = {
     }
 }
 
-# CSRF_TRUSTED_ORIGINS = []
-# if csrf_subdomain := os.getenv("CSRF_SUBDOMAIN"):
-#     CSRF_TRUSTED_ORIGINS += [f'http://{csrf_subdomain}', f'https://{csrf_subdomain}']
-SECURE_CROSS_ORIGIN_OPENER_POLICY = None
+CSRF_TRUSTED_ORIGINS = []
+if csrf_subdomain := os.getenv("CSRF_SUBDOMAIN"):
+    CSRF_TRUSTED_ORIGINS += [f'http://{csrf_subdomain}', f'https://{csrf_subdomain}']
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
