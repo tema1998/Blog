@@ -50,8 +50,8 @@ services:
     volumes:
       - static_volume:/topblog/static
       - media_volume:/topblog/media
-      - etc-letsencrypt:/etc/letsencrypt
-      - www-html:/var/www/certbot
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
     depends_on:
       - tb_project
       - tb_daphne
@@ -68,16 +68,10 @@ services:
       - nginx
     container_name: certbot
     volumes:
-      - etc-letsencrypt:/etc/letsencrypt
-      - www-html:/var/www/certbot
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
 #    command: certonly --webroot --webroot-path=/var/www/html --email vovanihc@mail.ru --agree-tos --no-eff-email -d tema1998.online
 volumes:
   static_volume:
   media_volume:
   pgdbdata:
-  www-html:
-  etc-letsencrypt:
-
-networks:
-  app:
-    driver: bridge
