@@ -27,6 +27,8 @@ services:
       - redis
     links:
       - redis
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
     command: >
       bash -c "daphne -e ssl:8001:privateKey=/etc/letsencrypt/live/tema1998.online/privkey.pem:certKey=/etc/letsencrypt/live/tema1998.online/fullchain.pem  topblog.asgi:application"
 #    command: >
