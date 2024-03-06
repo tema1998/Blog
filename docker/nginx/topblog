@@ -44,7 +44,6 @@ server {
     }
 
     location /.well-known/acme-challenge/ {
-            alias /var/www/html/;
-            default_type text/plain;
+            root /var/www/certbot;
     }
 }

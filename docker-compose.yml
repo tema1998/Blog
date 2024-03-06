@@ -70,7 +70,7 @@ services:
     volumes:
       - etc-letsencrypt:/etc/letsencrypt
       - www-html:/var/www/html
-    command: certonly --webroot --webroot-path=/var/www/html --email vovanihc@mail.ru --agree-tos --no-eff-email -d tema1998.online
+#    command: certonly --webroot --webroot-path=/var/www/html --email vovanihc@mail.ru --agree-tos --no-eff-email -d tema1998.online
 volumes:
   static_volume:
   media_volume:
