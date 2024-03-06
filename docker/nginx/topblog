@@ -43,7 +43,8 @@ server {
         proxy_pass         http://django;
     }
 
-    location ~ /.well-known {
-                        allow all;
-                }
-}
+    location /.well-known/acme-challenge/ {
+                alias /var/www/html/;
+                default_type text/plain;
+         }
+
