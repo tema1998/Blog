@@ -5,7 +5,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'DSAmdU3H783hs8M9S30k9xSi9d3KD')
 
-DEBUG = bool(os.getenv('DJANGO_DEVELOPMENT', 1))
+DEBUG = bool(int(os.getenv('DJANGO_DEVELOPMENT', 1)))
 
 ALLOWED_HOSTS = [os.getenv('ALLOWED_HOST', '*'),]
 
@@ -137,7 +137,7 @@ CSRF_TRUSTED_ORIGINS = []
 if csrf_subdomain := os.getenv("CSRF_SUBDOMAIN"):
     CSRF_TRUSTED_ORIGINS += [f'http://{csrf_subdomain}', f'https://{csrf_subdomain}']
 
-if bool(os.getenv('DJANGO_DEVELOPMENT', 1)):
+if bool(int(os.getenv('DJANGO_DEVELOPMENT', 1))):
     SECURE_SSL_REDIRECT = False
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False
