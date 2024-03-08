@@ -15,22 +15,22 @@ services:
       - .env
     command: >
       bash -c "python3 manage.py collectstatic --noinput && python3 manage.py makemigrations && python3 manage.py migrate  && gunicorn -b 0.0.0.0:8000 topblog.wsgi:application"
-#  tb_daphne:
-#    user: root
-#    image: tb_docker:latest
-#    container_name: tb_daphne
-#    ports:
-#      - "8001:8001"
-#    env_file:
-#      - .env
-#    depends_on:
-#      - redis
-#    links:
-#      - redis
-#    volumes:
-#      - ./data/certbot/conf:/etc/letsencrypt
-#    command: >
-#      bash -c "daphne -e ssl:8001:privateKey=/etc/letsencrypt/live/tema1998.ru/privkey.pem:certKey=/etc/letsencrypt/live/tema1998.ru/fullchain.pem  topblog.asgi:application"
+  tb_daphne:
+    user: root
+    image: tb_docker:latest
+    container_name: tb_daphne
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env
+    depends_on:
+      - redis
+    links:
+      - redis
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
+    command: >
+      bash -c "daphne -e ssl:8001:privateKey=/etc/letsencrypt/live/tema1998.ru/privkey.pem:certKey=/etc/letsencrypt/live/tema1998.ru/fullchain.pem  topblog.asgi:application"
   tb_postgres:
     image: postgres:15
     container_name: tb_postgres
@@ -56,9 +56,9 @@ services:
       - ./data/certbot/www:/var/www/certbot
     depends_on:
       - tb_project
-#      - tb_daphne
+      - tb_daphne
     links:
-#      - tb_daphne
+      - tb_daphne
       - tb_project
     ports:
       - "${NGINX_EXTERNAL_PORT}:80"
