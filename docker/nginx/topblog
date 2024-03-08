@@ -8,7 +8,7 @@ upstream django {
 
 server {
     listen 80;
-    server_name tema1998.online;
+    server_name tema1998.ru;
 
     location / {
         # rewrite this section
@@ -23,9 +23,9 @@ server {
 
 server {
     listen 443 ssl;
-    server_name tema1998.online;
-    ssl_certificate /etc/letsencrypt/live/tema1998.online/fullchain.pem; # <-this
-    ssl_certificate_key /etc/letsencrypt/live/tema1998.online/privkey.pem; # <-this
+    server_name tema1998.ru;
+    ssl_certificate /etc/letsencrypt/live/tema1998.ru/fullchain.pem; # <-this
+    ssl_certificate_key /etc/letsencrypt/live/tema1998.ru/privkey.pem; # <-this
     include /etc/letsencrypt/options-ssl-nginx.conf;
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
