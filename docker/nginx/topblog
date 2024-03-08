@@ -1,10 +1,4 @@
-upstream daphne {
-    server tb_daphne:8001;
-}
 
-upstream django {
-    server tb_project:8000;
-}
 
 server {
     listen 80;
