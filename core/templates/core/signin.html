@@ -13,18 +13,17 @@
 
             {% if messages %}
 			<div>
-			{% for message in messages %}
-				<div class="message-error-sign">
-					{{ message }}
-				</div>
-			{% endfor %}
-
+                {% for message in messages %}
+                    <div class="text-red-500 text-2xl">
+                        {{ message }}
+                    </div>
+                {% endfor %}
 			</div>
 		{% endif %}
             {{ signin_form.as_p }}
             <button type="submit" class="mt-6 bg-gradient-to-br from-pink-500 py-3 rounded-md text-white text-xl to-red-400 w-full">Login</button>
             <div class="text-center mt-5 space-x-2">
-                <p class="text-base"> Not registered? <a href="{% url 'signup' %}" class=""> Create an account </a></p>
+                <p class="text-base"> Not registered? <a href="{% url 'signup' %}" class="text-gray-700"> Create an account </a></p>
             </div>
         </form>
 
