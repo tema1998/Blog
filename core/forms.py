@@ -36,6 +36,8 @@ class SignupForm(forms.ModelForm):
         cd = self.cleaned_data
         if cd['password'] != cd['password2']:
             raise forms.ValidationError('Passwords don\'t match.')
+        if len(cd['password']) < 8:
+            raise forms.ValidationError('The length of password less than 8 symbols.')
         return cd['password2']
 
 
