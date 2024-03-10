@@ -10,6 +10,7 @@ DEBUG = bool(int(os.getenv('DJANGO_DEVELOPMENT', 1)))
 ALLOWED_HOSTS = [os.getenv('ALLOWED_HOST', '*'),]
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -60,15 +61,21 @@ TEMPLATES = [
 WSGI_APPLICATION = 'topblog.wsgi.application'
 ASGI_APPLICATION = 'topblog.asgi.application'
 
-CHANNEL_LAYERS = {
-    "default": {
-        # This example app uses the Redis channel layer implementation asgi_redis
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        "CONFIG": {
-            "hosts": [('redis', 6379)],
+if bool(int(os.getenv('DJANGO_DEVELOPMENT', 1))):
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels.layers.InMemoryChannelLayer'
         }
-    },
-}
+    }
+else:
+    CHANNEL_LAYERS = {
+        "default": {
+            'BACKEND': 'channels_redis.core.RedisChannelLayer',
+            "CONFIG": {
+                "hosts": [('redis', 6379)],
+            }
+        },
+    }
 
 DATABASES = {
     'default': {
