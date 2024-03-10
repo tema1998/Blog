@@ -112,7 +112,7 @@ class PostModelTest(TestCase):
     def test_comments_status_label(self):
         post = Post.objects.first()
         field_label = post._meta.get_field('comments_status').verbose_name
-        self.assertEquals(field_label, 'Disabled comments')
+        self.assertEquals(field_label, 'Comments(uncheck the box to turn off the comments)')
 
     def test_caption_length(self):
         post = Post.objects.first()

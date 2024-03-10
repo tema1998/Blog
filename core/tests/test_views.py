@@ -405,8 +405,8 @@ class SignupTest(TestCase):
         response = self.client.post(path=reverse('signup'), data={
             'username': 'user3',
             'email': 'user3@mail.ru',
-            'password': 'user3',
-            'password2': 'user3',
+            'password': 'user3user3',
+            'password2': 'user3user3',
         })
         self.assertEquals(response.status_code, 302)
         self.assertEquals(User.objects.count(), 3)
@@ -417,8 +417,8 @@ class SignupTest(TestCase):
         response = self.client.post(path=reverse('signup'), data={
             'username': 'user3',
             'email': 'user3@mail.ru',
-            'password': 'user3',
-            'password2': 'user3',
+            'password': 'user3user3',
+            'password2': 'user3user3',
         })
         self.assertEquals(User.objects.get(id=3).username, 'user3')
         self.assertEquals(User.objects.get(id=3).email, 'user3@mail.ru')
@@ -429,8 +429,8 @@ class SignupTest(TestCase):
         response = self.client.post(path=reverse('signup'), data={
             'username': 'user3',
             'email': 'user3@mail.ru',
-            'password': 'user3',
-            'password2': 'user3',
+            'password': 'user3user3',
+            'password2': 'user3user3',
         })
         self.assertEquals(Profile.objects.count(), 3)
         self.assertEquals(Profile.objects.get(user__username='user3').user, User.objects.get(username='user3'))

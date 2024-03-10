@@ -33,8 +33,8 @@ class SignupFormTest(TestCase):
 
     def test_signup_form_passwords_are_equal(self):
         form_data = {'username': 'user1',
-                     'password': 'pass123',
-                     'password2': 'pass123',
+                     'password': 'pass123pass123',
+                     'password2': 'pass123pass123',
                      'email': 'email@mail.ru'}
         form = SignupForm(data=form_data)
         self.assertTrue(form.is_valid())
