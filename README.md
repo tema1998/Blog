@@ -30,7 +30,7 @@ Functions |
 Functions 'Follow/unfollow', 'Like/dislike', 'Add posts to favorites' implemented using **JS**(*without page refresh*).
 
 ## Config file
-(If you need to run development server you can miss it)
+(If you need to run only development server you can miss it)
 Create .env, set your data.
 ```
 POSTGRES_ENGINE = django.db.backends.postgresql
