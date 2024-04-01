@@ -10,7 +10,7 @@ from django.urls import reverse
 
 class Profile(models.Model):
     """
-    Model for storing profile data.
+    Model for storing profile's data.
     """
     user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='User', on_delete=models.CASCADE, related_name='profiles')
     bio = models.TextField('Information', max_length=300, blank=True)
@@ -32,7 +32,7 @@ class Profile(models.Model):
 
 class Post(models.Model):
     """
-    Model for storing profile data.
+    Model for storing post's data.
     """
     id = models.UUIDField(verbose_name='Post ID', primary_key=True, default=uuid.uuid4)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='User', on_delete=models.CASCADE, related_name='posts')
