@@ -83,8 +83,8 @@ Get certificate SSL through Certbot.(Turn off SSL, daphne and run.) In the secon
 ```
 docker-compose run --rm --entrypoint "\
 certbot certonly --webroot -w /var/www/certbot \
-  --email vovanihc@mail.ru \
-  -d tema1998.ru \
+  --email your-email@mail.ru \
+  -d your-site.ru \
   --rsa-key-size 2048 \
   --agree-tos \
   --force-renewal" certbot
