@@ -12,7 +12,7 @@ class Profile(models.Model):
     """
     Model for storing profile's data.
     """
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='User', on_delete=models.CASCADE, related_name='profiles')
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, verbose_name='User', on_delete=models.CASCADE, related_name='profiles')
     bio = models.TextField('Information', max_length=300, blank=True)
     profileimg = models.ImageField(upload_to='profile_images', verbose_name='Profile image', default='blank_profile.png')
     location = models.CharField(max_length=100, verbose_name='Location', blank=True)
