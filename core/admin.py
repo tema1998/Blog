@@ -59,7 +59,7 @@ class ProfileAdmin(admin.ModelAdmin):
          {'fields': ('id', 'user')}
          ),
         ('Profile data',
-         {'fields': ('profileimg', 'bio', 'location'),
+         {'fields': ('profile_img', 'bio', 'location'),
           'description': 'You are able to moderate this fields.'}
          ),
         ('User following settings',
@@ -69,8 +69,8 @@ class ProfileAdmin(admin.ModelAdmin):
     readonly_fields = ('id', 'user', )
 
     def get_html_image(self, object):
-        if object.profileimg:
-            return mark_safe(f"<img src='{object.profileimg.url}' width=50 height=50>")
+        if object.profile_img:
+            return mark_safe(f"<img src='{object.profile_img.url}' width=50 height=50>")
 
     get_html_image.short_description = 'Image'
 

@@ -67,7 +67,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('bio', models.TextField(blank=True, max_length=300, verbose_name='Information')),
-                ('profileimg', models.ImageField(default='blank_profile.png', upload_to='profile_images', verbose_name='Profile image')),
+                ('profile_img', models.ImageField(default='blank_profile.png', upload_to='profile_images', verbose_name='Profile image')),
                 ('location', models.CharField(blank=True, max_length=100, verbose_name='Location')),
             ],
             options={

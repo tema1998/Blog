@@ -50,7 +50,7 @@ class Message(models.Model):
         """
         Return message's author photo.
         """
-        return self.user_profile.profileimg.url
+        return self.user_profile.profile_img.url
 
     def __str__(self):
         return f'{self.pk}'

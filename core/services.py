@@ -28,7 +28,7 @@ def get_posts_of_friends(user_id):
                                                                                          'postcomments_set__user',
                                                                                          'postcomments_set__user_profile',
                                                                                          ) \
-        .only('user__username', 'user__id', 'user_profile__profileimg', 'id', 'image', 'caption', 'created_at',
+        .only('user__username', 'user__id', 'user_profile__profile_img', 'id', 'image', 'caption', 'created_at',
               'no_of_likes',
               'comments_status').filter(
         Q(user__id__in=list_of_subscriptions) | Q(user__id__in=[user_id])).order_by('-created_at')
@@ -116,7 +116,7 @@ def get_user_posts_select_and_prefetch(user):
                                                                                       'postcomments_set__user',
                                                                                       'postcomments_set__user_profile',
                                                                                       ) \
-        .only('user__username', 'user__id', 'user_profile__profileimg', 'id', 'image', 'caption', 'created_at',
+        .only('user__username', 'user__id', 'user_profile__profile_img', 'id', 'image', 'caption', 'created_at',
               'no_of_likes',
               'comments_status').filter(user=user).order_by('-created_at')
     return user_posts
@@ -134,7 +134,7 @@ def filter_user_profiles_by_username(username):
     Return profiles which contains username.
     """
     search_users_profile_list = Profile.objects.select_related('user') \
-        .filter(user__username__contains=username).only('user__username', 'user__id', 'bio', 'profileimg',
+        .filter(user__username__contains=username).only('user__username', 'user__id', 'bio', 'profile_img',
                                                         'location')
     return search_users_profile_list
 
@@ -190,7 +190,7 @@ def get_user_friends_suggestions(current_user_profile):
     people_who_user_followed_id.append(current_user_profile.id)
     people_who_are_followed_user_but_user_havent_followed_theirs = Profile.objects.exclude(
         id__in=people_who_user_followed_id).select_related('user') \
-                                                                       .only('bio', 'profileimg',
+                                                                       .only('bio', 'profile_img',
                                                                              'user__username').all().order_by('?')[:5]
 
     return people_who_are_followed_user_but_user_havent_followed_theirs
@@ -222,7 +222,7 @@ def get_user_favorite_posts(user):
                                                                                                'postcomments_set__user',
                                                                                                'postcomments_set__user_profile',
                                                                                                ) \
-        .only('user__username', 'user__id', 'user_profile__profileimg', 'id', 'image', 'caption', 'created_at',
+        .only('user__username', 'user__id', 'user_profile__profile_img', 'id', 'image', 'caption', 'created_at',
               'no_of_likes',
               'comments_status').filter(id__in=user_favorite_posts_id)
     return user_favorite_posts

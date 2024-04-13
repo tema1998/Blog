@@ -79,6 +79,6 @@ class SettingsForm(forms.ModelForm):
     """
     class Meta:
         model = Profile
-        fields = ('bio', 'profileimg', 'location')
+        fields = ('bio', 'profile_img', 'location')
         widgets = {
             'bio': forms.Textarea(attrs={'cols': 40, 'rows': 5})}

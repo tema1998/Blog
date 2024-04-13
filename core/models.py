@@ -14,7 +14,7 @@ class Profile(models.Model):
     """
     user = models.OneToOneField(settings.AUTH_USER_MODEL, verbose_name='User', on_delete=models.CASCADE, related_name='profiles')
     bio = models.TextField('Information', max_length=300, blank=True)
-    profileimg = models.ImageField(upload_to='profile_images', verbose_name='Profile image', default='blank_profile.png')
+    profile_img = models.ImageField(upload_to='profile_images', verbose_name='Profile image', default='blank_profile.png')
     location = models.CharField(max_length=100, verbose_name='Location', blank=True)
     following = models.ManyToManyField('self', verbose_name='Subscriptions', related_name='followers', symmetrical=False,
                                        blank=True)
@@ -50,7 +50,7 @@ class Post(models.Model):
         return self.postcomments_set.all()
 
     def get_author_photo(self):
-        return self.user_profile.profileimg.url
+        return self.user_profile.profile_img.url
 
     class Meta:
         verbose_name = 'Post'
@@ -103,7 +103,7 @@ class PostComments(models.Model):
         verbose_name_plural = 'Post comments'
 
     def user_photo(self):
-        return self.user_profile.profileimg.url
+        return self.user_profile.profile_img.url
 
 
 class CommentLikes(models.Model):

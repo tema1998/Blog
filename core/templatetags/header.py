@@ -10,7 +10,7 @@ register = template.Library()
 def header(context):
     request = context['request']
     current_user_profile = Profile.objects.get(user_id=request.user.id)
-    current_user_profile_img_url = current_user_profile.profileimg.url
+    current_user_profile_img_url = current_user_profile.profile_img.url
     current_user_profile_url = current_user_profile.get_absolute_url
     return {'current_user_profile_img_url': current_user_profile_img_url,
             'current_user_profile_url': current_user_profile_url}

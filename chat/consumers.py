@@ -70,7 +70,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         username = event['username']
         chat = event['chat']
         message_id = event['message_id']
-        user_profileimg_url = await(self.get_user_profile_img_url(username))
+        user_profile_img_url = await(self.get_user_profile_img_url(username))
         date_added = event['date_added']
 
 
@@ -79,7 +79,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'message': message,
             'username': username,
             'chat': chat,
-            'user_profile_img_url': user_profileimg_url,
+            'user_profile_img_url': user_profile_img_url,
             'date_added': date_added,
         }))
 
@@ -97,8 +97,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         Return user's profile photo.
         """
         user = User.objects.get(username=username)
-        user_profileimg_url = Profile.objects.get(id=user.id).profileimg.url
-        return user_profileimg_url
+        user_profile_img_url = Profile.objects.get(id=user.id).profile_img.url
+        return user_profile_img_url
 
     @sync_to_async
     def save_message(self, username, chat, message):

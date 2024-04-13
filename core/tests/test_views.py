@@ -573,23 +573,23 @@ class SettingsTest(TestCase):
     def test_settings_change_data_POST(self):
         new_image = get_image_file()
         response = self.authorized_client.post(path=reverse('settings'), data={
-            'profileimg': new_image,
+            'profile_img': new_image,
             'bio': 'new_bio',
             'location': 'new_location',
         })
         self.assertEquals(response.status_code, 302)
         self.assertRedirects(response, reverse('settings'))
-        self.assertTrue(Profile.objects.get(user=self.user1).profileimg.url.startswith('/media/profile_images/test'))
+        self.assertTrue(Profile.objects.get(user=self.user1).profile_img.url.startswith('/media/profile_images/test'))
         self.assertEquals(Profile.objects.get(user=self.user1).bio, 'new_bio')
         self.assertEquals(Profile.objects.get(user=self.user1).location, 'new_location')
 
     def test_settings_with_not_image_file_POST(self):
         not_image_file = SimpleUploadedFile("file.mp4", b"file_content", content_type="video/mp4")
         response = self.authorized_client.post(path=reverse('settings'), data={
-            'profileimg': not_image_file,
+            'profile_img': not_image_file,
         })
         self.assertEquals(response.status_code, 200)
-        self.assertTrue(Profile.objects.get(user=self.user1).profileimg.url.startswith('/media/blank_profile.png'))
+        self.assertTrue(Profile.objects.get(user=self.user1).profile_img.url.startswith('/media/blank_profile.png'))
 
 
 class AddPostTest(TestCase):
