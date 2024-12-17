@@ -8,14 +8,15 @@ services:
       tb_postgres:
         condition: service_healthy
     volumes:
-      - static_volume:/topblog/static
-      - media_volume:/topblog/media
+      - ./static:/topblog/static
+      - ./media:/topblog/media
     ports:
       - "8000:8000"
     env_file:
       - .env
     command: >
       bash -c "python3 manage.py collectstatic --noinput && python3 manage.py makemigrations && python3 manage.py migrate  && gunicorn -b 0.0.0.0:8000 topblog.wsgi:application"
+
   tb_daphne:
     user: root
     image: tb_docker:latest
@@ -44,7 +45,7 @@ services:
       test: [ "CMD-SHELL", "sh -c 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB'" ]
       interval: 10s
       timeout: 3s
-      retries: 3
+      retries: 8
     volumes:
       - pgdbdata:/var/lib/postgresql/data/
     env_file:
@@ -60,10 +61,9 @@ services:
       dockerfile: ./Dockerfile
       context: ./docker/nginx/
     container_name: tb_nginx
-#    image: tb_nginx
     volumes:
-      - static_volume:/topblog/static
-      - media_volume:/topblog/media
+      - ./static:/topblog/static
+      - ./media:/topblog/media
       - ./data/certbot/conf:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
     depends_on:
@@ -84,7 +84,6 @@ services:
     volumes:
       - ./data/certbot/conf:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
+
 volumes:
-  static_volume:
-  media_volume:
   pgdbdata:
