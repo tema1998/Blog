@@ -5,7 +5,8 @@ services:
     image: tb_docker:latest
     container_name: tb_project
     depends_on:
-      - tb_postgres
+      tb_postgres:
+        condition: service_healthy
     volumes:
       - static_volume:/topblog/static
       - media_volume:/topblog/media
@@ -31,13 +32,24 @@ services:
       - ./data/certbot/conf:/etc/letsencrypt
     command: >
       bash -c "daphne -e ssl:8001:privateKey=/etc/letsencrypt/live/tema1998.ru/privkey.pem:certKey=/etc/letsencrypt/live/tema1998.ru/fullchain.pem  topblog.asgi:application"
+
   tb_postgres:
     image: postgres:15
     container_name: tb_postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    healthcheck:
+      test: [ "CMD-SHELL", "sh -c 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB'" ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
     volumes:
       - pgdbdata:/var/lib/postgresql/data/
     env_file:
       - .env
+
   redis:
     image: redis:alpine
     container_name: redis
