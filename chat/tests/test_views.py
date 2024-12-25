@@ -97,14 +97,14 @@ class StartDialogTest(TestCase):
         })
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/chats/1/')
-        self.assertEquals(Chat.objects.all().count(), 1)
+        self.assertEqual(Chat.objects.all().count(), 1)
 
     def test_message_myself_POST(self):
         response = self.authorized_user1.post(reverse('start-dialog'), data={
             'page_owner_id': self.user1.id,
         })
         self.assertEqual(response.status_code, 404)
-        self.assertEquals(Chat.objects.all().count(), 0)
+        self.assertEqual(Chat.objects.all().count(), 0)
 
 
 class DeleteMessageTest(TestCase):
@@ -137,7 +137,7 @@ class DeleteMessageTest(TestCase):
         }, HTTP_REFERER=redirect_url)
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/chats/1/')
-        self.assertEquals(Message.objects.all().count(), 0)
+        self.assertEqual(Message.objects.all().count(), 0)
 
 
 class DeleteChatTest(TestCase):
@@ -163,7 +163,7 @@ class DeleteChatTest(TestCase):
         })
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/chats/')
-        self.assertEquals(Chat.objects.all().count(), 0)
+        self.assertEqual(Chat.objects.all().count(), 0)
 
 
 class ClearChatTest(TestCase):
@@ -193,4 +193,4 @@ class ClearChatTest(TestCase):
         })
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/chats/')
-        self.assertEquals(Message.objects.all().count(), 0)
+        self.assertEqual(Message.objects.all().count(), 0)

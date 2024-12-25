@@ -20,17 +20,17 @@ class ChatModelTest(TestCase):
     def test_members_label(self):
         chat = Chat.objects.all().first()
         field_label = chat._meta.get_field('members').verbose_name
-        self.assertEquals(field_label, 'Member')
+        self.assertEqual(field_label, 'Member')
 
     def test_last_update_label(self):
         chat = Chat.objects.all().first()
         field_label = chat._meta.get_field('last_update').verbose_name
-        self.assertEquals(field_label, 'Date of last message')
+        self.assertEqual(field_label, 'Date of last message')
 
     def test_str(self):
         chat = Chat.objects.all().first()
         expected_object_name = f'{chat.pk}'
-        self.assertEquals(expected_object_name, str(chat))
+        self.assertEqual(expected_object_name, str(chat))
 
 
 class MessageModelTest(TestCase):
@@ -50,29 +50,29 @@ class MessageModelTest(TestCase):
     def test_chat_label(self):
         message = Message.objects.all().first()
         field_label = message._meta.get_field('chat').verbose_name
-        self.assertEquals(field_label, 'Chat')
+        self.assertEqual(field_label, 'Chat')
 
     def test_user_label(self):
         message = Message.objects.all().first()
         field_label = message._meta.get_field('user').verbose_name
-        self.assertEquals(field_label, 'User')
+        self.assertEqual(field_label, 'User')
 
     def test_user_profile_label(self):
         message = Message.objects.all().first()
         field_label = message._meta.get_field('user_profile').verbose_name
-        self.assertEquals(field_label, 'User profile')
+        self.assertEqual(field_label, 'User profile')
 
     def test_content_label(self):
         message = Message.objects.all().first()
         field_label = message._meta.get_field('content').verbose_name
-        self.assertEquals(field_label, 'Message content')
+        self.assertEqual(field_label, 'Message content')
 
     def test_date_added_label(self):
         message = Message.objects.all().first()
         field_label = message._meta.get_field('date_added').verbose_name
-        self.assertEquals(field_label, 'Date added')
+        self.assertEqual(field_label, 'Date added')
 
     def test_str(self):
         message = Message.objects.all().first()
         expected_object_name = f'{message.pk}'
-        self.assertEquals(expected_object_name, str(message))
+        self.assertEqual(expected_object_name, str(message))
