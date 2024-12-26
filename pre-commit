@@ -1,0 +1,3 @@
+isort --settings-file ./.github/config/.isort.cfg .
+black --config ./.github/config/.black .
+flake8 --config ./.github/config/.flake8 .
