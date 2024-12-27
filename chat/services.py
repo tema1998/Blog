@@ -7,7 +7,11 @@ def get_chats_list(user):
     """
     Return queryset user's chats sorted by last update time.
     """
-    return Chat.objects.prefetch_related('members').filter(members=user).order_by('-last_update')
+    return (
+        Chat.objects.prefetch_related("members")
+        .filter(members=user)
+        .order_by("-last_update")
+    )
 
 
 def get_chat(chat_id):
@@ -28,7 +32,7 @@ def get_chat_messages(chat):
     """
     Return chat's messages.
     """
-    return Message.objects.filter(chat=chat).order_by('-date_added')
+    return Message.objects.filter(chat=chat).order_by("-date_added")
 
 
 def get_user(user_id):
@@ -42,7 +46,9 @@ def get_chat_with_two_users(first_user_id, second_user_id):
     """
     Return chat with users by users ID's.
     """
-    return Chat.objects.filter(members__id=first_user_id).filter(members__id=second_user_id)
+    return Chat.objects.filter(members__id=first_user_id).filter(
+        members__id=second_user_id
+    )
 
 
 def create_chat_with_two_users(first_user, second_user):

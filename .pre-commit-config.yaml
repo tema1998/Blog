@@ -3,14 +3,14 @@ repos:
     hooks:
       - id: isort
         name: isort
-        entry: isort --settings-file ./.github/config/.isort.cfg .
+        entry: isort --settings-file ./.github/config/.isort.cfg . --profile black --filter-files
         language: system
         types: [python]
         pass_filenames: false
 
       - id: black
         name: black
-        entry: black --config ./.github/config/.black . --extend-exclude
+        entry: black --config ./.github/config/.black .
         language: system
         types: [ python ]
         pass_filenames: false

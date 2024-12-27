@@ -1,7 +1,14 @@
-from django.db.models import Q, QuerySet
-
-from .models import Profile, Post, PostLikes, PostComments, CommentLikes, UserFavoritePosts
+from django.db.models import Q
 from users.models import User
+
+from .models import (
+    CommentLikes,
+    Post,
+    PostComments,
+    PostLikes,
+    Profile,
+    UserFavoritePosts,
+)
 
 
 def get_user(username: str):
@@ -23,15 +30,30 @@ def get_posts_of_friends(user_id):
     Return user's friends' posts sorted by created date.
     """
     user_profile = get_user_profile(user_id=user_id)
-    list_of_subscriptions = user_profile.following.values_list('id', flat=True)
-    list_of_posts = Post.objects.select_related('user', 'user_profile').prefetch_related('postcomments_set',
-                                                                                         'postcomments_set__user',
-                                                                                         'postcomments_set__user_profile',
-                                                                                         ) \
-        .only('user__username', 'user__id', 'user_profile__profile_img', 'id', 'image', 'caption', 'created_at',
-              'no_of_likes',
-              'comments_status').filter(
-        Q(user__id__in=list_of_subscriptions) | Q(user__id__in=[user_id])).order_by('-created_at')
+    list_of_subscriptions = user_profile.following.values_list("id", flat=True)
+    list_of_posts = (
+        Post.objects.select_related("user", "user_profile")
+        .prefetch_related(
+            "postcomments_set",
+            "postcomments_set__user",
+            "postcomments_set__user_profile",
+        )
+        .only(
+            "user__username",
+            "user__id",
+            "user_profile__profile_img",
+            "id",
+            "image",
+            "caption",
+            "created_at",
+            "no_of_likes",
+            "comments_status",
+        )
+        .filter(
+            Q(user__id__in=list_of_subscriptions) | Q(user__id__in=[user_id])
+        )
+        .order_by("-created_at")
+    )
 
     return list_of_posts
 
@@ -105,20 +127,34 @@ def get_all_user_profiles():
     """
     Return all profiles.
     """
-    return Profile.objects.select_related('user').all()
+    return Profile.objects.select_related("user").all()
 
 
 def get_user_posts_select_and_prefetch(user):
     """
     Return user's posts sorted by created date.
     """
-    user_posts = Post.objects.select_related('user', 'user_profile').prefetch_related('postcomments_set',
-                                                                                      'postcomments_set__user',
-                                                                                      'postcomments_set__user_profile',
-                                                                                      ) \
-        .only('user__username', 'user__id', 'user_profile__profile_img', 'id', 'image', 'caption', 'created_at',
-              'no_of_likes',
-              'comments_status').filter(user=user).order_by('-created_at')
+    user_posts = (
+        Post.objects.select_related("user", "user_profile")
+        .prefetch_related(
+            "postcomments_set",
+            "postcomments_set__user",
+            "postcomments_set__user_profile",
+        )
+        .only(
+            "user__username",
+            "user__id",
+            "user_profile__profile_img",
+            "id",
+            "image",
+            "caption",
+            "created_at",
+            "no_of_likes",
+            "comments_status",
+        )
+        .filter(user=user)
+        .order_by("-created_at")
+    )
     return user_posts
 
 
@@ -133,9 +169,11 @@ def filter_user_profiles_by_username(username):
     """
     Return profiles which contains username.
     """
-    search_users_profile_list = Profile.objects.select_related('user') \
-        .filter(user__username__contains=username).only('user__username', 'user__id', 'bio', 'profile_img',
-                                                        'location')
+    search_users_profile_list = (
+        Profile.objects.select_related("user")
+        .filter(user__username__contains=username)
+        .only("user__username", "user__id", "bio", "profile_img", "location")
+    )
     return search_users_profile_list
 
 
@@ -185,13 +223,18 @@ def get_user_friends_suggestions(current_user_profile):
     Return profiles who followed to user and
     user is not followed to theirs.
     """
-    people_who_user_followed = get_people_who_user_followed_by_userprofile(current_user_profile)
+    people_who_user_followed = get_people_who_user_followed_by_userprofile(
+        current_user_profile
+    )
     people_who_user_followed_id = [obj.id for obj in people_who_user_followed]
     people_who_user_followed_id.append(current_user_profile.id)
-    people_who_are_followed_user_but_user_havent_followed_theirs = Profile.objects.exclude(
-        id__in=people_who_user_followed_id).select_related('user') \
-                                                                       .only('bio', 'profile_img',
-                                                                             'user__username').all().order_by('?')[:5]
+    people_who_are_followed_user_but_user_havent_followed_theirs = (
+        Profile.objects.exclude(id__in=people_who_user_followed_id)
+        .select_related("user")
+        .only("bio", "profile_img", "user__username")
+        .all()
+        .order_by("?")[:5]
+    )
 
     return people_who_are_followed_user_but_user_havent_followed_theirs
 
@@ -216,15 +259,32 @@ def get_user_favorite_posts(user):
     """
     Return user's favourite posts.
     """
-    user_favorite = UserFavoritePosts.objects.select_related('post').filter(user=user).only('post__id')
+    user_favorite = (
+        UserFavoritePosts.objects.select_related("post")
+        .filter(user=user)
+        .only("post__id")
+    )
     user_favorite_posts_id = [obj.post.id for obj in list(user_favorite)]
-    user_favorite_posts = Post.objects.select_related('user', 'user_profile').prefetch_related('postcomments_set',
-                                                                                               'postcomments_set__user',
-                                                                                               'postcomments_set__user_profile',
-                                                                                               ) \
-        .only('user__username', 'user__id', 'user_profile__profile_img', 'id', 'image', 'caption', 'created_at',
-              'no_of_likes',
-              'comments_status').filter(id__in=user_favorite_posts_id)
+    user_favorite_posts = (
+        Post.objects.select_related("user", "user_profile")
+        .prefetch_related(
+            "postcomments_set",
+            "postcomments_set__user",
+            "postcomments_set__user_profile",
+        )
+        .only(
+            "user__username",
+            "user__id",
+            "user_profile__profile_img",
+            "id",
+            "image",
+            "caption",
+            "created_at",
+            "no_of_likes",
+            "comments_status",
+        )
+        .filter(id__in=user_favorite_posts_id)
+    )
     return user_favorite_posts
 
 
@@ -232,4 +292,6 @@ def create_new_post(user, user_profile, image, caption):
     """
     Create post object.
     """
-    Post.objects.create(user=user, user_profile=user_profile, image=image, caption=caption)
+    Post.objects.create(
+        user=user, user_profile=user_profile, image=image, caption=caption
+    )
