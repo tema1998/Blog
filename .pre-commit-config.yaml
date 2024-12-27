@@ -10,7 +10,7 @@ repos:
 
       - id: black
         name: black
-        entry: black --config ./.github/config/.black .
+        entry: black --config ./.github/config/.black . --extend-exclude
         language: system
         types: [ python ]
         pass_filenames: false

@@ -1,8 +1,11 @@
 [tool.black]
 line-length = 79
-exclude = '''
-    venv/
-    .venv/
-    ./core/tests/
-    ./chat/tests/
+force-exclude = '''
+/(
+\.github
+| \venv
+| \.venv
+| \.core/tests
+| \.chat/tests
+)/
 '''
