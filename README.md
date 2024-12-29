@@ -29,26 +29,9 @@ Functions |
 
 Functions 'Follow/unfollow', 'Like/dislike', 'Add posts to favorites' implemented using **JS**(*without page refresh*).
 
-## Config file
-(If you need to run only development server you can miss it)
-Create .env, set your data.
-```
-POSTGRES_ENGINE = django.db.backends.postgresql
-POSTGRES_HOST=tb_postgres
-POSTGRES_PORT=5432
-POSTGRES_USER=pguser
-POSTGRES_PASSWORD= !SET PASSWORD!
-POSTGRES_DB=mydb
-DJANGO_DEBUG=0
-DJANGO_SETTINGS_MODULE="topblog.settings"
-SECRET_KEY= !SET KEY!
-DJANGO_DEVELOPMENT=0
-ALLOWED_HOST= !SET URL!
-CSRF_SUBDOMAIN= !SET URL!
-NGINX_EXTERNAL_PORT=80
-NGINX_EXTERNAL_SSL_PORT=443
-REDIS_HOST=redis
-```
+## Environment
+Use .env.example to create .env with your parameters.
+
 ## Run development server
 
 ```
