@@ -21,3 +21,9 @@ repos:
         language: system
         types: [ python ]
         pass_filenames: false
+
+      - id: mypy
+        name: mypy
+        entry: mypy --config-file .github/config/mypy.ini --ignore-missing-imports .
+        language: system
+        types: [ python ]
