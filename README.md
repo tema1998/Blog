@@ -1,4 +1,4 @@
-# Blog with chat
+# Blog with online chat
 
 ## URL
 [http://tema1998.ru/](http://tema1998.ru/)
@@ -32,6 +32,32 @@ Functions 'Follow/unfollow', 'Like/dislike', 'Add posts to favorites' implemente
 ## Environment
 Use .env.example to create .env with your parameters.
 
+## pre-commit
+-black <br/> 
+-isort <br/> 
+-flake8 <br/> 
+-mypy <br/> 
+```
+pip install pre-commit
+```
+To use auto pre-commit:
+```
+pre-commit install
+```
+Run check:
+```
+pre-commit run
+```
+
+## CI
+CI was configured for pull-requests. In CI was used the same technologies as pre-commit.
+To get notification about pull-request status you have to create TG bot and chat. Then invite bot to chat. Next step is
+set up secret environment in Github actions.
+```
+TELEGRAM_CHAT_ID = -01234567891011
+TELEGRAM_TOKEN = 0123456789:exampleTokenABCDEFGzxcvbnmasdfgh
+```
+
 ## Run development server
 
 ```
@@ -62,7 +88,7 @@ mkdir data/certbot/www
 mkdir data/certbot/conf/live/
 mkdir data/certbot/conf/live/your-domain.ru/
 ```
-Get certificate SSL through Certbot.(Turn off SSL, daphne and run.) In the second console run:
+Get certificate SSL through Certbot. Open second terminal and run it(set your email and site URL):
 ```
 docker-compose run --rm --entrypoint "\
 certbot certonly --webroot -w /var/www/certbot \
@@ -72,7 +98,14 @@ certbot certonly --webroot -w /var/www/certbot \
   --agree-tos \
   --force-renewal" certbot
 ```
-Turn on SSL and daphne(don't forget to configure it)
+
+The next step is download required packages:
+```
+wget https://raw.githubusercontent.com/certbot/certbot/master/certbot-nginx/certbot_nginx/_internal/tls_configs/options-ssl-nginx.conf # download file
+mv options-ssl-nginx.conf ./data/certbot/conf/
+wget https://raw.githubusercontent.com/certbot/certbot/master/certbot/certbot/ssl-dhparams.pem # download file
+mv ssl-dhparams.pem ./data/certbot/conf/
+```
 
 [Docker]: https://img.shields.io/badge/docker-000000?style=for-the-badge&logo=docker&logoColor=blue
 [Django]: https://img.shields.io/badge/django-000000?style=for-the-badge&logo=django&logoColor=white
