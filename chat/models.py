@@ -1,18 +1,20 @@
+from core.models import Profile
 from django.db import models
 from users.models import User
-
-from core.models import Profile
 
 
 class Chat(models.Model):
     """
     Model for storing chats.
     """
-    members = models.ManyToManyField(User, verbose_name='Member')
-    last_update = models.DateTimeField(auto_now_add=True, verbose_name='Date of last message')
+
+    members = models.ManyToManyField(User, verbose_name="Member")
+    last_update = models.DateTimeField(
+        auto_now_add=True, verbose_name="Date of last message"
+    )
 
     def __str__(self):
-        return f'{self.pk}'
+        return f"{self.pk}"
 
     def get_users(self):
         """
@@ -35,16 +37,34 @@ class Message(models.Model):
     """
     Model for storing messages.
     """
-    chat = models.ForeignKey(Chat, verbose_name='Chat', related_name='messages', on_delete=models.CASCADE)
-    user = models.ForeignKey(User,  verbose_name='User', related_name='messages', on_delete=models.CASCADE)
-    user_profile = models.ForeignKey(Profile, verbose_name='User profile', on_delete=models.CASCADE, related_name='profile')
-    content = models.TextField(verbose_name='Message content')
-    date_added = models.DateTimeField(auto_now_add=True, verbose_name='Date added')
+
+    chat = models.ForeignKey(
+        Chat,
+        verbose_name="Chat",
+        related_name="messages",
+        on_delete=models.CASCADE,
+    )
+    user = models.ForeignKey(
+        User,
+        verbose_name="User",
+        related_name="messages",
+        on_delete=models.CASCADE,
+    )
+    user_profile = models.ForeignKey(
+        Profile,
+        verbose_name="User profile",
+        on_delete=models.CASCADE,
+        related_name="profile",
+    )
+    content = models.TextField(verbose_name="Message content")
+    date_added = models.DateTimeField(
+        auto_now_add=True, verbose_name="Date added"
+    )
 
     class Meta:
         verbose_name = "Message"
         verbose_name_plural = "Messages"
-        ordering = ('date_added',)
+        ordering = ("date_added",)
 
     def get_author_photo(self):
         """
@@ -53,5 +73,4 @@ class Message(models.Model):
         return self.user_profile.profile_img.url
 
     def __str__(self):
-        return f'{self.pk}'
-
+        return f"{self.pk}"
