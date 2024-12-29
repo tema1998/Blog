@@ -68,16 +68,15 @@ TEMPLATES = [
 WSGI_APPLICATION = "topblog.wsgi.application"
 ASGI_APPLICATION = "topblog.asgi.application"
 
-if bool(int(os.getenv("DJANGO_DEVELOPMENT", 1))):
-    CHANNEL_LAYERS = {
-        "default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}
-    }
-else:
+
+if bool(int(os.getenv("DJANGO_DEVELOPMENT", 0))):
     CHANNEL_LAYERS = {
         "default": {
             "BACKEND": "channels_redis.core.RedisChannelLayer",
             "CONFIG": {
-                "hosts": [("redis", 6379)],
+                "hosts": [
+                    (os.getenv("REDIS_HOST"), os.getenv("REDIS_PORT")),
+                ]
             },
         },
     }

@@ -1,4 +1,4 @@
-from typing import Type
+from typing import Any, Type
 
 from django import http
 from django.contrib import messages
@@ -47,10 +47,10 @@ from .services import (
 )
 
 
-def is_ajax(request: http.HttpRequest) -> bool:
+def is_ajax(request: http.HttpRequest) -> Any:
     """
     Check whether the request is ajax.
-    Return bool.
+    Return Any.
     """
     return request.META.get("HTTP_X_REQUESTED_WITH") == "XMLHttpRequest"
 

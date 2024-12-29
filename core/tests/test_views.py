@@ -1,14 +1,11 @@
-import datetime
 from io import BytesIO
 
-from core.forms import AddPostForm
 from core.models import *
 from django.contrib.messages import get_messages
 from django.core.files.base import File
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase
-from django.urls import resolve, reverse
-from django.utils import timezone
+from django.urls import reverse
 from PIL import Image
 from users.models import User
 

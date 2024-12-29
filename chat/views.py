@@ -1,3 +1,5 @@
+from typing import Any
+
 from django import http
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
@@ -20,10 +22,10 @@ from .services import (
 )
 
 
-def is_ajax(request: http.HttpRequest) -> bool:
+def is_ajax(request: http.HttpRequest) -> Any:
     """
     Check if request is ajax.
-    Return bool.
+    Return Any.
     """
     return request.META.get("HTTP_X_REQUESTED_WITH") == "XMLHttpRequest"
 
