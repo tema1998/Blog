@@ -108,12 +108,15 @@ class StartDialog(LoginRequiredMixin, View):
 
     def post(self, request: http.HttpRequest) -> http.HttpResponseRedirect:
         page_owner = get_user(user_id=request.POST.get("page_owner_id"))
+
+        # User cannot start dialog with himself.
         if request.user == page_owner:
             raise Http404
 
         chat = get_chat_with_two_users(
             first_user_id=self.request.user.id, second_user_id=page_owner.id
         )
+
         if chat:
             chat_id = chat.first().id
         else:
@@ -131,14 +134,20 @@ class DeleteMessage(LoginRequiredMixin, View):
     """
 
     def post(self, request: http.HttpRequest) -> http.HttpResponseRedirect:
+        # Get message and chat.
         message = get_message(message_id=request.POST.get("message_id"))
         chat = message.chat
+
+        # Delete message with ID = message_id.
         delete_message(message=message)
+
+        # Update the date of last message.
         last_message_date = chat.messages.all().order_by("date_added")
         if last_message_date:
             date_of_last_message_update = last_message_date.last().date_added
             chat.last_update = date_of_last_message_update
             chat.save()
+
         return redirect(request.META.get("HTTP_REFERER"))
 
 
