@@ -59,7 +59,7 @@ services:
   nginx:
     build:
       dockerfile: ./Dockerfile
-      context: ./docker/nginx/
+      context: ./nginx/
     container_name: tb_nginx
     volumes:
       - ./static:/topblog/static
