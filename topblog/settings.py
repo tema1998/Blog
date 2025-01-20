@@ -10,7 +10,7 @@ load_dotenv(BASE_DIR / ".env")
 
 SECRET_KEY = os.getenv("SECRET_KEY", "DSAmdU3H783hs8M9S30k9xSi9d3KD")
 
-DEBUG = bool(int(os.getenv("DJANGO_DEVELOPMENT", 1)))
+DEBUG = bool(int(os.getenv("DJANGO_DEBUG", 1)))
 
 ALLOWED_HOSTS = [
     os.getenv("ALLOWED_HOST", "*"),
@@ -80,7 +80,7 @@ WSGI_APPLICATION = "topblog.wsgi.application"
 ASGI_APPLICATION = "topblog.asgi.application"
 
 
-if bool(int(os.getenv("DJANGO_DEVELOPMENT", 0))):
+if bool(int(os.getenv("DJANGO_DEBUG", 0))):
     CHANNEL_LAYERS = {
         "default": {
             "BACKEND": "channels_redis.core.RedisChannelLayer",
@@ -153,7 +153,7 @@ if csrf_subdomain := os.getenv("CSRF_SUBDOMAIN"):
         f"https://{csrf_subdomain}",
     ]
 
-if bool(int(os.getenv("DJANGO_DEVELOPMENT", 1))):
+if bool(int(os.getenv("DJANGO_DEBUG", 1))):
     SECURE_SSL_REDIRECT = False
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False
