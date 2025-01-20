@@ -1,12 +1,12 @@
 import os
 from pathlib import Path
 
-from dotenv import find_dotenv, load_dotenv
+from dotenv import load_dotenv
 
-
-load_dotenv(find_dotenv())
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+load_dotenv(BASE_DIR / ".env")
 
 SECRET_KEY = os.getenv("SECRET_KEY", "DSAmdU3H783hs8M9S30k9xSi9d3KD")
 
@@ -15,6 +15,17 @@ DEBUG = bool(int(os.getenv("DJANGO_DEVELOPMENT", 1)))
 ALLOWED_HOSTS = [
     os.getenv("ALLOWED_HOST", "*"),
 ]
+
+DATABASES = {
+    "default": {
+        "ENGINE": os.getenv("POSTGRES_ENGINE", "django.db.backends.sqlite3"),
+        "HOST": os.getenv("POSTGRES_HOST"),
+        "PORT": os.getenv("POSTGRES_PORT"),
+        "USER": os.getenv("POSTGRES_USER"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
+        "NAME": os.getenv("POSTGRES_DB", BASE_DIR / "db.sqlite3"),
+    }
+}
 
 INSTALLED_APPS = [
     "daphne",
@@ -81,16 +92,6 @@ if bool(int(os.getenv("DJANGO_DEVELOPMENT", 0))):
         },
     }
 
-DATABASES = {
-    "default": {
-        "ENGINE": os.getenv("POSTGRES_ENGINE", "django.db.backends.sqlite3"),
-        "HOST": os.getenv("POSTGRES_HOST"),
-        "PORT": os.getenv("POSTGRES_PORT"),
-        "USER": os.getenv("POSTGRES_USER"),
-        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
-        "NAME": os.getenv("POSTGRES_DB", BASE_DIR / "db.sqlite3"),
-    }
-}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -123,12 +124,14 @@ if DEBUG:
         os.path.join(BASE_DIR, "static"),
     ]
     MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
 else:
     STATIC_ROOT = os.path.join(BASE_DIR, "static")
     MEDIA_ROOT = os.path.join(BASE_DIR, "media")
     STATICFILES_DIRS = [
         os.path.join(BASE_DIR, "topblog/static"),
     ]
+
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
