@@ -1,4 +1,5 @@
 from typing import Any, Type
+from uuid import UUID
 
 from django import http
 from django.contrib import messages
@@ -20,30 +21,13 @@ from .forms import (
     SignupForm,
 )
 from .services import (
-    check_post_comments_status,
-    count_queryset,
-    create_favorite_post,
-    create_like_post_obj,
-    create_new_post,
-    delete_favorite_post,
-    disable_post_comments,
-    dislike_comment,
-    enable_post_comments,
-    filter_user_profiles_by_username,
-    get_all_user_profile_followers,
-    get_all_user_profile_following,
-    get_all_user_profiles,
-    get_comment,
-    get_comment_like,
-    get_favorite_post,
-    get_like_post_obj,
-    get_post,
-    get_posts_of_friends,
-    get_user,
-    get_user_favorite_posts,
-    get_user_posts_select_and_prefetch,
-    get_user_profile,
-    like_comment,
+    CommentService,
+    CommentStatusService,
+    FavoritePostService,
+    PostService,
+    ProfileService,
+    QuerySetService,
+    UserService,
 )
 
 
@@ -62,9 +46,8 @@ class Index(BaseView):
     """Main view, returns friend's posts."""
 
     def get(self, request: http.HttpRequest) -> http.HttpResponse:
-        return self.render_posts(
-            get_posts_of_friends(user_id=self.request.user.id), request
-        )
+        posts = PostService.get_posts_of_friends(user_id=self.request.user.id)
+        return self.render_posts(posts, request)
 
     def render_posts(self, posts, request):
         paginator = Paginator(posts, 2)
@@ -92,8 +75,10 @@ class Index(BaseView):
 class EditPost(BaseView):
     """View for editing post."""
 
-    def get(self, request: http.HttpRequest, post_id) -> http.HttpResponse:
-        post = get_post(id=post_id)
+    def get(
+        self, request: http.HttpRequest, post_id: UUID
+    ) -> http.HttpResponse:
+        post = PostService.get_post(post_id=post_id)
         return render(
             request,
             "core/edit_post.html",
@@ -103,8 +88,10 @@ class EditPost(BaseView):
             },
         )
 
-    def post(self, request: http.HttpRequest, post_id) -> http.HttpResponse:
-        post = get_post(id=post_id)
+    def post(
+        self, request: http.HttpRequest, post_id: UUID
+    ) -> http.HttpResponse:
+        post = PostService.get_post(post_id=post_id)
         edit_post_form = EditPostForm(
             request.POST, request.FILES, instance=post
         )
@@ -119,9 +106,9 @@ class AddComment(BaseView):
 
     def post(self, request: http.HttpRequest) -> http.HttpResponseRedirect:
         user = self.request.user
-        post = get_post(request.POST["post_id"])
+        post = PostService.get_post(request.POST["post_id"])
 
-        if not check_post_comments_status(post):
+        if not CommentStatusService.check_post_comments_status(post):
             raise Http404
 
         form = CommentForm(request.POST)
@@ -129,7 +116,9 @@ class AddComment(BaseView):
             comment = form.save(commit=False)
             comment.post = post
             comment.user = user
-            comment.user_profile = get_user_profile(user_id=user.id)
+            comment.user_profile = UserService.get_user_profile(
+                user_id=user.id
+            )
             comment.no_of_likes = 0
             comment.save()
         else:
@@ -143,15 +132,17 @@ class LikePost(BaseView):
     def post(self, request: http.HttpRequest, post_id) -> JsonResponse:
         if is_ajax(request):
             user = self.request.user
-            post = get_post(post_id)
+            post = PostService.get_post(post_id)
             try:
-                like_post_obj = get_like_post_obj(post=post, user=user)
+                like_post_obj = PostService.get_like_post_obj(
+                    post=post, user=user
+                )
                 like_post_obj.delete()
                 post.no_of_likes -= 1
                 post.save()
                 like_status = False
             except Exception:
-                create_like_post_obj(post=post, user=user)
+                PostService.create_like_post_obj(post=post, user=user)
                 post.no_of_likes += 1
                 post.save()
                 like_status = True
@@ -167,38 +158,26 @@ class DeletePost(BaseView):
     """View for deleting post."""
 
     def post(self, request: http.HttpRequest) -> http.HttpResponseRedirect:
-        post = get_post(request.POST["post_id"])
+        post = PostService.get_post(request.POST["post_id"])
         post.delete()
         return redirect(request.META.get("HTTP_REFERER"))
 
 
-class DisablePostComments(LoginRequiredMixin, View):
-    """
-    View for disabling comments to post.
-    """
-
-    login_url = "signin"
+class DisablePostComments(BaseView):
+    """View for disabling comments to post."""
 
     def post(self, request: http.HttpRequest) -> http.HttpResponseRedirect:
-        post = get_post(request.POST["post_id"])
-
-        disable_post_comments(post)
-
+        post = PostService.get_post(request.POST["post_id"])
+        CommentStatusService.disable_post_comments(post)
         return redirect(request.META.get("HTTP_REFERER"))
 
 
-class EnablePostComments(LoginRequiredMixin, View):
-    """
-    View for enabling comments to post.
-    """
-
-    login_url = "signin"
+class EnablePostComments(BaseView):
+    """View for enabling comments to post."""
 
     def post(self, request: http.HttpRequest) -> http.HttpResponseRedirect:
-        post = get_post(request.POST["post_id"])
-
-        enable_post_comments(post)
-
+        post = PostService.get_post(request.POST["post_id"])
+        CommentStatusService.enable_post_comments(post)
         return redirect(request.META.get("HTTP_REFERER"))
 
 
@@ -278,7 +257,7 @@ class Settings(BaseView):
     """View for profile settings."""
 
     def get(self, request: http.HttpRequest) -> http.HttpResponse:
-        user_profile = get_user_profile(user_id=request.user.id)
+        user_profile = UserService.get_user_profile(user_id=request.user.id)
         return render(
             request,
             "core/settings.html",
@@ -289,7 +268,7 @@ class Settings(BaseView):
         )
 
     def post(self, request: http.HttpRequest) -> http.HttpResponse:
-        user_profile = get_user_profile(user_id=request.user.id)
+        user_profile = UserService.get_user_profile(user_id=request.user.id)
         settings_form = SettingsForm(
             request.POST, request.FILES, instance=user_profile
         )
@@ -312,8 +291,10 @@ class AddPost(BaseView):
     def post(self, request: http.HttpRequest) -> http.HttpResponse:
         add_post_form = AddPostForm(request.POST, request.FILES)
         if add_post_form.is_valid():
-            user_profile = get_user_profile(user_id=request.user.id)
-            create_new_post(
+            user_profile = UserService.get_user_profile(
+                user_id=request.user.id
+            )
+            PostService.create_new_post(
                 user=request.user,
                 user_profile=user_profile,
                 image=add_post_form.cleaned_data["image"],
@@ -328,22 +309,25 @@ class ProfileView(BaseView):
     """View returns user's page with posts and follow data."""
 
     def get(self, request: http.HttpRequest, username) -> http.HttpResponse:
-        user_profile = get_user_profile(user_id=request.user.id)
+        user_profile = UserService.get_user_profile(user_id=request.user.id)
         page_user = (
             self.request.user
             if self.request.user.username == username
-            else get_user(username=username)
+            else UserService.get_user(username=username)
         )
-        page_user_profile = get_user_profile(user_id=page_user.id)
+        page_user_profile = UserService.get_user_profile(user_id=page_user.id)
 
         is_owner = page_user == self.request.user
         is_subscribed = (
-            user_profile in get_all_user_profile_followers(page_user_profile)
+            user_profile
+            in ProfileService.get_all_user_profile_followers(page_user_profile)
             if not is_owner
             else False
         )
 
-        user_posts = get_user_posts_select_and_prefetch(user=page_user)
+        user_posts = PostService.get_user_posts_select_and_prefetch(
+            user=page_user
+        )
         paginated_posts = self.paginate_posts(user_posts, request)
 
         context = {
@@ -352,12 +336,16 @@ class ProfileView(BaseView):
             "page_user_profile": page_user_profile,
             "page_user": page_user,
             "user_posts": paginated_posts,
-            "user_post_length": count_queryset(user_posts),
-            "user_followers": count_queryset(
-                get_all_user_profile_followers(page_user_profile)
+            "user_post_length": QuerySetService.count_queryset(user_posts),
+            "user_followers": QuerySetService.count_queryset(
+                ProfileService.get_all_user_profile_followers(
+                    page_user_profile
+                )
             ),
-            "user_following": count_queryset(
-                get_all_user_profile_following(page_user_profile)
+            "user_following": QuerySetService.count_queryset(
+                ProfileService.get_all_user_profile_following(
+                    page_user_profile
+                )
             ),
         }
         return render(request, "core/profile.html", context)
@@ -379,11 +367,11 @@ class ProfileView(BaseView):
 
 
 class FollowersList(BaseView):
-    """View returns the profiles who are followed to user."""
+    """View returns the profiles who are followed by user."""
 
     def get(self, request: http.HttpRequest, user_id) -> http.HttpResponse:
-        page_owner_profile = get_user_profile(user_id=user_id)
-        page_owner_followers = get_all_user_profile_followers(
+        page_owner_profile = UserService.get_user_profile(user_id=user_id)
+        page_owner_followers = ProfileService.get_all_user_profile_followers(
             page_owner_profile
         )
         return render(
@@ -397,11 +385,11 @@ class FollowersList(BaseView):
 
 
 class FollowingList(BaseView):
-    """View returns the profiles the user is followed to."""
+    """View returns the profiles the user is following."""
 
     def get(self, request: http.HttpRequest, user_id) -> http.HttpResponse:
-        page_owner_profile = get_user_profile(user_id=user_id)
-        page_owner_following = get_all_user_profile_following(
+        page_owner_profile = UserService.get_user_profile(user_id=user_id)
+        page_owner_following = ProfileService.get_all_user_profile_following(
             page_owner_profile
         )
 
@@ -416,9 +404,7 @@ class FollowingList(BaseView):
 
 
 class ProfileFollowingCreateView(LoginRequiredMixin, View):
-    """
-    View for creating a subscription.
-    """
+    """View for creating a subscription."""
 
     login_url = "signin"
 
@@ -426,43 +412,53 @@ class ProfileFollowingCreateView(LoginRequiredMixin, View):
         self, request: http.HttpRequest, user_id
     ) -> JsonResponse | Type[Http404]:
         if is_ajax(request):
-            user_id_who_want_follow = int(self.request.user.id)
-            user_who_want_follow = User.objects.get(id=user_id_who_want_follow)
-            profile_who_want_follow = get_user_profile(
-                user_id=user_who_want_follow.id
+            user_id_who_wants_to_follow = int(self.request.user.id)
+            user_who_wants_to_follow = User.objects.get(
+                id=user_id_who_wants_to_follow
+            )
+            profile_who_wants_to_follow = UserService.get_user_profile(
+                user_id=user_who_wants_to_follow.id
             )
 
             user_page_owner = User.objects.get(id=int(user_id))
-            profile_page_owner = get_user_profile(user_id=user_page_owner.id)
+            profile_page_owner = UserService.get_user_profile(
+                user_id=user_page_owner.id
+            )
 
-            if profile_who_want_follow in profile_page_owner.followers.all():
-                profile_page_owner.followers.remove(profile_who_want_follow)
+            if (
+                profile_who_wants_to_follow
+                in profile_page_owner.followers.all()
+            ):
+                profile_page_owner.followers.remove(
+                    profile_who_wants_to_follow
+                )
                 message = "Follow"
                 status = False
             else:
-                profile_page_owner.followers.add(profile_who_want_follow)
+                profile_page_owner.followers.add(profile_who_wants_to_follow)
                 message = "Unfollow"
                 status = True
             data = {
-                "username": user_who_want_follow.username,
-                "user_id": user_who_want_follow.id,
+                "username": user_who_wants_to_follow.username,
+                "user_id": user_who_wants_to_follow.id,
                 "message": message,
                 "status": status,
             }
             return JsonResponse(data, status=200)
-        else:
-            return Http404
+        return Http404
 
 
 class Search(BaseView):
-    """View for search profiles."""
+    """View for searching profiles."""
 
     def get(self, request: http.HttpRequest) -> http.HttpResponse:
         search_text = request.GET.get("search_user", "")
         profiles = (
-            filter_user_profiles_by_username(username=search_text)
+            ProfileService.filter_user_profiles_by_username(
+                username=search_text
+            )
             if search_text
-            else get_all_user_profiles()
+            else ProfileService.get_all_user_profiles()
         )
         return render(
             request, "core/search.html", {"search_user_profile_list": profiles}
@@ -474,14 +470,16 @@ class LikeComment(BaseView):
 
     def post(self, request: http.HttpRequest, comment_id) -> JsonResponse:
         if is_ajax(request):
-            comment = get_comment(comment_id=comment_id)
-            comment_like = get_comment_like(comment=comment, user=request.user)
+            comment = CommentService.get_comment(comment_id=comment_id)
+            comment_like = CommentService.get_comment_like(
+                comment=comment, user=request.user
+            )
 
             if comment_like:
-                dislike_comment(comment, comment_like)
+                CommentService.dislike_comment(comment, comment_like)
                 like_status = False
             else:
-                like_comment(comment=comment, user=request.user)
+                CommentService.like_comment(comment=comment, user=request.user)
                 like_status = True
 
             return JsonResponse(
@@ -499,14 +497,18 @@ class AddRemoveFavoritePost(BaseView):
 
     def post(self, request: http.HttpRequest, post_id) -> JsonResponse:
         if is_ajax(request):
-            post = get_post(id=post_id)
+            post = PostService.get_post(post_id=post_id)
             try:
-                favorite_post = get_favorite_post(user=request.user, post=post)
-                delete_favorite_post(favorite_post)
+                favorite_post = FavoritePostService.get_favorite_post(
+                    user=request.user, post=post
+                )
+                FavoritePostService.delete_favorite_post(favorite_post)
                 message = "Add to favorites"
                 post_status = False
             except Exception:
-                create_favorite_post(user=request.user, post=post)
+                FavoritePostService.create_favorite_post(
+                    user=request.user, post=post
+                )
                 message = "Remove from favorites"
                 post_status = True
 
@@ -528,7 +530,7 @@ class FavoritesPosts(BaseView):
             request,
             "core/favorites_posts.html",
             {
-                "user_favorite_posts": get_user_favorite_posts(
+                "user_favorite_posts": FavoritePostService.get_user_favorite_posts(
                     user=request.user
                 ),
             },
