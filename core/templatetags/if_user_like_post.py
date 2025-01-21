@@ -9,6 +9,9 @@ User = get_user_model()
 
 @register.simple_tag(takes_context=True)
 def if_user_like_post(context, post_id):
+    """
+    Simple tag for to find out is user like post and return bool value.
+    """
     request = context["request"]
     try:
         PostLikes.objects.get(user=request.user.id, post__id=post_id)

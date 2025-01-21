@@ -8,6 +8,9 @@ register = template.Library()
 
 @register.inclusion_tag("core/include/sidebar_users.html")
 def user_friends_suggestions(user_id):
+    """
+    Inclusion tag for render friends suggestion block.
+    """
     current_user_profile = Profile.objects.get(id=user_id)
     user_friends_suggestion = UserService.get_user_friends_suggestions(
         current_user_profile
