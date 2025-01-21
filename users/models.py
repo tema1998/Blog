@@ -1,3 +1,4 @@
+from core.models import Profile
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 
 
@@ -17,6 +18,7 @@ class CustomUserManager(BaseUserManager):
         user = self.model(username=username, email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
+        Profile.objects.create(id=user.id, user=user)
 
         return user
 

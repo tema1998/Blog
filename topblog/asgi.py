@@ -12,7 +12,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "topblog.settings")
 django.setup()
 django_asgi_app = get_asgi_application()
 
-if bool(int(os.getenv("DJANGO_DEVELOPMENT", 1))):
+if bool(int(os.getenv("DJANGO_DEBUG", 1))):
     application = ProtocolTypeRouter(
         {
             "http": django_asgi_app,

@@ -7,6 +7,9 @@ register = template.Library()
 
 @register.simple_tag(takes_context=True)
 def if_user_add_post_to_favorites(context, post_id):
+    """
+    Simple tag for to find out is user add post to favorites and generate button text.
+    """
     request = context["request"]
 
     try:

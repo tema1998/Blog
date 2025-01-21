@@ -10,8 +10,6 @@ services:
     volumes:
       - ./static:/topblog/static
       - ./media:/topblog/media
-    ports:
-      - "8000:8000"
     env_file:
       - .env
     command: >
@@ -21,8 +19,6 @@ services:
     user: root
     image: tb_docker:latest
     container_name: tb_daphne
-    ports:
-      - "8001:8001"
     env_file:
       - .env
     depends_on:
@@ -54,12 +50,11 @@ services:
   redis:
     image: redis:alpine
     container_name: redis
-    ports:
-      - "6379:6379"
+
   nginx:
     build:
       dockerfile: ./Dockerfile
-      context: ./docker/nginx/
+      context: ./nginx/
     container_name: tb_nginx
     volumes:
       - ./static:/topblog/static

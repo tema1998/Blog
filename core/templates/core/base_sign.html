@@ -3,8 +3,6 @@
 <!DOCTYPE html>
 <html lang="en">
 
-
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,18 +13,59 @@
     <link rel="stylesheet" href="{% static 'assets/css/icons.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/uikit.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
-<!--    <link rel="stylesheet" href="{% static 'assets/css/tailwind.css' %}">-->
+    <link rel="stylesheet" href="{% static 'assets/css/slide.css' %}">
     <script src="https://cdn.tailwindcss.com"></script>
+
 
 </head>
 
-<body class="bg-gray-100">
+<body class="bg-gray-300">
     <div id="wrapper" class="flex flex-col justify-between h-screen">
 
         {% include 'core/include/header_sign.html' %}
 
-        {% block content %}
-        {% endblock content %}
+        <div class="flex w-hull">
+
+            <div class="basis-1/2">
+                <div class="slideshow-container">
+
+                    <div class="mySlides fade">
+                      <img src="{% static 'images/1.png' %}" alt="Share photos with your friends" style="width:100%">
+                      <div class="text">Share photos with your friends</div>
+                    </div>
+
+                    <div class="mySlides fade">
+                      <img src="{% static 'images/2.png' %}" alt="Scroll through your friends' news feeds" style="width:100%">
+                      <div class="text">Scroll through your friends' news feeds</div>
+                    </div>
+
+                    <div class="mySlides fade">
+                      <img src="{% static 'images/3.png' %}" alt="Chat with your friends" style="width:100%">
+                      <div class="text">Chat with your friends</div>
+                    </div>
+
+
+                    <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+                    <a class="next" onclick="plusSlides(1)">&#10095;</a>
+
+                </div>
+                    <br>
+
+                    <div style="text-align:center">
+                      <span class="dot" onclick="currentSlide(1)"></span>
+                      <span class="dot" onclick="currentSlide(2)"></span>
+                      <span class="dot" onclick="currentSlide(3)"></span>
+                    </div>
+
+            </div>
+
+            <div class="basis-1/2">
+                {% block content %}
+                {% endblock content %}
+            </div>
+
+        </div>
+
 
         {% include 'core/include/footer_sign.html' %}
 
@@ -37,6 +76,7 @@
     <script src="{% static 'assets/js/uikit.js' %}"></script>
     <script src="{% static 'assets/js/simplebar.js' %}"></script>
     <script src="{% static 'assets/js/custom.js' %}"></script>
+    <script src="{% static 'assets/js/slide.js' %}"></script>
 
 </body>
 
