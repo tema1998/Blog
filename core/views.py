@@ -330,6 +330,16 @@ class ProfileView(BaseView):
         )
         paginated_posts = self.paginate_posts(user_posts, request)
 
+        if is_ajax(request):
+            return render(
+                request,
+                "core/profile_ajax.html",
+                {
+                    "page_user": page_user,
+                    "user_posts": paginated_posts,
+                },
+            )
+
         context = {
             "is_owner": is_owner,
             "is_subscribed": is_subscribed,
