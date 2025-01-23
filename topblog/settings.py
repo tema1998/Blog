@@ -14,8 +14,8 @@ SECRET_KEY = os.getenv("SECRET_KEY", "DSAmdU3H783hs8M9S30k9xSi9d3KD")
 DEBUG = bool(int(os.getenv("DJANGO_DEBUG", 1)))
 DEVELOPMENT = bool(int(os.getenv("DJANGO_DEVELOPMENT", 1)))
 
-REDIS_HOST = bool(str(os.getenv("REDIS_HOST", "redis")))
-REDIS_PORT = bool(int(os.getenv("REDIS_PORT", 6379)))
+REDIS_HOST = str(os.getenv("REDIS_HOST", "redis"))
+REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
 
 ALLOWED_HOSTS = [
     os.getenv("ALLOWED_HOST", "*"),
