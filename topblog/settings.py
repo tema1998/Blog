@@ -1,3 +1,4 @@
+# mypy: ignore-errors
 import os
 from pathlib import Path
 
@@ -11,6 +12,10 @@ load_dotenv(BASE_DIR / ".env")
 SECRET_KEY = os.getenv("SECRET_KEY", "DSAmdU3H783hs8M9S30k9xSi9d3KD")
 
 DEBUG = bool(int(os.getenv("DJANGO_DEBUG", 1)))
+DEVELOPMENT = bool(int(os.getenv("DJANGO_DEVELOPMENT", 1)))
+
+REDIS_HOST = str(os.getenv("REDIS_HOST", "redis"))
+REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
 
 ALLOWED_HOSTS = [
     os.getenv("ALLOWED_HOST", "*"),
@@ -80,14 +85,16 @@ WSGI_APPLICATION = "topblog.wsgi.application"
 ASGI_APPLICATION = "topblog.asgi.application"
 
 
-if bool(int(os.getenv("DJANGO_DEBUG", 0))):
+if DEVELOPMENT:
+    CHANNEL_LAYERS = {
+        "default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}
+    }
+else:
     CHANNEL_LAYERS = {
         "default": {
             "BACKEND": "channels_redis.core.RedisChannelLayer",
             "CONFIG": {
-                "hosts": [
-                    (os.getenv("REDIS_HOST"), os.getenv("REDIS_PORT")),
-                ]
+                "hosts": [(REDIS_HOST, REDIS_PORT)],
             },
         },
     }
@@ -153,7 +160,7 @@ if csrf_subdomain := os.getenv("CSRF_SUBDOMAIN"):
         f"https://{csrf_subdomain}",
     ]
 
-if bool(int(os.getenv("DJANGO_DEBUG", 1))):
+if DEBUG:
     SECURE_SSL_REDIRECT = False
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False

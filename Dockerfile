@@ -17,9 +17,11 @@ RUN useradd -rms /bin/bash topblog && chmod 777 /opt /run
 
 WORKDIR /topblog
 
-RUN mkdir /topblog/static && mkdir /topblog/media && chown -R topblog:topblog /topblog && chmod 755 /topblog
+RUN mkdir /topblog/static && mkdir /topblog/media && chown -R topblog:topblog /topblog && chmod 777 /topblog
 
 COPY --chown=topblog:topblog . .
+
+RUN chmod 777 /topblog/media && chmod 777 /topblog/static && chmod 777 /topblog/manage.py
 
 RUN pip install -r requirements.txt
 RUN pip install -U 'Twisted[tls,http2]'
